@@ -1,0 +1,40 @@
+#!/bin/sh
+
+echo "Staring configure -------------------------------------------"
+UNAME=$(uname -s)
+if [ ${UNAME} = "Linux" ]
+then
+    echo "configure: Configuring for Linux"
+    NPROC=$(nproc)
+elif [ ${UNAME} = "Darwin" ]
+then
+    echo "configure: Configuring for macOS"
+    NPROC=$(sysctl -n hw.logicalcpu)
+fi
+
+: "${R_HOME=`R RHOME`}"
+if test -z "${R_HOME}"; then
+  echo "Could not find R_HOME"
+  exit 1
+fi
+
+# Automatically passed to cmake
+CC=$("${R_HOME}/bin/R" CMD config CC)
+CXX=$("${R_HOME}/bin/R" CMD config CXX)
+CFLAGS=$("${R_HOME}/bin/R" CMD config CFLAGS)
+CXXFLAGS=$("${R_HOME}/bin/R" CMD config CXXFLAGS)
+FFLAGS=$("${R_HOME}/bin/R" CMD config FFLAGS)
+
+BUILD_DIR=lib
+cd src
+mkdir -p ${BUILD_DIR} && cd ${BUILD_DIR} || exit
+cmake -S ../libactionet \
+  -DCMAKE_BUILD_TYPE=Release \
+  -DBUILD_SHARED_LIBS:bool=OFF \
+  -DCMAKE_POSITION_INDEPENDENT_CODE:bool=ON \
+  -DLIBACTIONET_BUILD_R=1 \
+  -DR_HOME="${R_HOME}"
+  # -DCMAKE_EXPORT_COMPILE_COMMANDS=1 # For debugging
+
+echo "Starting make -------------------------------------------"
+${MAKE} -j${NPROC}

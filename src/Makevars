@@ -1,0 +1,20 @@
+$(info Starting Makevars -------------------------------------------)
+# $(info $(shell pwd))
+
+UNAME=$(shell uname -s)
+ifeq ($(UNAME),Linux)
+    $(info Using Linux configurations)
+    NPROC=${shell nproc}
+else ifeq ($(UNAME),Darwin)
+    $(info Using Mac OS configurations)
+    NPROC=$(shell sysctl -n hw.logicalcpu)
+endif
+
+CXX_STD = CXX17
+PKG_CPPFLAGS = -I"libactionet/include"
+# PKG_CFLAGS = -fmax-errors=10 -w
+PKG_CXXFLAGS = -std=c++17
+# PKG_CXXFLAGS += -w -fmax-errors=10
+# PKG_CXXFLAGS = $(SHLIB_OPENMP_CXXFLAGS)
+PKG_LIBS = lib/libactionet.a -lcholmod $(LAPACK_LIBS) $(BLAS_LIBS) $(FLIBS)
+MAKEFLAGS+=-j ${NPROC}
