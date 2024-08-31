@@ -109,7 +109,7 @@ runACTIONet <- function(ace,
     unification_min_cluster_size = unification_min_cluster_size,
     max_iter = max_iter_ACTION,
     thread_no = thread_no,
-    unified_suffix = "unified",
+    merged_suffix = "merged",
     footprint_slot_name = "assigned_archetype",
     reduction_slot = reduction_slot,
   )
@@ -134,7 +134,7 @@ runACTIONet <- function(ace,
   # Smooth archetype footprints
   archetype_footprint <- networkDiffusion(
     obj = G,
-    scores = colMaps(ace)[["H_unified"]],
+    scores = colMaps(ace)[["H_merged"]],
     algorithm = "pagerank",
     alpha = footprint_alpha,
     thread_no = thread_no,
@@ -329,7 +329,7 @@ rerun.archetype.unification <- function(ace,
                                         C_stacked_slot = "C_stacked",
                                         H_stacked_slot = "H_stacked",
                                         net_slot = "ACTIONet",
-                                        unified_suffix = "unified",
+                                        merged_suffix = "merged",
                                         reduction_normalization = 1,
                                         thread_no = 0) {
   .validate_ace(ace = ace, return_elem = FALSE)
@@ -346,13 +346,13 @@ rerun.archetype.unification <- function(ace,
   }
   reduction_slot <- sprintf("%s_normalized", reduction_slot)
 
-  ace <- .run.unifyArchetypes(
+  ace <- .run.mergeArchetypes(
     ace = ace,
     reduction_slot = reduction_slot,
     C_stacked_slot = C_stacked_slot,
     H_stacked_slot = H_stacked_slot,
     normalization = 0,
-    unified_suffix = unified_suffix,
+    merged_suffix = merged_suffix,
     thread_no = thread_no
   )
 
@@ -364,7 +364,7 @@ rerun.archetype.unification <- function(ace,
 
   archetype_footprint <- networkDiffusion(
     obj = G,
-    scores = colMaps(ace)[[sprintf("H_%s", unified_suffix)]],
+    scores = colMaps(ace)[[sprintf("H_%s", merged_suffix)]],
     algorithm = "pagerank",
     alpha = footprint_alpha,
     thread_no = thread_no,
@@ -393,9 +393,9 @@ constructBackbone <- function(ace,
   footprint <- ace$archetype_footprint
   footprint <- normalize_mat(footprint, 1)
   arch.graph <- buildNetwork(footprint, density = backbone_density)
-  arch.coors <- as.matrix(Matrix::t(colMaps(ace)$C_unified) %*% ace$ACTIONet2D)
-  arch.coors_3D <- as.matrix(Matrix::t(colMaps(ace)$C_unified) %*% ace$ACTIONet3D)
-  arch.colors <- as.matrix(Matrix::t(colMaps(ace)$C_unified) %*% ace$denovo_color)
+  arch.coors <- as.matrix(Matrix::t(colMaps(ace)$C_merged) %*% ace$ACTIONet2D)
+  arch.coors_3D <- as.matrix(Matrix::t(colMaps(ace)$C_merged) %*% ace$ACTIONet3D)
+  arch.colors <- as.matrix(Matrix::t(colMaps(ace)$C_merged) %*% ace$denovo_color)
   arch.colors[arch.colors > 1] <- 1
   backbone <- list(graph = arch.graph, coordinates = arch.coors, coordinates_3D = arch.coors_3D, colors = arch.colors)
 

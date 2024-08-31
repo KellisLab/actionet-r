@@ -10,7 +10,7 @@
                               max_iter = 50,
                               min_delta = 1e-300,
                               thread_no = 0,
-                              unified_suffix = "unified",
+                              merged_suffix = "merged",
                               footprint_slot_name = "assigned_archetype",
                               reduction_slot = "ACTION") {
   .validate_ace(ace, allow_null = FALSE, return_elem = FALSE)
@@ -38,11 +38,11 @@
   colMaps(ace)[["C_stacked"]] <- as(out$misc$C_stacked, "sparseMatrix")
   colMapTypes(ace)[["C_stacked"]] <- "internal"
 
-  colMaps(ace)[[sprintf("H_%s", unified_suffix)]] <- as(Matrix::t(out$misc$H_unified), "sparseMatrix")
-  colMapTypes(ace)[[sprintf("H_%s", unified_suffix)]] <- "internal"
+  colMaps(ace)[[sprintf("H_%s", merged_suffix)]] <- as(Matrix::t(out$misc$H_merged), "sparseMatrix")
+  colMapTypes(ace)[[sprintf("H_%s", merged_suffix)]] <- "internal"
 
-  colMaps(ace)[[sprintf("C_%s", unified_suffix)]] <- as(out$misc$C_unified, "sparseMatrix")
-  colMapTypes(ace)[[sprintf("C_%s", unified_suffix)]] <- "internal"
+  colMaps(ace)[[sprintf("C_%s", merged_suffix)]] <- as(out$misc$C_merged, "sparseMatrix")
+  colMapTypes(ace)[[sprintf("C_%s", merged_suffix)]] <- "internal"
 
   colData(ace)[[footprint_slot_name]] <- c(out$misc$assigned_archetype)
 
@@ -108,14 +108,14 @@
 
 
 #' Prune nonspecific and/or unreliable archetypes
-.run.pruneArchetypes <- function(ace,
+.run.collectArchetypes <- function(ace,
                                  C_trace,
                                  H_trace,
                                  specificity_th = -3,
                                  min_cells_per_arch = 2) {
   .validate_ace(ace, allow_null = FALSE, return_elem = FALSE)
 
-  pruning.out <- .pruneArchetypes(
+  pruning.out <- .collectArchetypes(
     C_trace = C_trace,
     H_trace = H_trace,
     specificity_th = specificity_th,
@@ -133,12 +133,12 @@
 
 
 #' Identiy equivalent classes of archetypes and group them together
-.run.unifyArchetypes <- function(ace,
+.run.mergeArchetypes <- function(ace,
                                  reduction_slot = "ACTION",
                                  C_stacked_slot = "C_stacked",
                                  H_stacked_slot = "H_stacked",
                                  normalization = 0,
-                                 unified_suffix = "unified",
+                                 merged_suffix = "merged",
                                  footprint_slot_name = "assigned_archetype",
                                  thread_no = 0,
                                  return_raw = FALSE) {
@@ -167,7 +167,7 @@
   )
   H_stacked <- Matrix::t(H_stacked)
 
-  unification.out <- .unifyArchetypes(
+  unification.out <- .mergeArchetypes(
     S_r = S_r,
     C_stacked = C_stacked,
     H_stacked = H_stacked,
@@ -178,12 +178,12 @@
   if (return_raw == TRUE) {
     return(unification.out)
   } else {
-    Ht_unified <- as(Matrix::t(unification.out$H_unified), "sparseMatrix")
-    colMaps(ace)[[sprintf("H_%s", unified_suffix)]] <- Ht_unified
-    colMapTypes(ace)[[sprintf("H_%s", unified_suffix)]] <- "internal"
+    Ht_merged <- as(Matrix::t(unification.out$H_merged), "sparseMatrix")
+    colMaps(ace)[[sprintf("H_%s", merged_suffix)]] <- Ht_merged
+    colMapTypes(ace)[[sprintf("H_%s", merged_suffix)]] <- "internal"
 
-    colMaps(ace)[[sprintf("C_%s", unified_suffix)]] <- as(unification.out$C_unified, "sparseMatrix")
-    colMapTypes(ace)[[sprintf("C_%s", unified_suffix)]] <- "internal"
+    colMaps(ace)[[sprintf("C_%s", merged_suffix)]] <- as(unification.out$C_merged, "sparseMatrix")
+    colMapTypes(ace)[[sprintf("C_%s", merged_suffix)]] <- "internal"
 
     colData(ace)[[footprint_slot_name]] <- c(unification.out$assigned_archetype)
 

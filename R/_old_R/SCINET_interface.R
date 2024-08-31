@@ -39,7 +39,7 @@ run.SCINET.archetype <- function(
         Adj = as(igraph::get.adjacency(G), "sparseMatrix")
     }
 
-    gene.scores = rowMaps(ace)[["unified_feature_specificity"]]
+    gene.scores = rowMaps(ace)[["merged_feature_specificity"]]
 
     common.genes = intersect(rownames(gene.scores), rownames(PCNet))
     if (length(common.genes) == 0) {

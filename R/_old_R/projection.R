@@ -1,8 +1,8 @@
 compute.RNA.archetype.to.RNA.archetype.alignment <- function(
   reference_ace,
   query_ace,
-  reference_slot_name = "unified",
-  query_slot_name = "unified",
+  reference_slot_name = "merged",
+  query_slot_name = "merged",
   deflate = FALSE,
   reduced_dim = 50,
   specificity_filter_threshold = 1
@@ -37,8 +37,8 @@ compute_RNA_cell_to_RNA_cell_alignment <- function(
   specificity_filter_threshold = 1,
   alignment_threshold = 0.1,
   footprint_threshold = 0.1,
-  reference_slot_name = "unified",
-  query_slot_name = "unified",
+  reference_slot_name = "merged",
+  query_slot_name = "merged",
   deflate = FALSE,
   reduced_dim = 50
 ) {
@@ -74,7 +74,7 @@ compute.bulkRNA.to.RNA.archetype.alignment <- function(
   bulk,
   query_ace,
   bulk_assay_slot = "logcounts",
-  query_slot_name = "unified",
+  query_slot_name = "merged",
   deflate = FALSE,
   reduced_dim = 50,
   specificity_filter_threshold = 1

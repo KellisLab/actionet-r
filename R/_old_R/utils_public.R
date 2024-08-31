@@ -200,10 +200,10 @@ verify_aces <- function(ace1, ace2) {
   print(sprintf("Delta C (multi-level) = %.2e", deltaC))
 
   # check multi-level decomposition
-  C1 <- colMaps(ace1)$C_unified
-  H1 <- colMaps(ace1)$H_unified
-  C2 <- colMaps(ace2)$C_unified
-  H2 <- colMaps(ace2)$H_unified
+  C1 <- colMaps(ace1)$C_merged
+  H1 <- colMaps(ace1)$H_merged
+  C2 <- colMaps(ace2)$C_merged
+  H2 <- colMaps(ace2)$H_merged
 
   n1 <- ncol(H1)
   n2 <- ncol(H2)
@@ -230,8 +230,8 @@ verify_aces <- function(ace1, ace2) {
   ########## Check archetype feature specificity  ###############
   ###############################################################
   ###############################################################
-  spec1 <- round(ace1$unified_feature_specificity, 3)
-  spec2 <- round(ace2$unified_feature_specificity, 3)
+  spec1 <- round(ace1$merged_feature_specificity, 3)
+  spec2 <- round(ace2$merged_feature_specificity, 3)
 
   deltaSpec <- sum(abs(spec1 - spec2)) / length(spec1)
   warnifnot(deltaSpec < 1e-3)

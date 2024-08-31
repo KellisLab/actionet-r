@@ -61,7 +61,7 @@ imputeGenes <- function(
 
             H <- networkDiffusion(
               obj = ace,
-              scores = colMaps(ace)[["H_unified"]],
+              scores = colMaps(ace)[["H_merged"]],
               algorithm = diffusion_algorithm,
               alpha = alpha,
               thread_no = thread_no,
@@ -72,7 +72,7 @@ imputeGenes <- function(
         } else {
             H <- ace$archetype_footprint
         }
-        C <- colMaps(ace)$C_unified
+        C <- colMaps(ace)$C_merged
         W <- as.matrix(expr_raw %*% C)
         expr_imp <- W %*% Matrix::t(H)
 
@@ -120,7 +120,7 @@ impute.genes.using.archetypes <- function(ace, genes, features_use = NULL) {
     idx_feat <- match(matched_feat, features_use)
 
     Z <- rowMaps(ace)[["archetype_gene_profile"]][idx_feat, , drop = FALSE]
-    H <- Matrix::t(colMaps(ace)[["H_unified"]])
+    H <- Matrix::t(colMaps(ace)[["H_merged"]])
 
     expression_imputed <- Matrix::t(Z %*% H)
     colnames(expression_imputed) <- matched_feat
@@ -146,8 +146,8 @@ impute.specific.genes.using.archetypes <- function(ace, genes, features_use = NU
     matched_feat <- intersect(unique(genes), features_use)
     idx_feat <- match(matched_feat, features_use)
 
-    Z <- log1p(rowMaps(ace)[["unified_feature_specificity"]][idx_feat, , drop = FALSE])
-    H <- Matrix::t(colMaps(ace)[["H_unified"]])
+    Z <- log1p(rowMaps(ace)[["merged_feature_specificity"]][idx_feat, , drop = FALSE])
+    H <- Matrix::t(colMaps(ace)[["H_merged"]])
 
     expression_imputed <- Matrix::t(Z %*% H)
     colnames(expression_imputed) <- matched_feat

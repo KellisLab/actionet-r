@@ -326,7 +326,7 @@ leiden.clustering <- function(ace,
 #'
 #' @param ace Input results to be clustered
 #' minPoints, minClusterSize HDBSCAN parameters (default = 30,30)
-#' archetype.slot Slot of archeypte to use for clustering (default='H_unified');
+#' archetype.slot Slot of archeypte to use for clustering (default='H_merged');
 #'
 #' @return clusters
 #'
@@ -337,7 +337,7 @@ leiden.clustering <- function(ace,
 HDBSCAN.clustering <- function(ace,
                                minPoints = 30,
                                minClusterSize = 30,
-                               archetype.slot = "H_unified") {
+                               archetype.slot = "H_merged") {
   X <- as.matrix(colMaps(ace)[[archetype.slot]])
 
   out_list <- run_HDBSCAN(

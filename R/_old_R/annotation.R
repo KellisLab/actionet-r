@@ -71,7 +71,7 @@
 #' @export
 annotate.archetypes.using.labels <- function(ace,
                                              labels,
-                                             archetype.slot = "H_unified", algorithm = "ttest") {
+                                             archetype.slot = "H_merged", algorithm = "ttest") {
   Labels <- .preprocess_annotation_labels(labels, ace)
 
   if (is.matrix(ace) | ACTIONetExperiment:::is.sparseMatrix(ace)) {
@@ -150,7 +150,7 @@ annotate.archetypes.using.labels <- function(ace,
 annotate.archetypes.using.markers <- function(ace,
                                               markers,
                                               features_use = NULL,
-                                              significance_slot = "unified_feature_specificity") {
+                                              significance_slot = "merged_feature_specificity") {
   features_use <- .get_feature_vec(ace, features_use)
   marker_mat <- .preprocess_annotation_markers(markers, features_use)
 
@@ -251,9 +251,9 @@ annotate.cells.using.markers <- function(ace,
 #' @export
 annotate.cells.from.archetypes.using.markers <- function(ace,
                                                          markers,
-                                                         unified_suffix = "unified") {
+                                                         merged_suffix = "merged") {
   marker_set <- markers
-  significance_slot <- sprintf("%s_feature_specificity", unified_suffix)
+  significance_slot <- sprintf("%s_feature_specificity", merged_suffix)
   arch.annot <- annotate.archetypes.using.markers(
     ace = ace,
     markers = marker_set,
@@ -262,7 +262,7 @@ annotate.cells.from.archetypes.using.markers <- function(ace,
 
   enrichment.mat <- arch.annot$Enrichment
 
-  H.slot <- sprintf("H_%s", unified_suffix)
+  H.slot <- sprintf("H_%s", merged_suffix)
   cell.enrichment.mat <- map.cell.scores.from.archetype.enrichment(
     ace = ace,
     enrichment_mat = enrichment.mat,
@@ -306,7 +306,7 @@ annotate.cells.from.archetypes.using.markers <- function(ace,
 map.cell.scores.from.archetype.enrichment <- function(ace,
                                                       enrichment_mat,
                                                       normalize = FALSE,
-                                                      H.slot = "H_unified") {
+                                                      H.slot = "H_merged") {
   cell.scores.mat <- colMaps(ace)[[H.slot]]
 
   if (nrow(enrichment_mat) != ncol(cell.scores.mat)) {
@@ -333,7 +333,7 @@ map.cell.scores.from.archetype.enrichment <- function(ace,
 
 
 #' @export
-annotateCells <- function(ace, markers, algorithm = "parametric", alpha = 0.85, network_normalization_method = "pagerank_sym", post_correction = F, thread_no = 0, features_use = NULL, assay_name = "logcounts", net_slot = "ACTIONet", specificity_slot = "unified_feature_specificity", H_slot = "H_unified") {
+annotateCells <- function(ace, markers, algorithm = "parametric", alpha = 0.85, network_normalization_method = "pagerank_sym", post_correction = F, thread_no = 0, features_use = NULL, assay_name = "logcounts", net_slot = "ACTIONet", specificity_slot = "merged_feature_specificity", H_slot = "H_merged") {
   if (!(net_slot %in% names(colNets(ace)))) {
     warning(sprintf("net_slot does not exist in colNets(ace)."))
     return()
@@ -397,7 +397,7 @@ annotateCells <- function(ace, markers, algorithm = "parametric", alpha = 0.85, 
 
 #' @export
 scoreCells <- function(ace, markers, algorithm = "gmm2", pre_imputation_algorithm = "none", gene_scaling_method = 0,
-                       pre_alpha = 0.15, post_alpha = 0.9, network_normalization_method = "pagerank_sym", diffusion_it = 5, thread_no = 0, features_use = NULL, TFIDF_prenorm = 1, assay_name = "logcounts", net_slot = "ACTIONet", specificity_slot = "unified_feature_specificity", H_slot = "H_unified") {
+                       pre_alpha = 0.15, post_alpha = 0.9, network_normalization_method = "pagerank_sym", diffusion_it = 5, thread_no = 0, features_use = NULL, TFIDF_prenorm = 1, assay_name = "logcounts", net_slot = "ACTIONet", specificity_slot = "merged_feature_specificity", H_slot = "H_merged") {
   if (!(net_slot %in% names(colNets(ace)))) {
     warning(sprintf("net_slot does not exist in colNets(ace)."))
     return()
@@ -442,7 +442,7 @@ scoreCells <- function(ace, markers, algorithm = "gmm2", pre_imputation_algorith
 }
 
 
-annotateArchetypes <- function(ace, markers = NULL, labels = NULL, scores = NULL, archetype_slot = "H_unified", archetype_specificity_slot = "unified_feature_specificity") {
+annotateArchetypes <- function(ace, markers = NULL, labels = NULL, scores = NULL, archetype_slot = "H_merged", archetype_specificity_slot = "merged_feature_specificity") {
   annotations.count <- is.null(markers) + is.null(labels) + is.null(scores)
   if (annotations.count != 2) {
     stop("Exactly one of the `markers`, `labels`, or `scores` can be provided.")
@@ -580,7 +580,7 @@ annotateClusters <- function(ace, markers = NULL, labels = NULL, scores = NULL, 
   return(out)
 }
 
-projectArchs <- function(ace, archtype_scores, archetype_slot = "H_unified", normalize = TRUE) {
+projectArchs <- function(ace, archtype_scores, archetype_slot = "H_merged", normalize = TRUE) {
   cell.enrichment.mat <- map.cell.scores.from.archetype.enrichment(
     ace = ace,
     enrichment_mat = archtype_scores,

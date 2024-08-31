@@ -173,7 +173,7 @@ plot.ACTIONet <- function(
     )
 
   if(add_backbone == TRUE) {
-    C = colMaps(ace)$C_unified
+    C = colMaps(ace)$C_merged
     cs = Matrix::colSums(C)
     cs[cs == 0] = 1
     Ct = Matrix::t(scale(C, center = F, scale = cs))
@@ -524,7 +524,7 @@ plot.ACTIONet.interactive <- function(
 #' @return Enrichment heatmap
 #'
 #' @examples
-#' feat_scores <- as.matrix(rowMaps(ace)[["unified_feature_specificity"]])
+#' feat_scores <- as.matrix(rowMaps(ace)[["merged_feature_specificity"]])
 #' plot.top.k.features(feat_scores, 3)
 #' @export
 plot.top.k.features <- function(
@@ -583,7 +583,7 @@ plot.top.k.features <- function(
 #' @return Featur view
 #'
 #' @examples
-#' feat_scores <- as.matrix(rowMaps(ace)[["unified_feature_specificity"]])
+#' feat_scores <- as.matrix(rowMaps(ace)[["merged_feature_specificity"]])
 #' plot.ACTIONet.feature.view(ace, feat_scores, 5)
 #' @export
 plot.ACTIONet.feature.view <- function(
@@ -594,9 +594,9 @@ plot.ACTIONet.feature.view <- function(
   title = "Feature view",
   label_size = 1,
   renormalize = FALSE,
-  footprint_slot = "H_unified"
+  footprint_slot = "H_merged"
 ) {
-  if (ncol(feat_scores) != ncol(colMaps(ace)[["H_unified"]])) {
+  if (ncol(feat_scores) != ncol(colMaps(ace)[["H_merged"]])) {
     feat_scores <- Matrix::t(feat_scores)
   }
 
@@ -671,7 +671,7 @@ plot.ACTIONet.gene.view <- function(ace,
                                     title = "",
                                     label_size = 0.8,
                                     renormalize = FALSE) {
-  feat_scores <- as.matrix(rowMaps(ace)[["unified_feature_specificity"]])
+  feat_scores <- as.matrix(rowMaps(ace)[["merged_feature_specificity"]])
   filtered.rows <- grep(blacklist_pattern, rownames(feat_scores))
   if (length(filtered.rows) > 0) {
     feat_scores <- feat_scores[-filtered.rows, ]
@@ -886,7 +886,7 @@ select.top.k.genes <- function(ace,
                                top_features = 3,
                                normalize = FALSE,
                                reorder_columns = FALSE,
-                               slot_name = "unified_feature_specificity") {
+                               slot_name = "merged_feature_specificity") {
   feat_scores <- as.matrix(rowMaps(ace)[[slot_name]])
   filtered.rows <- grep(blacklist_pattern, rownames(feat_scores))
   if (length(filtered.rows) > 0) {
@@ -914,7 +914,7 @@ plot.top.k.genes <- function(ace,
                              row.title = "Archetypes",
                              column.title = "Genes",
                              rowPal = "black",
-                             slot_name = "unified_feature_specificity") {
+                             slot_name = "merged_feature_specificity") {
   feat_scores <- as.matrix(rowMaps(ace)[[slot_name]])
   filtered.rows <- grep(blacklist_pattern, rownames(feat_scores))
   if (length(filtered.rows) > 0) {
@@ -945,8 +945,8 @@ plot.archetype.selected.genes <- function(ace,
                                           row.title = "Archetypes",
                                           column.title = "Genes",
                                           rowPal = "black",
-                                          slot_name = "unified_feature_specificity") {
-  feat_scores <- as.matrix(rowMaps(ace)[["unified_feature_specificity"]])
+                                          slot_name = "merged_feature_specificity") {
+  feat_scores <- as.matrix(rowMaps(ace)[["merged_feature_specificity"]])
   filtered.rows <- match(intersect(rownames(ace), genes), rownames(ace))
 
   if (length(filtered.rows) > 0) {
@@ -1059,7 +1059,7 @@ plot.ACTIONet.archetype.footprint <- function(
 #' @return Sorted table with the selected top-ranked
 #'
 #' @examples
-#' feat_scores <- as.matrix(rowMaps(ace)[["unified_feature_specificity"]])
+#' feat_scores <- as.matrix(rowMaps(ace)[["merged_feature_specificity"]])
 #' enrichment.table.top <- select.top.k.features(feat_scores, 3)
 #' @export
 select.top.k.features <- function(feat_scores,
@@ -1102,7 +1102,7 @@ select.top.k.features <- function(feat_scores,
 gate.archetypes <- function(ace,
                             i,
                             j,
-                            H.slot = "H_unified") {
+                            H.slot = "H_merged") {
   H <- colMaps(ace)[[H.slot]]
   hx <- H[i, ]
   hy <- H[j, ]

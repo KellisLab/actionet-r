@@ -101,7 +101,7 @@ reduce.perturbed.ace <- function(ace, ace.basal, reduction_slot = "ACTION", assa
     common.genes <- intersect(rownames(ace), rownames(ace.basal))
     ace <- ace[common.genes, ]
     ace.basal <- ace.basal[common.genes, ]
-    basal <- ace.basal$unified_feature_specificity
+    basal <- ace.basal$merged_feature_specificity
 
     S <- SummarizedExperiment::assays(ace)[[assay_name]]
     S_r <- colMaps(ace)[[sprintf("%s", reduction_slot)]]

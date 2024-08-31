@@ -174,11 +174,11 @@ archetypeFeatureSpecificity <- function(
       return(scores)
     })
 
-    rowMaps(ace)[["unified_feature_profile"]] <- specificity.out[["archetypes"]]
-    rowMapTypes(ace)[["unified_feature_profile"]] <- "internal"
+    rowMaps(ace)[["merged_feature_profile"]] <- specificity.out[["archetypes"]]
+    rowMapTypes(ace)[["merged_feature_profile"]] <- "internal"
 
-    rowMaps(ace)[["unified_feature_specificity"]] <- specificity.out[["upper_significance"]]
-    rowMapTypes(ace)[["unified_feature_specificity"]] <- "reduction"
+    rowMaps(ace)[["merged_feature_specificity"]] <- specificity.out[["upper_significance"]]
+    rowMapTypes(ace)[["merged_feature_specificity"]] <- "reduction"
 
     return(ace)
   }

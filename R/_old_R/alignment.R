@@ -142,8 +142,8 @@ compute.cell.alignments.from.archetype.alignments <- function(reference_ace,
                                                               alignment,
                                                               alignment_threshold = 0.1,
                                                               footprint_threshold = 0.1,
-                                                              reference_slot_name = "unified",
-                                                              query_slot_name = "unified") {
+                                                              reference_slot_name = "merged",
+                                                              query_slot_name = "merged") {
   W <- alignment
   W[W < alignment_threshold] <- 0
   Wm <- as(MWM_hungarian(W), "dgTMatrix")
@@ -190,7 +190,7 @@ compute.cell.alignments.from.archetype.alignments <- function(reference_ace,
 
 annotate_cells_from_alignment <- function(ace,
                                           alignment,
-                                          unification.slot = "H_unified") {
+                                          unification.slot = "H_merged") {
   cell.scores.mat <- colMaps(ace)[[unification.slot]]
   cell.enrichment.mat <- cell.scores.mat %*% Matrix::t(alignment)
 
