@@ -236,7 +236,7 @@ decomp.ACTIONMR <- function(X,
     k_max = k_max,
     thread_no = thread_no,
     max_it = max_iter,
-    min_delta = min_delta,
+    tol = min_delta,
     normalization = normalization
   )
 
@@ -307,8 +307,8 @@ decomp.ACTIONMR <- function(X,
   out <- collect_archetypes(
     C_trace = C_trace,
     H_trace = H_trace,
-    min_specificity_z_thresh = specificity_th,
-    min_cells = min_cells_per_arch
+    spec_th = specificity_th,
+    min_obs = min_cells_per_arch
   )
 
   return(out)
