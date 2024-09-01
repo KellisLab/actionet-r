@@ -7,9 +7,11 @@
 run_simplex_regression(A, B, computeXtX = FALSE)
 }
 \arguments{
-\item{A}{Input matrix}
+\item{A}{Input matrix <em>A</em> in <em>AX - B</em>.}
 
-\item{B}{Input matrix}
+\item{B}{Inout matrix <em>B</em> in <em>AX - B</em>.}
+
+\item{computeXtX}{Return <em>Xt(X)</em>}
 }
 \value{
 X Solution

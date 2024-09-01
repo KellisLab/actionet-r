@@ -1,10 +1,7 @@
 // Rcpp interface for `action` module
 // Organized by module header in th order imported.
 // [[Rcpp::interfaces(r, cpp)]]
-
-#include <RcppArmadillo.h>
-#include "libactionet.hpp"
-// [[Rcpp::depends(RcppArmadillo)]]
+#include "actionet_r_config.h"
 
 // aa ==================================================================================================================
 
@@ -214,8 +211,8 @@ Rcpp::List reduce_kernel(arma::sp_mat& S, int reduced_dim = 50, int iter = 5, in
 }
 
 // [[Rcpp::export]]
-Rcpp::List reduce_kernel_full(arma::mat& S, int reduced_dim = 50, int iter = 5, int seed = 0, int SVD_algorithm = 0,
-                              bool prenormalize = false, int verbose = 1) {
+Rcpp::List reduce_kernel_full(arma::mat& S, int reduced_dim = 50, int iter = 5, int seed = 0,
+                              int SVD_algorithm = 0, int verbose = 1) {
     arma::field<arma::mat> reduction =
         actionet::reduce_kernel(S, reduced_dim, SVD_algorithm, iter, seed, verbose);
 
@@ -231,6 +228,25 @@ Rcpp::List reduce_kernel_full(arma::mat& S, int reduced_dim = 50, int iter = 5, 
 
 // simplex_regression ==================================================================================================
 
+//' Solves min_{X} (|| AX - B ||) s.t. simplex constraint
+//'
+//' @param A Input matrix <em>A</em> in <em>AX - B</em>.
+//' @param B Inout matrix <em>B</em> in <em>AX - B</em>.
+//' @param computeXtX Return <em>Xt(X)</em>
+//'
+//' @return X Solution
+//'
+//' @examples
+//' C = ACTION.out$C[[10]]
+//' A = S_r %*% C
+//' B = S_r
+//' H = run_simplex_regression(A, B)
+// [[Rcpp::export]]
+arma::mat run_simplex_regression(arma::mat& A, arma::mat& B, bool computeXtX = false) {
+    arma::mat X = actionet::run_simplex_regression(A, B, computeXtX);
+
+    return X;
+}
 
 // spa =================================================================================================================
 
@@ -245,8 +261,9 @@ Rcpp::List reduce_kernel_full(arma::mat& S, int reduced_dim = 50, int iter = 5, 
 // [[Rcpp::export]]
 Rcpp::List run_SPA(arma::mat& A, int k) {
     actionet::ResSPA res = actionet::run_SPA(A, k);
-    arma::uvec selected_cols = res.selected_cols;
 
+    // Shift index
+    arma::uvec selected_cols = res.selected_cols;
     arma::vec cols(k);
     for (int i = 0; i < k; i++) {
         cols[i] = selected_cols[i] + 1;
