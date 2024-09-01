@@ -352,7 +352,7 @@ annotateCells <- function(ace, markers, algorithm = "parametric", alpha = 0.85, 
     network_normalization_code <- 2
   }
   if (algorithm == "parametric") {
-    out <- aggregate_genesets_vision(G, S, marker_mat, network_normalization_code, alpha, thread_no)
+    out <- aggregate_genesets_vision(G, S, as.matrix(marker_mat), network_normalization_code, alpha, thread_no)
 
     marker_stats <- out[["stats_norm_smoothed"]]
     colnames(marker_stats) <- colnames(marker_mat)
@@ -395,52 +395,6 @@ annotateCells <- function(ace, markers, algorithm = "parametric", alpha = 0.85, 
   return(out)
 }
 
-#' @export
-scoreCells <- function(ace, markers, algorithm = "gmm2", pre_imputation_algorithm = "none", gene_scaling_method = 0,
-                       pre_alpha = 0.15, post_alpha = 0.9, network_normalization_method = "pagerank_sym", diffusion_it = 5, thread_no = 0, features_use = NULL, TFIDF_prenorm = 1, assay_name = "logcounts", net_slot = "ACTIONet", specificity_slot = "merged_feature_specificity", H_slot = "H_merged") {
-  if (!(net_slot %in% names(colNets(ace)))) {
-    warning(sprintf("net_slot does not exist in colNets(ace)."))
-    return()
-  } else {
-    G <- colNets(ace)[[net_slot]]
-  }
-
-  features_use <- .get_feature_vec(ace, features_use)
-  marker_mat_full <- .preprocess_annotation_markers(markers, features_use)
-  mask <- Matrix::rowSums(abs(marker_mat_full)) != 0
-  marker_mat <- marker_mat_full[mask, ]
-
-  if (pre_imputation_algorithm == "none") {
-    S <- assays(ace)[[assay_name]]
-    sub_S <- S[mask, ]
-  } else {
-    sub_S <- Matrix::t(imputeGenes(ace, rownames(marker_mat), assay_name = assay_name, thread_no = thread_no, alpha = pre_alpha, diffusion_it = diffusion_it, net_slot = net_slot, algorithm = pre_imputation_algorithm))
-  }
-  sub_S <- as(sub_S, "sparseMatrix")
-
-  network_normalization_code <- 0
-  if (network_normalization_method == "pagerank_sym") {
-    network_normalization_code <- 2
-  }
-  if (algorithm == "gmm2") {
-    marker_stats <- aggregate_genesets_mahalanobis_2gmm(G, sub_S, marker_mat, network_normalization_method = network_normalization_code, expression_normalization_method = TFIDF_prenorm, gene_scaling_method = gene_scaling_method, pre_alpha = pre_alpha, post_alpha = post_alpha)
-  } else if (algorithm == "arch2") {
-    marker_stats <- aggregate_genesets_mahalanobis_2archs(G, sub_S, marker_mat, network_normalization_method = network_normalization_code, expression_normalization_method = TFIDF_prenorm, gene_scaling_method = gene_scaling_method, pre_alpha = pre_alpha, post_alpha = post_alpha)
-  } else {
-    warning(sprintf("Algorithm %s not found. Reverting back to gmm2", algorithm))
-    marker_stats <- aggregate_genesets_mahalanobis_2gmm(G, sub_S, sub_marker_mat, network_normalization_method = network_normalization_method, expression_normalization_method = TFIDF_prenorm, gene_scaling_method = gene_scaling_method, pre_alpha = pre_alpha, post_alpha = post_alpha)
-  }
-
-  colnames(marker_stats) <- colnames(marker_mat)
-  marker_stats[!is.finite(marker_stats)] <- 0
-  annots <- colnames(marker_mat)[apply(marker_stats, 1, which.max)]
-  conf <- apply(marker_stats, 1, max)
-
-  out <- list(Label = annots, Confidence = conf, Enrichment = marker_stats)
-
-  return(out)
-}
-
 
 annotateArchetypes <- function(ace, markers = NULL, labels = NULL, scores = NULL, archetype_slot = "H_merged", archetype_specificity_slot = "merged_feature_specificity") {
   annotations.count <- is.null(markers) + is.null(labels) + is.null(scores)
@@ -449,8 +403,8 @@ annotateArchetypes <- function(ace, markers = NULL, labels = NULL, scores = NULL
   }
 
   if (!is.null(markers)) {
-    features_use <- ACTIONet:::.get_feature_vec(ace, NULL)
-    marker_mat <- as(ACTIONet:::.preprocess_annotation_markers(markers, features_use), "sparseMatrix")
+    features_use <- .get_feature_vec(ace, NULL)
+    marker_mat <- as(.preprocess_annotation_markers(markers, features_use), "sparseMatrix")
 
     archetype_feature_specificity <- as.matrix(rowMaps(ace)[[archetype_specificity_slot]])
     colnames(archetype_feature_specificity) <- paste("A", 1:ncol(archetype_feature_specificity), sep = "")
@@ -470,7 +424,7 @@ annotateArchetypes <- function(ace, markers = NULL, labels = NULL, scores = NULL
     f2 <- factor(l2)
     X2 <- model.matrix(~ .0 + f2)
 
-    xi.out <- ACTIONet::XICOR(X1, X2)
+    xi.out <- XICOR(X1, X2)
     Z_pos <- xi.out$Z
     Z_pos[Z_pos < 0] <- 0
     dir <- sign(cor(X1, X2))
@@ -488,7 +442,7 @@ annotateArchetypes <- function(ace, markers = NULL, labels = NULL, scores = NULL
       X2 <- as.matrix(scores)
     }
 
-    xi.out <- ACTIONet::XICOR(X1, X2)
+    xi.out <- XICOR(X1, X2)
     Z_pos <- xi.out$Z
     Z_pos[Z_pos < 0] <- 0
     dir <- sign(cor(X1, X2))
@@ -539,7 +493,7 @@ annotateClusters <- function(ace, markers = NULL, labels = NULL, scores = NULL, 
     X1 <- model.matrix(~ .0 + f1)
     X2 <- model.matrix(~ .0 + f2)
 
-    xi.out <- ACTIONet::XICOR(X1, X2)
+    xi.out <- XICOR(X1, X2)
     Z_pos <- xi.out$Z
     Z_pos[Z_pos < 0] <- 0
     dir <- sign(cor(X1, X2))
@@ -558,7 +512,7 @@ annotateClusters <- function(ace, markers = NULL, labels = NULL, scores = NULL, 
     f1 <- factor(l1)
     X1 <- model.matrix(~ .0 + f1)
 
-    xi.out <- ACTIONet::XICOR(X1, X2)
+    xi.out <- XICOR(X1, X2)
     Z_pos <- xi.out$Z
     Z_pos[Z_pos < 0] <- 0
     dir <- sign(cor(X1, X2))

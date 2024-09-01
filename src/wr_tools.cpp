@@ -233,14 +233,6 @@ arma::sp_mat normalize_spmat(arma::sp_mat& X, int p = 0, int dim = 0) {
     return (X_norm);
 }
 
-// TODO: Fix or replace
-// [[Rcpp::export]]
-arma::sp_mat LSI(arma::sp_mat& X, double size_factor = 100000) {
-    arma::sp_mat TFIDF = actionet::LSI(X, size_factor);
-
-    return (TFIDF);
-}
-
 // xicor ===============================================================================================================
 
 // [[Rcpp::export]]

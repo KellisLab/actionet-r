@@ -214,11 +214,11 @@ namespace actionet {
         return Rcpp::as<arma::mat >(rcpp_result_gen);
     }
 
-    inline Rcpp::List aggregate_genesets_vision(arma::sp_mat& G, arma::sp_mat& S, arma::sp_mat& marker_mat, int network_normalization_method = 0, double alpha = 0.85, int thread_no = 0) {
+    inline Rcpp::List aggregate_genesets_vision(arma::sp_mat& G, arma::sp_mat& S, arma::mat& marker_mat, int network_normalization_method = 0, double alpha = 0.85, int thread_no = 0) {
         typedef SEXP(*Ptr_aggregate_genesets_vision)(SEXP,SEXP,SEXP,SEXP,SEXP,SEXP);
         static Ptr_aggregate_genesets_vision p_aggregate_genesets_vision = NULL;
         if (p_aggregate_genesets_vision == NULL) {
-            validateSignature("Rcpp::List(*aggregate_genesets_vision)(arma::sp_mat&,arma::sp_mat&,arma::sp_mat&,int,double,int)");
+            validateSignature("Rcpp::List(*aggregate_genesets_vision)(arma::sp_mat&,arma::sp_mat&,arma::mat&,int,double,int)");
             p_aggregate_genesets_vision = (Ptr_aggregate_genesets_vision)R_GetCCallable("actionet", "_actionet_aggregate_genesets_vision");
         }
         RObject rcpp_result_gen;
@@ -233,48 +233,6 @@ namespace actionet {
         if (rcpp_result_gen.inherits("try-error"))
             throw Rcpp::exception(Rcpp::as<std::string>(rcpp_result_gen).c_str());
         return Rcpp::as<Rcpp::List >(rcpp_result_gen);
-    }
-
-    inline arma::mat aggregate_genesets_mahalanobis_2archs(arma::sp_mat& G, arma::sp_mat& S, arma::sp_mat& marker_mat, int network_normalization_method = 0, int expression_normalization_method = 0, int gene_scaling_method = 0, double pre_alpha = 0.85, double post_alpha = 0.85, int thread_no = 0) {
-        typedef SEXP(*Ptr_aggregate_genesets_mahalanobis_2archs)(SEXP,SEXP,SEXP,SEXP,SEXP,SEXP,SEXP,SEXP,SEXP);
-        static Ptr_aggregate_genesets_mahalanobis_2archs p_aggregate_genesets_mahalanobis_2archs = NULL;
-        if (p_aggregate_genesets_mahalanobis_2archs == NULL) {
-            validateSignature("arma::mat(*aggregate_genesets_mahalanobis_2archs)(arma::sp_mat&,arma::sp_mat&,arma::sp_mat&,int,int,int,double,double,int)");
-            p_aggregate_genesets_mahalanobis_2archs = (Ptr_aggregate_genesets_mahalanobis_2archs)R_GetCCallable("actionet", "_actionet_aggregate_genesets_mahalanobis_2archs");
-        }
-        RObject rcpp_result_gen;
-        {
-            RNGScope RCPP_rngScope_gen;
-            rcpp_result_gen = p_aggregate_genesets_mahalanobis_2archs(Shield<SEXP>(Rcpp::wrap(G)), Shield<SEXP>(Rcpp::wrap(S)), Shield<SEXP>(Rcpp::wrap(marker_mat)), Shield<SEXP>(Rcpp::wrap(network_normalization_method)), Shield<SEXP>(Rcpp::wrap(expression_normalization_method)), Shield<SEXP>(Rcpp::wrap(gene_scaling_method)), Shield<SEXP>(Rcpp::wrap(pre_alpha)), Shield<SEXP>(Rcpp::wrap(post_alpha)), Shield<SEXP>(Rcpp::wrap(thread_no)));
-        }
-        if (rcpp_result_gen.inherits("interrupted-error"))
-            throw Rcpp::internal::InterruptedException();
-        if (Rcpp::internal::isLongjumpSentinel(rcpp_result_gen))
-            throw Rcpp::LongjumpException(rcpp_result_gen);
-        if (rcpp_result_gen.inherits("try-error"))
-            throw Rcpp::exception(Rcpp::as<std::string>(rcpp_result_gen).c_str());
-        return Rcpp::as<arma::mat >(rcpp_result_gen);
-    }
-
-    inline arma::mat aggregate_genesets_mahalanobis_2gmm(arma::sp_mat& G, arma::sp_mat& S, arma::sp_mat& marker_mat, int network_normalization_method = 0, int expression_normalization_method = 0, int gene_scaling_method = 0, double pre_alpha = 0.85, double post_alpha = 0.85, int thread_no = 0) {
-        typedef SEXP(*Ptr_aggregate_genesets_mahalanobis_2gmm)(SEXP,SEXP,SEXP,SEXP,SEXP,SEXP,SEXP,SEXP,SEXP);
-        static Ptr_aggregate_genesets_mahalanobis_2gmm p_aggregate_genesets_mahalanobis_2gmm = NULL;
-        if (p_aggregate_genesets_mahalanobis_2gmm == NULL) {
-            validateSignature("arma::mat(*aggregate_genesets_mahalanobis_2gmm)(arma::sp_mat&,arma::sp_mat&,arma::sp_mat&,int,int,int,double,double,int)");
-            p_aggregate_genesets_mahalanobis_2gmm = (Ptr_aggregate_genesets_mahalanobis_2gmm)R_GetCCallable("actionet", "_actionet_aggregate_genesets_mahalanobis_2gmm");
-        }
-        RObject rcpp_result_gen;
-        {
-            RNGScope RCPP_rngScope_gen;
-            rcpp_result_gen = p_aggregate_genesets_mahalanobis_2gmm(Shield<SEXP>(Rcpp::wrap(G)), Shield<SEXP>(Rcpp::wrap(S)), Shield<SEXP>(Rcpp::wrap(marker_mat)), Shield<SEXP>(Rcpp::wrap(network_normalization_method)), Shield<SEXP>(Rcpp::wrap(expression_normalization_method)), Shield<SEXP>(Rcpp::wrap(gene_scaling_method)), Shield<SEXP>(Rcpp::wrap(pre_alpha)), Shield<SEXP>(Rcpp::wrap(post_alpha)), Shield<SEXP>(Rcpp::wrap(thread_no)));
-        }
-        if (rcpp_result_gen.inherits("interrupted-error"))
-            throw Rcpp::internal::InterruptedException();
-        if (Rcpp::internal::isLongjumpSentinel(rcpp_result_gen))
-            throw Rcpp::LongjumpException(rcpp_result_gen);
-        if (rcpp_result_gen.inherits("try-error"))
-            throw Rcpp::exception(Rcpp::as<std::string>(rcpp_result_gen).c_str());
-        return Rcpp::as<arma::mat >(rcpp_result_gen);
     }
 
     inline Rcpp::List compute_archetype_feature_specificity(arma::sp_mat& S, arma::mat& H, int thread_no = 0) {
@@ -1002,27 +960,6 @@ namespace actionet {
         {
             RNGScope RCPP_rngScope_gen;
             rcpp_result_gen = p_normalize_spmat(Shield<SEXP>(Rcpp::wrap(X)), Shield<SEXP>(Rcpp::wrap(p)), Shield<SEXP>(Rcpp::wrap(dim)));
-        }
-        if (rcpp_result_gen.inherits("interrupted-error"))
-            throw Rcpp::internal::InterruptedException();
-        if (Rcpp::internal::isLongjumpSentinel(rcpp_result_gen))
-            throw Rcpp::LongjumpException(rcpp_result_gen);
-        if (rcpp_result_gen.inherits("try-error"))
-            throw Rcpp::exception(Rcpp::as<std::string>(rcpp_result_gen).c_str());
-        return Rcpp::as<arma::sp_mat >(rcpp_result_gen);
-    }
-
-    inline arma::sp_mat LSI(arma::sp_mat& X, double size_factor = 100000) {
-        typedef SEXP(*Ptr_LSI)(SEXP,SEXP);
-        static Ptr_LSI p_LSI = NULL;
-        if (p_LSI == NULL) {
-            validateSignature("arma::sp_mat(*LSI)(arma::sp_mat&,double)");
-            p_LSI = (Ptr_LSI)R_GetCCallable("actionet", "_actionet_LSI");
-        }
-        RObject rcpp_result_gen;
-        {
-            RNGScope RCPP_rngScope_gen;
-            rcpp_result_gen = p_LSI(Shield<SEXP>(Rcpp::wrap(X)), Shield<SEXP>(Rcpp::wrap(size_factor)));
         }
         if (rcpp_result_gen.inherits("interrupted-error"))
             throw Rcpp::internal::InterruptedException();

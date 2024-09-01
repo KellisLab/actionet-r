@@ -408,7 +408,6 @@ constructBackbone <- function(ace,
 normalize.reduction <- function(ace, reduction_slot = "ACTION", reduction_normalization = 1) {
   X <- Matrix::t(colMaps(ace)[[sprintf("%s", reduction_slot)]])
 
-  # X_norm <- ACTIONet::normalize_mat(X, reduction_normalization)
   X_norm <- normalize_mat(X, reduction_normalization)
 
   colMaps(ace)[[sprintf("%s_normalized", reduction_slot)]] <- Matrix::t(X_norm)

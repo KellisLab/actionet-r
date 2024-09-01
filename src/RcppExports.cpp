@@ -356,13 +356,13 @@ RcppExport SEXP _actionet_compute_marker_aggregate_stats(SEXP GSEXP, SEXP SSEXP,
     return rcpp_result_gen;
 }
 // aggregate_genesets_vision
-Rcpp::List aggregate_genesets_vision(arma::sp_mat& G, arma::sp_mat& S, arma::sp_mat& marker_mat, int network_normalization_method, double alpha, int thread_no);
+Rcpp::List aggregate_genesets_vision(arma::sp_mat& G, arma::sp_mat& S, arma::mat& marker_mat, int network_normalization_method, double alpha, int thread_no);
 static SEXP _actionet_aggregate_genesets_vision_try(SEXP GSEXP, SEXP SSEXP, SEXP marker_matSEXP, SEXP network_normalization_methodSEXP, SEXP alphaSEXP, SEXP thread_noSEXP) {
 BEGIN_RCPP
     Rcpp::RObject rcpp_result_gen;
     Rcpp::traits::input_parameter< arma::sp_mat& >::type G(GSEXP);
     Rcpp::traits::input_parameter< arma::sp_mat& >::type S(SSEXP);
-    Rcpp::traits::input_parameter< arma::sp_mat& >::type marker_mat(marker_matSEXP);
+    Rcpp::traits::input_parameter< arma::mat& >::type marker_mat(marker_matSEXP);
     Rcpp::traits::input_parameter< int >::type network_normalization_method(network_normalization_methodSEXP);
     Rcpp::traits::input_parameter< double >::type alpha(alphaSEXP);
     Rcpp::traits::input_parameter< int >::type thread_no(thread_noSEXP);
@@ -375,90 +375,6 @@ RcppExport SEXP _actionet_aggregate_genesets_vision(SEXP GSEXP, SEXP SSEXP, SEXP
     {
         Rcpp::RNGScope rcpp_rngScope_gen;
         rcpp_result_gen = PROTECT(_actionet_aggregate_genesets_vision_try(GSEXP, SSEXP, marker_matSEXP, network_normalization_methodSEXP, alphaSEXP, thread_noSEXP));
-    }
-    Rboolean rcpp_isInterrupt_gen = Rf_inherits(rcpp_result_gen, "interrupted-error");
-    if (rcpp_isInterrupt_gen) {
-        UNPROTECT(1);
-        Rf_onintr();
-    }
-    bool rcpp_isLongjump_gen = Rcpp::internal::isLongjumpSentinel(rcpp_result_gen);
-    if (rcpp_isLongjump_gen) {
-        Rcpp::internal::resumeJump(rcpp_result_gen);
-    }
-    Rboolean rcpp_isError_gen = Rf_inherits(rcpp_result_gen, "try-error");
-    if (rcpp_isError_gen) {
-        SEXP rcpp_msgSEXP_gen = Rf_asChar(rcpp_result_gen);
-        UNPROTECT(1);
-        Rf_error("%s", CHAR(rcpp_msgSEXP_gen));
-    }
-    UNPROTECT(1);
-    return rcpp_result_gen;
-}
-// aggregate_genesets_mahalanobis_2archs
-arma::mat aggregate_genesets_mahalanobis_2archs(arma::sp_mat& G, arma::sp_mat& S, arma::sp_mat& marker_mat, int network_normalization_method, int expression_normalization_method, int gene_scaling_method, double pre_alpha, double post_alpha, int thread_no);
-static SEXP _actionet_aggregate_genesets_mahalanobis_2archs_try(SEXP GSEXP, SEXP SSEXP, SEXP marker_matSEXP, SEXP network_normalization_methodSEXP, SEXP expression_normalization_methodSEXP, SEXP gene_scaling_methodSEXP, SEXP pre_alphaSEXP, SEXP post_alphaSEXP, SEXP thread_noSEXP) {
-BEGIN_RCPP
-    Rcpp::RObject rcpp_result_gen;
-    Rcpp::traits::input_parameter< arma::sp_mat& >::type G(GSEXP);
-    Rcpp::traits::input_parameter< arma::sp_mat& >::type S(SSEXP);
-    Rcpp::traits::input_parameter< arma::sp_mat& >::type marker_mat(marker_matSEXP);
-    Rcpp::traits::input_parameter< int >::type network_normalization_method(network_normalization_methodSEXP);
-    Rcpp::traits::input_parameter< int >::type expression_normalization_method(expression_normalization_methodSEXP);
-    Rcpp::traits::input_parameter< int >::type gene_scaling_method(gene_scaling_methodSEXP);
-    Rcpp::traits::input_parameter< double >::type pre_alpha(pre_alphaSEXP);
-    Rcpp::traits::input_parameter< double >::type post_alpha(post_alphaSEXP);
-    Rcpp::traits::input_parameter< int >::type thread_no(thread_noSEXP);
-    rcpp_result_gen = Rcpp::wrap(aggregate_genesets_mahalanobis_2archs(G, S, marker_mat, network_normalization_method, expression_normalization_method, gene_scaling_method, pre_alpha, post_alpha, thread_no));
-    return rcpp_result_gen;
-END_RCPP_RETURN_ERROR
-}
-RcppExport SEXP _actionet_aggregate_genesets_mahalanobis_2archs(SEXP GSEXP, SEXP SSEXP, SEXP marker_matSEXP, SEXP network_normalization_methodSEXP, SEXP expression_normalization_methodSEXP, SEXP gene_scaling_methodSEXP, SEXP pre_alphaSEXP, SEXP post_alphaSEXP, SEXP thread_noSEXP) {
-    SEXP rcpp_result_gen;
-    {
-        Rcpp::RNGScope rcpp_rngScope_gen;
-        rcpp_result_gen = PROTECT(_actionet_aggregate_genesets_mahalanobis_2archs_try(GSEXP, SSEXP, marker_matSEXP, network_normalization_methodSEXP, expression_normalization_methodSEXP, gene_scaling_methodSEXP, pre_alphaSEXP, post_alphaSEXP, thread_noSEXP));
-    }
-    Rboolean rcpp_isInterrupt_gen = Rf_inherits(rcpp_result_gen, "interrupted-error");
-    if (rcpp_isInterrupt_gen) {
-        UNPROTECT(1);
-        Rf_onintr();
-    }
-    bool rcpp_isLongjump_gen = Rcpp::internal::isLongjumpSentinel(rcpp_result_gen);
-    if (rcpp_isLongjump_gen) {
-        Rcpp::internal::resumeJump(rcpp_result_gen);
-    }
-    Rboolean rcpp_isError_gen = Rf_inherits(rcpp_result_gen, "try-error");
-    if (rcpp_isError_gen) {
-        SEXP rcpp_msgSEXP_gen = Rf_asChar(rcpp_result_gen);
-        UNPROTECT(1);
-        Rf_error("%s", CHAR(rcpp_msgSEXP_gen));
-    }
-    UNPROTECT(1);
-    return rcpp_result_gen;
-}
-// aggregate_genesets_mahalanobis_2gmm
-arma::mat aggregate_genesets_mahalanobis_2gmm(arma::sp_mat& G, arma::sp_mat& S, arma::sp_mat& marker_mat, int network_normalization_method, int expression_normalization_method, int gene_scaling_method, double pre_alpha, double post_alpha, int thread_no);
-static SEXP _actionet_aggregate_genesets_mahalanobis_2gmm_try(SEXP GSEXP, SEXP SSEXP, SEXP marker_matSEXP, SEXP network_normalization_methodSEXP, SEXP expression_normalization_methodSEXP, SEXP gene_scaling_methodSEXP, SEXP pre_alphaSEXP, SEXP post_alphaSEXP, SEXP thread_noSEXP) {
-BEGIN_RCPP
-    Rcpp::RObject rcpp_result_gen;
-    Rcpp::traits::input_parameter< arma::sp_mat& >::type G(GSEXP);
-    Rcpp::traits::input_parameter< arma::sp_mat& >::type S(SSEXP);
-    Rcpp::traits::input_parameter< arma::sp_mat& >::type marker_mat(marker_matSEXP);
-    Rcpp::traits::input_parameter< int >::type network_normalization_method(network_normalization_methodSEXP);
-    Rcpp::traits::input_parameter< int >::type expression_normalization_method(expression_normalization_methodSEXP);
-    Rcpp::traits::input_parameter< int >::type gene_scaling_method(gene_scaling_methodSEXP);
-    Rcpp::traits::input_parameter< double >::type pre_alpha(pre_alphaSEXP);
-    Rcpp::traits::input_parameter< double >::type post_alpha(post_alphaSEXP);
-    Rcpp::traits::input_parameter< int >::type thread_no(thread_noSEXP);
-    rcpp_result_gen = Rcpp::wrap(aggregate_genesets_mahalanobis_2gmm(G, S, marker_mat, network_normalization_method, expression_normalization_method, gene_scaling_method, pre_alpha, post_alpha, thread_no));
-    return rcpp_result_gen;
-END_RCPP_RETURN_ERROR
-}
-RcppExport SEXP _actionet_aggregate_genesets_mahalanobis_2gmm(SEXP GSEXP, SEXP SSEXP, SEXP marker_matSEXP, SEXP network_normalization_methodSEXP, SEXP expression_normalization_methodSEXP, SEXP gene_scaling_methodSEXP, SEXP pre_alphaSEXP, SEXP post_alphaSEXP, SEXP thread_noSEXP) {
-    SEXP rcpp_result_gen;
-    {
-        Rcpp::RNGScope rcpp_rngScope_gen;
-        rcpp_result_gen = PROTECT(_actionet_aggregate_genesets_mahalanobis_2gmm_try(GSEXP, SSEXP, marker_matSEXP, network_normalization_methodSEXP, expression_normalization_methodSEXP, gene_scaling_methodSEXP, pre_alphaSEXP, post_alphaSEXP, thread_noSEXP));
     }
     Rboolean rcpp_isInterrupt_gen = Rf_inherits(rcpp_result_gen, "interrupted-error");
     if (rcpp_isInterrupt_gen) {
@@ -1776,41 +1692,6 @@ RcppExport SEXP _actionet_normalize_spmat(SEXP XSEXP, SEXP pSEXP, SEXP dimSEXP) 
     UNPROTECT(1);
     return rcpp_result_gen;
 }
-// LSI
-arma::sp_mat LSI(arma::sp_mat& X, double size_factor);
-static SEXP _actionet_LSI_try(SEXP XSEXP, SEXP size_factorSEXP) {
-BEGIN_RCPP
-    Rcpp::RObject rcpp_result_gen;
-    Rcpp::traits::input_parameter< arma::sp_mat& >::type X(XSEXP);
-    Rcpp::traits::input_parameter< double >::type size_factor(size_factorSEXP);
-    rcpp_result_gen = Rcpp::wrap(LSI(X, size_factor));
-    return rcpp_result_gen;
-END_RCPP_RETURN_ERROR
-}
-RcppExport SEXP _actionet_LSI(SEXP XSEXP, SEXP size_factorSEXP) {
-    SEXP rcpp_result_gen;
-    {
-        Rcpp::RNGScope rcpp_rngScope_gen;
-        rcpp_result_gen = PROTECT(_actionet_LSI_try(XSEXP, size_factorSEXP));
-    }
-    Rboolean rcpp_isInterrupt_gen = Rf_inherits(rcpp_result_gen, "interrupted-error");
-    if (rcpp_isInterrupt_gen) {
-        UNPROTECT(1);
-        Rf_onintr();
-    }
-    bool rcpp_isLongjump_gen = Rcpp::internal::isLongjumpSentinel(rcpp_result_gen);
-    if (rcpp_isLongjump_gen) {
-        Rcpp::internal::resumeJump(rcpp_result_gen);
-    }
-    Rboolean rcpp_isError_gen = Rf_inherits(rcpp_result_gen, "try-error");
-    if (rcpp_isError_gen) {
-        SEXP rcpp_msgSEXP_gen = Rf_asChar(rcpp_result_gen);
-        UNPROTECT(1);
-        Rf_error("%s", CHAR(rcpp_msgSEXP_gen));
-    }
-    UNPROTECT(1);
-    return rcpp_result_gen;
-}
 // xicor
 arma::vec xicor(arma::vec xvec, arma::vec yvec, bool compute_pval, int seed);
 static SEXP _actionet_xicor_try(SEXP xvecSEXP, SEXP yvecSEXP, SEXP compute_pvalSEXP, SEXP seedSEXP) {
@@ -1945,9 +1826,7 @@ static int _actionet_RcppExport_validate(const char* sig) {
         signatures.insert("arma::mat(*run_simplex_regression)(arma::mat&,arma::mat&,bool)");
         signatures.insert("Rcpp::List(*run_SPA)(arma::mat&,int)");
         signatures.insert("arma::mat(*compute_marker_aggregate_stats)(arma::sp_mat&,arma::sp_mat&,arma::sp_mat&,double,int,int,bool)");
-        signatures.insert("Rcpp::List(*aggregate_genesets_vision)(arma::sp_mat&,arma::sp_mat&,arma::sp_mat&,int,double,int)");
-        signatures.insert("arma::mat(*aggregate_genesets_mahalanobis_2archs)(arma::sp_mat&,arma::sp_mat&,arma::sp_mat&,int,int,int,double,double,int)");
-        signatures.insert("arma::mat(*aggregate_genesets_mahalanobis_2gmm)(arma::sp_mat&,arma::sp_mat&,arma::sp_mat&,int,int,int,double,double,int)");
+        signatures.insert("Rcpp::List(*aggregate_genesets_vision)(arma::sp_mat&,arma::sp_mat&,arma::mat&,int,double,int)");
         signatures.insert("Rcpp::List(*compute_archetype_feature_specificity)(arma::sp_mat&,arma::mat&,int)");
         signatures.insert("Rcpp::List(*compute_archetype_feature_specificity_full)(arma::mat&,arma::mat&,int)");
         signatures.insert("Rcpp::List(*compute_cluster_feature_specificity)(arma::sp_mat&,arma::uvec,int)");
@@ -1983,7 +1862,6 @@ static int _actionet_RcppExport_validate(const char* sig) {
         signatures.insert("arma::umat(*MWM_rank1)(arma::vec,arma::vec,double,double)");
         signatures.insert("arma::mat(*normalize_mat)(arma::mat&,int,int)");
         signatures.insert("arma::sp_mat(*normalize_spmat)(arma::sp_mat&,int,int)");
-        signatures.insert("arma::sp_mat(*LSI)(arma::sp_mat&,double)");
         signatures.insert("arma::vec(*xicor)(arma::vec,arma::vec,bool,int)");
         signatures.insert("Rcpp::List(*XICOR)(arma::mat&,arma::mat&,bool,int,int)");
         signatures.insert("Rcpp::List(*layoutNetwork)(arma::sp_mat&,arma::mat&,const std::string&,bool,double,double,double,unsigned int,int,int,double,int)");
@@ -2003,8 +1881,6 @@ RcppExport SEXP _actionet_RcppExport_registerCCallable() {
     R_RegisterCCallable("actionet", "_actionet_run_SPA", (DL_FUNC)_actionet_run_SPA_try);
     R_RegisterCCallable("actionet", "_actionet_compute_marker_aggregate_stats", (DL_FUNC)_actionet_compute_marker_aggregate_stats_try);
     R_RegisterCCallable("actionet", "_actionet_aggregate_genesets_vision", (DL_FUNC)_actionet_aggregate_genesets_vision_try);
-    R_RegisterCCallable("actionet", "_actionet_aggregate_genesets_mahalanobis_2archs", (DL_FUNC)_actionet_aggregate_genesets_mahalanobis_2archs_try);
-    R_RegisterCCallable("actionet", "_actionet_aggregate_genesets_mahalanobis_2gmm", (DL_FUNC)_actionet_aggregate_genesets_mahalanobis_2gmm_try);
     R_RegisterCCallable("actionet", "_actionet_compute_archetype_feature_specificity", (DL_FUNC)_actionet_compute_archetype_feature_specificity_try);
     R_RegisterCCallable("actionet", "_actionet_compute_archetype_feature_specificity_full", (DL_FUNC)_actionet_compute_archetype_feature_specificity_full_try);
     R_RegisterCCallable("actionet", "_actionet_compute_cluster_feature_specificity", (DL_FUNC)_actionet_compute_cluster_feature_specificity_try);
@@ -2040,7 +1916,6 @@ RcppExport SEXP _actionet_RcppExport_registerCCallable() {
     R_RegisterCCallable("actionet", "_actionet_MWM_rank1", (DL_FUNC)_actionet_MWM_rank1_try);
     R_RegisterCCallable("actionet", "_actionet_normalize_mat", (DL_FUNC)_actionet_normalize_mat_try);
     R_RegisterCCallable("actionet", "_actionet_normalize_spmat", (DL_FUNC)_actionet_normalize_spmat_try);
-    R_RegisterCCallable("actionet", "_actionet_LSI", (DL_FUNC)_actionet_LSI_try);
     R_RegisterCCallable("actionet", "_actionet_xicor", (DL_FUNC)_actionet_xicor_try);
     R_RegisterCCallable("actionet", "_actionet_XICOR", (DL_FUNC)_actionet_XICOR_try);
     R_RegisterCCallable("actionet", "_actionet_layoutNetwork", (DL_FUNC)_actionet_layoutNetwork_try);
@@ -2059,8 +1934,6 @@ static const R_CallMethodDef CallEntries[] = {
     {"_actionet_run_SPA", (DL_FUNC) &_actionet_run_SPA, 2},
     {"_actionet_compute_marker_aggregate_stats", (DL_FUNC) &_actionet_compute_marker_aggregate_stats, 7},
     {"_actionet_aggregate_genesets_vision", (DL_FUNC) &_actionet_aggregate_genesets_vision, 6},
-    {"_actionet_aggregate_genesets_mahalanobis_2archs", (DL_FUNC) &_actionet_aggregate_genesets_mahalanobis_2archs, 9},
-    {"_actionet_aggregate_genesets_mahalanobis_2gmm", (DL_FUNC) &_actionet_aggregate_genesets_mahalanobis_2gmm, 9},
     {"_actionet_compute_archetype_feature_specificity", (DL_FUNC) &_actionet_compute_archetype_feature_specificity, 3},
     {"_actionet_compute_archetype_feature_specificity_full", (DL_FUNC) &_actionet_compute_archetype_feature_specificity_full, 3},
     {"_actionet_compute_cluster_feature_specificity", (DL_FUNC) &_actionet_compute_cluster_feature_specificity, 3},
@@ -2096,7 +1969,6 @@ static const R_CallMethodDef CallEntries[] = {
     {"_actionet_MWM_rank1", (DL_FUNC) &_actionet_MWM_rank1, 4},
     {"_actionet_normalize_mat", (DL_FUNC) &_actionet_normalize_mat, 3},
     {"_actionet_normalize_spmat", (DL_FUNC) &_actionet_normalize_spmat, 3},
-    {"_actionet_LSI", (DL_FUNC) &_actionet_LSI, 2},
     {"_actionet_xicor", (DL_FUNC) &_actionet_xicor, 4},
     {"_actionet_XICOR", (DL_FUNC) &_actionet_XICOR, 5},
     {"_actionet_layoutNetwork", (DL_FUNC) &_actionet_layoutNetwork, 12},

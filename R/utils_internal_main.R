@@ -239,7 +239,7 @@
   sigma <- vars$sigma
 
   U <- as.matrix(S_r %*% Matrix::Diagonal(length(sigma), 1 / sigma))
-  SVD.out <- ACTIONet::perturbedSVD(V, sigma, U, -A, B)
+  SVD.out <- perturbedSVD(V, sigma, U, -A, B)
   V.smooth <- networkDiffusion(
     obj = G,
     scores = SVD.out$v,

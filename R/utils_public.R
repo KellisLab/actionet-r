@@ -70,13 +70,8 @@ normalize.matrix <- function(S,
     } else {
       S_scaled_norm_trans@x <- sqrt(S_scaled_norm_trans@x) + sqrt(S_scaled_norm_trans@x + 1)
     }
-  } else if (transformation == "lsi") {
-    if (is.matrix(S_scaled_norm)) {
-      S_scaled_norm <- as(S_scaled_norm, "dMatrix")
-    }
-    S_scaled_norm_trans <- ACTIONet::LSI(S_scaled_norm)
   }
-
+  
   if (post_rescale == TRUE) {
     cs <- Matrix::colSums(S_scaled_norm_trans)
     kappa <- median(cs) / cs

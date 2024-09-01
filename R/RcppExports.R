@@ -155,14 +155,6 @@ aggregate_genesets_vision <- function(G, S, marker_mat, network_normalization_me
     .Call(`_actionet_aggregate_genesets_vision`, G, S, marker_mat, network_normalization_method, alpha, thread_no)
 }
 
-aggregate_genesets_mahalanobis_2archs <- function(G, S, marker_mat, network_normalization_method = 0L, expression_normalization_method = 0L, gene_scaling_method = 0L, pre_alpha = 0.85, post_alpha = 0.85, thread_no = 0L) {
-    .Call(`_actionet_aggregate_genesets_mahalanobis_2archs`, G, S, marker_mat, network_normalization_method, expression_normalization_method, gene_scaling_method, pre_alpha, post_alpha, thread_no)
-}
-
-aggregate_genesets_mahalanobis_2gmm <- function(G, S, marker_mat, network_normalization_method = 0L, expression_normalization_method = 0L, gene_scaling_method = 0L, pre_alpha = 0.85, post_alpha = 0.85, thread_no = 0L) {
-    .Call(`_actionet_aggregate_genesets_mahalanobis_2gmm`, G, S, marker_mat, network_normalization_method, expression_normalization_method, gene_scaling_method, pre_alpha, post_alpha, thread_no)
-}
-
 #' Compute feature specificity (from archetype footprints)
 #'
 #' @param S Input matrix (sparseMatrix)
@@ -453,10 +445,6 @@ normalize_mat <- function(X, p = 0L, dim = 0L) {
 
 normalize_spmat <- function(X, p = 0L, dim = 0L) {
     .Call(`_actionet_normalize_spmat`, X, p, dim)
-}
-
-LSI <- function(X, size_factor = 100000) {
-    .Call(`_actionet_LSI`, X, size_factor)
 }
 
 xicor <- function(xvec, yvec, compute_pval = TRUE, seed = 0L) {

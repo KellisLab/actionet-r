@@ -203,7 +203,7 @@ plot.counts.by.attr <- function(
   if(is.null(y_label))
     y_label = element_blank()
   if(is.null(palette)){
-    palette = ACTIONet::CPal_default[seq.int(unique(x))]
+    palette = CPal_default[seq.int(unique(x))]
   }
 
   all_labels = unique(x) %>% sort
