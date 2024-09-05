@@ -8,15 +8,13 @@ layoutNetwork(
   G,
   initial_position,
   method = "umap",
-  presmooth_network = FALSE,
   min_dist = 1,
   spread = 1,
   gamma = 1,
   n_epochs = 500L,
-  thread_no = 0L,
-  seed = 0L,
   learning_rate = 1,
-  sim2dist = 2L
+  seed = 0L,
+  thread_no = 0L
 )
 }
 \arguments{

@@ -6,25 +6,26 @@
 \usage{
 rerunLayout(
   ace,
-  algorithm = c("umap", "tumap"),
   initial_coordinates = NULL,
-  spread = 1,
+  algorithm = c("umap", "tumap"),
   min_dist = 1,
+  spread = 1,
   gamma = 1,
   n_epochs = 100,
-  thread_no = 0,
+  learning_rate = 1,
   net_slot = "ACTIONet",
-  seed = 0
+  seed = 0,
+  thread_no = 0
 )
 }
 \arguments{
 \item{ace}{ACTIONetExperiment object.}
 
-\item{thread_no}{Number of parallel threads (default=0).}
-
 \item{net_slot}{Slot in colMaps(ace) containing ACTIONet adjacency matrix (default='ACTIONet').}
 
 \item{seed}{Seed for random initialization (default=0).}
+
+\item{thread_no}{Number of parallel threads (default=0).}
 
 \item{layout_compactness}{A value between 0-100, indicating the compactness of ACTIONet layout (default=50).}
 
