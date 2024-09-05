@@ -473,8 +473,8 @@ XICOR <- function(X, Y, compute_pval = TRUE, seed = 0L, thread_no = 0L) {
 #' @examples
 #'	G = buildNetwork(prune.out$H_stacked)
 #'	vis.out = layoutNetwrok(G, S_r)
-layoutNetwork <- function(G, initial_position, method = "umap", presmooth_network = FALSE, min_dist = 1, spread = 1, gamma = 1.0, n_epochs = 500L, thread_no = 0L, seed = 0L, learning_rate = 1.0, sim2dist = 2L) {
-    .Call(`_actionet_layoutNetwork`, G, initial_position, method, presmooth_network, min_dist, spread, gamma, n_epochs, thread_no, seed, learning_rate, sim2dist)
+layoutNetwork <- function(G, initial_position, method = "umap", min_dist = 1, spread = 1, gamma = 1.0, n_epochs = 500L, learning_rate = 1.0, seed = 0L, thread_no = 0L) {
+    .Call(`_actionet_layoutNetwork`, G, initial_position, method, min_dist, spread, gamma, n_epochs, learning_rate, seed, thread_no)
 }
 
 # Register entry points for exported C++ functions

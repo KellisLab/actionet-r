@@ -51,15 +51,15 @@
 
 .run.layoutNetwork <- function(ace,
                                initial_coordinates,
-                               n_epochs = 250,
-                               presmooth_network = FALSE,
                                algorithm = "umap",
-                               spread = 1.0,
                                min_dist = 1.0,
+                               spread = 1.0,
                                gamma = 1.0,
+                               n_epochs = 250,
+                               learning_rate = 1,
                                net_slot = "ACTIONet",
-                               thread_no = 0,
                                seed = 0,
+                               thread_no = 0,
                                return_raw = FALSE) {
   algorithm <- match.arg(tolower(algorithm), c(
     "umap", "tumap",
@@ -75,8 +75,18 @@
     force_type = TRUE,
   )
 
-  vis.out <- layoutNetwork(G = G, initial_position = initial_coordinates, method = algorithm, spread = spread, min_dist = min_dist, n_epochs = n_epochs, seed = seed, thread_no = thread_no, presmooth_network = presmooth_network)
-
+  vis.out <- layoutNetwork(
+    G = G,
+    initial_position = initial_coordinates,
+    method = algorithm,
+    min_dist = min_dist,
+    spread = spread,
+    gamma = gamma,
+    n_epochs = n_epochs,
+    learning_rate = learning_rate,
+    seed = seed,
+    thread_no = thread_no
+    )
 
   if (return_raw == TRUE) {
     return(vis.out)

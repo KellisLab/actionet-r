@@ -1768,31 +1768,29 @@ RcppExport SEXP _actionet_XICOR(SEXP XSEXP, SEXP YSEXP, SEXP compute_pvalSEXP, S
     return rcpp_result_gen;
 }
 // layoutNetwork
-Rcpp::List layoutNetwork(arma::sp_mat& G, arma::mat& initial_position, const std::string& method, bool presmooth_network, double min_dist, double spread, double gamma, unsigned int n_epochs, int thread_no, int seed, double learning_rate, int sim2dist);
-static SEXP _actionet_layoutNetwork_try(SEXP GSEXP, SEXP initial_positionSEXP, SEXP methodSEXP, SEXP presmooth_networkSEXP, SEXP min_distSEXP, SEXP spreadSEXP, SEXP gammaSEXP, SEXP n_epochsSEXP, SEXP thread_noSEXP, SEXP seedSEXP, SEXP learning_rateSEXP, SEXP sim2distSEXP) {
+Rcpp::List layoutNetwork(arma::sp_mat& G, arma::mat& initial_position, const std::string& method, double min_dist, double spread, double gamma, unsigned int n_epochs, double learning_rate, int seed, int thread_no);
+static SEXP _actionet_layoutNetwork_try(SEXP GSEXP, SEXP initial_positionSEXP, SEXP methodSEXP, SEXP min_distSEXP, SEXP spreadSEXP, SEXP gammaSEXP, SEXP n_epochsSEXP, SEXP learning_rateSEXP, SEXP seedSEXP, SEXP thread_noSEXP) {
 BEGIN_RCPP
     Rcpp::RObject rcpp_result_gen;
     Rcpp::traits::input_parameter< arma::sp_mat& >::type G(GSEXP);
     Rcpp::traits::input_parameter< arma::mat& >::type initial_position(initial_positionSEXP);
     Rcpp::traits::input_parameter< const std::string& >::type method(methodSEXP);
-    Rcpp::traits::input_parameter< bool >::type presmooth_network(presmooth_networkSEXP);
     Rcpp::traits::input_parameter< double >::type min_dist(min_distSEXP);
     Rcpp::traits::input_parameter< double >::type spread(spreadSEXP);
     Rcpp::traits::input_parameter< double >::type gamma(gammaSEXP);
     Rcpp::traits::input_parameter< unsigned int >::type n_epochs(n_epochsSEXP);
-    Rcpp::traits::input_parameter< int >::type thread_no(thread_noSEXP);
-    Rcpp::traits::input_parameter< int >::type seed(seedSEXP);
     Rcpp::traits::input_parameter< double >::type learning_rate(learning_rateSEXP);
-    Rcpp::traits::input_parameter< int >::type sim2dist(sim2distSEXP);
-    rcpp_result_gen = Rcpp::wrap(layoutNetwork(G, initial_position, method, presmooth_network, min_dist, spread, gamma, n_epochs, thread_no, seed, learning_rate, sim2dist));
+    Rcpp::traits::input_parameter< int >::type seed(seedSEXP);
+    Rcpp::traits::input_parameter< int >::type thread_no(thread_noSEXP);
+    rcpp_result_gen = Rcpp::wrap(layoutNetwork(G, initial_position, method, min_dist, spread, gamma, n_epochs, learning_rate, seed, thread_no));
     return rcpp_result_gen;
 END_RCPP_RETURN_ERROR
 }
-RcppExport SEXP _actionet_layoutNetwork(SEXP GSEXP, SEXP initial_positionSEXP, SEXP methodSEXP, SEXP presmooth_networkSEXP, SEXP min_distSEXP, SEXP spreadSEXP, SEXP gammaSEXP, SEXP n_epochsSEXP, SEXP thread_noSEXP, SEXP seedSEXP, SEXP learning_rateSEXP, SEXP sim2distSEXP) {
+RcppExport SEXP _actionet_layoutNetwork(SEXP GSEXP, SEXP initial_positionSEXP, SEXP methodSEXP, SEXP min_distSEXP, SEXP spreadSEXP, SEXP gammaSEXP, SEXP n_epochsSEXP, SEXP learning_rateSEXP, SEXP seedSEXP, SEXP thread_noSEXP) {
     SEXP rcpp_result_gen;
     {
         Rcpp::RNGScope rcpp_rngScope_gen;
-        rcpp_result_gen = PROTECT(_actionet_layoutNetwork_try(GSEXP, initial_positionSEXP, methodSEXP, presmooth_networkSEXP, min_distSEXP, spreadSEXP, gammaSEXP, n_epochsSEXP, thread_noSEXP, seedSEXP, learning_rateSEXP, sim2distSEXP));
+        rcpp_result_gen = PROTECT(_actionet_layoutNetwork_try(GSEXP, initial_positionSEXP, methodSEXP, min_distSEXP, spreadSEXP, gammaSEXP, n_epochsSEXP, learning_rateSEXP, seedSEXP, thread_noSEXP));
     }
     Rboolean rcpp_isInterrupt_gen = Rf_inherits(rcpp_result_gen, "interrupted-error");
     if (rcpp_isInterrupt_gen) {
@@ -1864,7 +1862,7 @@ static int _actionet_RcppExport_validate(const char* sig) {
         signatures.insert("arma::sp_mat(*normalize_spmat)(arma::sp_mat&,int,int)");
         signatures.insert("arma::vec(*xicor)(arma::vec,arma::vec,bool,int)");
         signatures.insert("Rcpp::List(*XICOR)(arma::mat&,arma::mat&,bool,int,int)");
-        signatures.insert("Rcpp::List(*layoutNetwork)(arma::sp_mat&,arma::mat&,const std::string&,bool,double,double,double,unsigned int,int,int,double,int)");
+        signatures.insert("Rcpp::List(*layoutNetwork)(arma::sp_mat&,arma::mat&,const std::string&,double,double,double,unsigned int,double,int,int)");
     }
     return signatures.find(sig) != signatures.end();
 }
@@ -1971,7 +1969,7 @@ static const R_CallMethodDef CallEntries[] = {
     {"_actionet_normalize_spmat", (DL_FUNC) &_actionet_normalize_spmat, 3},
     {"_actionet_xicor", (DL_FUNC) &_actionet_xicor, 4},
     {"_actionet_XICOR", (DL_FUNC) &_actionet_XICOR, 5},
-    {"_actionet_layoutNetwork", (DL_FUNC) &_actionet_layoutNetwork, 12},
+    {"_actionet_layoutNetwork", (DL_FUNC) &_actionet_layoutNetwork, 10},
     {"_actionet_RcppExport_registerCCallable", (DL_FUNC) &_actionet_RcppExport_registerCCallable, 0},
     {NULL, NULL, 0}
 };

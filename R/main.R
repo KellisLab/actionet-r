@@ -152,13 +152,14 @@ runACTIONet <- function(ace,
     ace = ace,
     initial_coordinates = initial_coordinates,
     algorithm = layout_algorithm,
-    n_epochs = layout_epochs,
-    spread = layout_spread,
     min_dist = layout_min_dist,
+    spread = layout_spread,
     gamma = layout_gamma,
+    n_epochs = layout_epochs,
+    # learning_rate = learning_rate // TODO: implement?
     net_slot = net_slot_out,
-    thread_no = ifelse(layout_parallel, thread_no, 1),
-    seed = seed
+    seed = seed,
+    thread_no = ifelse(layout_parallel, thread_no, 1)
   )
 
   # Compute gene specificity for each archetype
@@ -283,15 +284,17 @@ rebuildACTIONet <- function(ace,
 #' plot.ACTIONet(ace.updated)
 #' @export
 rerunLayout <- function(ace,
-                        algorithm = c("umap", "tumap"),
                         initial_coordinates = NULL,
-                        spread = 1.0,
+                        algorithm = c("umap", "tumap"),
                         min_dist = 1.0,
+                        spread = 1.0,
                         gamma = 1.0,
                         n_epochs = 100,
-                        thread_no = 0,
+                        learning_rate = 1.0,
                         net_slot = "ACTIONet",
-                        seed = 0) {
+                        seed = 0,
+                        thread_no = 0
+                        ) {
   algorithm <- tolower(algorithm)
   algorithm <- match.arg(algorithm, several.ok = FALSE)
 
@@ -301,13 +304,14 @@ rerunLayout <- function(ace,
   }
 
   ace <- .run.layoutNetwork(
-    initial_coordinates = initial_coordinates,
     ace = ace,
+    initial_coordinates = initial_coordinates,
     algorithm = algorithm,
-    n_epochs = n_epochs,
-    spread = spread,
     min_dist = min_dist,
+    spread = spread,
     gamma = gamma,
+    n_epochs = n_epochs,
+    learning_rate = learning_rate,
     net_slot = net_slot,
     thread_no = thread_no,
     seed = seed
