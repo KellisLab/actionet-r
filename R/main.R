@@ -139,7 +139,7 @@ runACTIONet <- function(ace,
     alpha = footprint_alpha,
     thread_no = thread_no,
     max_it = 5,
-    res_threshold = 1e-8,
+    tol = 1e-8,
     net_slot = NULL
   )
   colMaps(ace)$archetype_footprint <- archetype_footprint
@@ -373,7 +373,7 @@ rerun.archetype.unification <- function(ace,
     alpha = footprint_alpha,
     thread_no = thread_no,
     max_it = 5,
-    res_threshold = 1e-8,
+    tol = 1e-8,
     net_slot = NULL
   )
   colMaps(ace)$archetype_footprint <- archetype_footprint

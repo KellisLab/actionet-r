@@ -69,9 +69,9 @@ arma::vec run_LPA(arma::sp_mat& G, arma::vec labels, double lambda = 1, int iter
 //' gene.expression = Matrix::t(logcounts(ace))[c("CD19", "CD14", "CD16"), ]
 //' smoothed.expression = compute_network_diffusion(G, gene.expression)
 // [[Rcpp::export]]
-arma::mat compute_network_diffusion_fast(arma::sp_mat& G, arma::sp_mat& X0, int thread_no = 0, double alpha = 0.85,
-                                         int max_it = 3) {
-    arma::mat Diff = actionet::compute_network_diffusion_fast(G, X0, thread_no, alpha, max_it);
+arma::mat compute_network_diffusion_fast(arma::sp_mat& G, arma::sp_mat& X0, double alpha = 0.85, int max_it = 3,
+                                         int thread_no = 0) {
+    arma::mat Diff = actionet::compute_network_diffusion_fast(G, X0, alpha, max_it, thread_no);
 
     return (Diff);
 }
@@ -91,15 +91,14 @@ arma::mat compute_network_diffusion_fast(arma::sp_mat& G, arma::sp_mat& X0, int 
 //' gene.expression = Matrix::t(logcounts(ace))[c("CD19", "CD14", "CD16"), ]
 //' smoothed.expression = compute_network_diffusion_approx(G, gene.expression)
 // [[Rcpp::export]]
-arma::mat compute_network_diffusion_approx(arma::sp_mat& G, arma::mat& X0, int thread_no = 0, double alpha = 0.85,
-                                           int max_it = 5, double res_threshold = 1e-8, int norm_type = 0) {
+arma::mat compute_network_diffusion_approx(arma::sp_mat& G, arma::mat& X0, int norm_type = 0, double alpha = 0.85,
+                                           int max_it = 5, double tol = 1e-8, int thread_no = 0) {
     if (G.n_rows != X0.n_rows) {
         stderr_printf("Dimension mismatch: G (%dx%d) and X0 (%dx%d)\n", G.n_rows, G.n_cols, X0.n_rows, X0.n_cols);
         return (arma::mat());
     }
 
-    arma::sp_mat P = actionet::normalize_adj(G, norm_type);
-    arma::mat X = actionet::compute_network_diffusion_approx(P, X0, thread_no, alpha, max_it, res_threshold);
+    arma::mat X = actionet::compute_network_diffusion_approx(G, X0, norm_type, alpha, max_it, tol, thread_no);
 
     return (X);
 }

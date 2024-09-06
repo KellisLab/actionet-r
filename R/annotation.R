@@ -331,9 +331,9 @@ map.cell.scores.from.archetype.enrichment <- function(ace,
   return(cell.enrichment.mat)
 }
 
-
+# TODO : Clean up arguments
 #' @export
-annotateCells <- function(ace, markers, algorithm = "parametric", alpha = 0.85, network_normalization_method = "pagerank_sym", post_correction = F, thread_no = 0, features_use = NULL, assay_name = "logcounts", net_slot = "ACTIONet", specificity_slot = "merged_feature_specificity", H_slot = "H_merged") {
+annotateCells <- function(ace, markers, algorithm = "parametric", norm_type = "pagerank_sym", alpha = 0.85, max_it = 5, post_correction = F, thread_no = 0, features_use = NULL, assay_name = "logcounts", net_slot = "ACTIONet", specificity_slot = "merged_feature_specificity", H_slot = "H_merged") {
   if (!(net_slot %in% names(colNets(ace)))) {
     warning(sprintf("net_slot does not exist in colNets(ace)."))
     return()
@@ -347,12 +347,16 @@ annotateCells <- function(ace, markers, algorithm = "parametric", alpha = 0.85, 
   S <- assays(ace)[[assay_name]]
   S <- as(S, "sparseMatrix")
 
-  network_normalization_code <- 0
-  if (network_normalization_method == "pagerank_sym") {
-    network_normalization_code <- 2
-  }
   if (algorithm == "parametric") {
-    out <- aggregate_genesets_vision(G, S, as.matrix(marker_mat), network_normalization_code, alpha, thread_no)
+    out <- aggregate_genesets_vision(
+      G = G,
+      S = S,
+      marker_mat = as.matrix(marker_mat),
+      norm_type = ifelse(norm_type == "pagerank_sym", 2, 0),
+      alpha = alpha,
+      max_it = max_it,
+      thread_no = thread_no
+      )
 
     marker_stats <- out[["stats_norm_smoothed"]]
     colnames(marker_stats) <- colnames(marker_mat)

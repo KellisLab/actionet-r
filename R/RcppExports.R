@@ -151,8 +151,8 @@ compute_marker_aggregate_stats <- function(G, S, marker_mat, alpha = 0.85, max_i
     .Call(`_actionet_compute_marker_aggregate_stats`, G, S, marker_mat, alpha, max_it, thread_no, ignore_baseline_expression)
 }
 
-aggregate_genesets_vision <- function(G, S, marker_mat, network_normalization_method = 0L, alpha = 0.85, thread_no = 0L) {
-    .Call(`_actionet_aggregate_genesets_vision`, G, S, marker_mat, network_normalization_method, alpha, thread_no)
+aggregate_genesets_vision <- function(G, S, marker_mat, norm_type = 2L, alpha = 0.85, max_it = 5L, tol = 1E-8, thread_no = 0L) {
+    .Call(`_actionet_aggregate_genesets_vision`, G, S, marker_mat, norm_type, alpha, max_it, tol, thread_no)
 }
 
 #' Compute feature specificity (from archetype footprints)
@@ -283,8 +283,8 @@ run_LPA <- function(G, labels, lambda = 1, iters = 3L, sig_threshold = 3, fixed_
 #' G = colNets(ace)$ACTIONet
 #' gene.expression = Matrix::t(logcounts(ace))[c("CD19", "CD14", "CD16"), ]
 #' smoothed.expression = compute_network_diffusion(G, gene.expression)
-compute_network_diffusion_fast <- function(G, X0, thread_no = 0L, alpha = 0.85, max_it = 3L) {
-    .Call(`_actionet_compute_network_diffusion_fast`, G, X0, thread_no, alpha, max_it)
+compute_network_diffusion_fast <- function(G, X0, alpha = 0.85, max_it = 3L, thread_no = 0L) {
+    .Call(`_actionet_compute_network_diffusion_fast`, G, X0, alpha, max_it, thread_no)
 }
 
 #' Computes network diffusion over a given network, starting with an arbitrarty
@@ -301,8 +301,8 @@ compute_network_diffusion_fast <- function(G, X0, thread_no = 0L, alpha = 0.85, 
 #' G = colNets(ace)$ACTIONet
 #' gene.expression = Matrix::t(logcounts(ace))[c("CD19", "CD14", "CD16"), ]
 #' smoothed.expression = compute_network_diffusion_approx(G, gene.expression)
-compute_network_diffusion_approx <- function(G, X0, thread_no = 0L, alpha = 0.85, max_it = 5L, res_threshold = 1e-8, norm_type = 0L) {
-    .Call(`_actionet_compute_network_diffusion_approx`, G, X0, thread_no, alpha, max_it, res_threshold, norm_type)
+compute_network_diffusion_approx <- function(G, X0, norm_type = 0L, alpha = 0.85, max_it = 5L, tol = 1e-8, thread_no = 0L) {
+    .Call(`_actionet_compute_network_diffusion_approx`, G, X0, norm_type, alpha, max_it, tol, thread_no)
 }
 
 #' Compute coreness of graph vertices

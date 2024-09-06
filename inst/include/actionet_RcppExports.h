@@ -214,17 +214,17 @@ namespace actionet {
         return Rcpp::as<arma::mat >(rcpp_result_gen);
     }
 
-    inline Rcpp::List aggregate_genesets_vision(arma::sp_mat& G, arma::sp_mat& S, arma::mat& marker_mat, int network_normalization_method = 0, double alpha = 0.85, int thread_no = 0) {
-        typedef SEXP(*Ptr_aggregate_genesets_vision)(SEXP,SEXP,SEXP,SEXP,SEXP,SEXP);
+    inline Rcpp::List aggregate_genesets_vision(arma::sp_mat& G, arma::sp_mat& S, arma::mat& marker_mat, int norm_type = 2, double alpha = 0.85, int max_it = 5, double tol = 1E-8, int thread_no = 0) {
+        typedef SEXP(*Ptr_aggregate_genesets_vision)(SEXP,SEXP,SEXP,SEXP,SEXP,SEXP,SEXP,SEXP);
         static Ptr_aggregate_genesets_vision p_aggregate_genesets_vision = NULL;
         if (p_aggregate_genesets_vision == NULL) {
-            validateSignature("Rcpp::List(*aggregate_genesets_vision)(arma::sp_mat&,arma::sp_mat&,arma::mat&,int,double,int)");
+            validateSignature("Rcpp::List(*aggregate_genesets_vision)(arma::sp_mat&,arma::sp_mat&,arma::mat&,int,double,int,double,int)");
             p_aggregate_genesets_vision = (Ptr_aggregate_genesets_vision)R_GetCCallable("actionet", "_actionet_aggregate_genesets_vision");
         }
         RObject rcpp_result_gen;
         {
             RNGScope RCPP_rngScope_gen;
-            rcpp_result_gen = p_aggregate_genesets_vision(Shield<SEXP>(Rcpp::wrap(G)), Shield<SEXP>(Rcpp::wrap(S)), Shield<SEXP>(Rcpp::wrap(marker_mat)), Shield<SEXP>(Rcpp::wrap(network_normalization_method)), Shield<SEXP>(Rcpp::wrap(alpha)), Shield<SEXP>(Rcpp::wrap(thread_no)));
+            rcpp_result_gen = p_aggregate_genesets_vision(Shield<SEXP>(Rcpp::wrap(G)), Shield<SEXP>(Rcpp::wrap(S)), Shield<SEXP>(Rcpp::wrap(marker_mat)), Shield<SEXP>(Rcpp::wrap(norm_type)), Shield<SEXP>(Rcpp::wrap(alpha)), Shield<SEXP>(Rcpp::wrap(max_it)), Shield<SEXP>(Rcpp::wrap(tol)), Shield<SEXP>(Rcpp::wrap(thread_no)));
         }
         if (rcpp_result_gen.inherits("interrupted-error"))
             throw Rcpp::internal::InterruptedException();
@@ -508,17 +508,17 @@ namespace actionet {
         return Rcpp::as<arma::vec >(rcpp_result_gen);
     }
 
-    inline arma::mat compute_network_diffusion_fast(arma::sp_mat& G, arma::sp_mat& X0, int thread_no = 0, double alpha = 0.85, int max_it = 3) {
+    inline arma::mat compute_network_diffusion_fast(arma::sp_mat& G, arma::sp_mat& X0, double alpha = 0.85, int max_it = 3, int thread_no = 0) {
         typedef SEXP(*Ptr_compute_network_diffusion_fast)(SEXP,SEXP,SEXP,SEXP,SEXP);
         static Ptr_compute_network_diffusion_fast p_compute_network_diffusion_fast = NULL;
         if (p_compute_network_diffusion_fast == NULL) {
-            validateSignature("arma::mat(*compute_network_diffusion_fast)(arma::sp_mat&,arma::sp_mat&,int,double,int)");
+            validateSignature("arma::mat(*compute_network_diffusion_fast)(arma::sp_mat&,arma::sp_mat&,double,int,int)");
             p_compute_network_diffusion_fast = (Ptr_compute_network_diffusion_fast)R_GetCCallable("actionet", "_actionet_compute_network_diffusion_fast");
         }
         RObject rcpp_result_gen;
         {
             RNGScope RCPP_rngScope_gen;
-            rcpp_result_gen = p_compute_network_diffusion_fast(Shield<SEXP>(Rcpp::wrap(G)), Shield<SEXP>(Rcpp::wrap(X0)), Shield<SEXP>(Rcpp::wrap(thread_no)), Shield<SEXP>(Rcpp::wrap(alpha)), Shield<SEXP>(Rcpp::wrap(max_it)));
+            rcpp_result_gen = p_compute_network_diffusion_fast(Shield<SEXP>(Rcpp::wrap(G)), Shield<SEXP>(Rcpp::wrap(X0)), Shield<SEXP>(Rcpp::wrap(alpha)), Shield<SEXP>(Rcpp::wrap(max_it)), Shield<SEXP>(Rcpp::wrap(thread_no)));
         }
         if (rcpp_result_gen.inherits("interrupted-error"))
             throw Rcpp::internal::InterruptedException();
@@ -529,7 +529,7 @@ namespace actionet {
         return Rcpp::as<arma::mat >(rcpp_result_gen);
     }
 
-    inline arma::mat compute_network_diffusion_approx(arma::sp_mat& G, arma::mat& X0, int thread_no = 0, double alpha = 0.85, int max_it = 5, double res_threshold = 1e-8, int norm_type = 0) {
+    inline arma::mat compute_network_diffusion_approx(arma::sp_mat& G, arma::mat& X0, int norm_type = 0, double alpha = 0.85, int max_it = 5, double tol = 1e-8, int thread_no = 0) {
         typedef SEXP(*Ptr_compute_network_diffusion_approx)(SEXP,SEXP,SEXP,SEXP,SEXP,SEXP,SEXP);
         static Ptr_compute_network_diffusion_approx p_compute_network_diffusion_approx = NULL;
         if (p_compute_network_diffusion_approx == NULL) {
@@ -539,7 +539,7 @@ namespace actionet {
         RObject rcpp_result_gen;
         {
             RNGScope RCPP_rngScope_gen;
-            rcpp_result_gen = p_compute_network_diffusion_approx(Shield<SEXP>(Rcpp::wrap(G)), Shield<SEXP>(Rcpp::wrap(X0)), Shield<SEXP>(Rcpp::wrap(thread_no)), Shield<SEXP>(Rcpp::wrap(alpha)), Shield<SEXP>(Rcpp::wrap(max_it)), Shield<SEXP>(Rcpp::wrap(res_threshold)), Shield<SEXP>(Rcpp::wrap(norm_type)));
+            rcpp_result_gen = p_compute_network_diffusion_approx(Shield<SEXP>(Rcpp::wrap(G)), Shield<SEXP>(Rcpp::wrap(X0)), Shield<SEXP>(Rcpp::wrap(norm_type)), Shield<SEXP>(Rcpp::wrap(alpha)), Shield<SEXP>(Rcpp::wrap(max_it)), Shield<SEXP>(Rcpp::wrap(tol)), Shield<SEXP>(Rcpp::wrap(thread_no)));
         }
         if (rcpp_result_gen.inherits("interrupted-error"))
             throw Rcpp::internal::InterruptedException();

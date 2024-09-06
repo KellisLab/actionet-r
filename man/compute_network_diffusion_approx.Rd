@@ -8,11 +8,11 @@ set of initial scores}
 compute_network_diffusion_approx(
   G,
   X0,
-  thread_no = 0L,
+  norm_type = 0L,
   alpha = 0.85,
   max_it = 5L,
-  res_threshold = 1e-08,
-  norm_type = 0L
+  tol = 1e-08,
+  thread_no = 0L
 )
 }
 \arguments{
@@ -20,9 +20,9 @@ compute_network_diffusion_approx(
 
 \item{X0}{Matrix of initial values per diffusion (ncol(G) == nrow(G) == ncol(X0))}
 
-\item{thread_no}{Number of parallel threads (default=0)}
-
 \item{alpha}{Random-walk depth ( between [0, 1] ) ' @param max_it PageRank iterations}
+
+\item{thread_no}{Number of parallel threads (default=0)}
 }
 \value{
 Matrix of diffusion scores

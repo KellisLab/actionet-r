@@ -221,9 +221,10 @@ impute.genes.using.ACTIONet <- function(
     expression_imputed <- compute_network_diffusion_approx(
         G = G,
         X0 = Matrix::as.matrix(U),
-        thread_no = thread_no,
+        norm_type = 0,
         alpha = alpha,
-        max_it = diffusion_it
+        max_it = diffusion_it,
+        thread_no = thread_no
     )
 
     expression_imputed[is.na(expression_imputed)] <- 0

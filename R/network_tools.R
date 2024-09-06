@@ -6,7 +6,7 @@ networkDiffusion <- function(
   alpha = 0.9,
   thread_no = 0,
   max_it = 5,
-  res_threshold = 1e-8,
+  tol = 1e-8,
   net_slot = "ACTIONet"
 ) {
 
@@ -33,27 +33,15 @@ networkDiffusion <- function(
     stop("`alpha` < 0")
   }
 
-  if (algorithm == "pagerank") {
-    x <- compute_network_diffusion_approx(
-      G = G,
-      X0 = scores,
-      thread_no = thread_no,
-      alpha = alpha,
-      max_it = max_it,
-      res_threshold = res_threshold,
-      norm_type = 0
-    )
-  } else if (algorithm == "pagerank_sym") {
-    x <- compute_network_diffusion_approx(
-      G = G,
-      X0 = scores,
-      thread_no = thread_no,
-      alpha = alpha,
-      max_it = max_it,
-      res_threshold = res_threshold,
-      norm_type = 2
-    )
-  }
+  x <- compute_network_diffusion_approx(
+    G = G,
+    X0 = scores,
+    norm_type = ifelse (algorithm == "pagerank_sym", 2, 0),
+    alpha = alpha,
+    max_it = max_it,
+    tol = tol,
+    thread_no = thread_no
+  )
 
   return(x)
 }
@@ -67,7 +55,7 @@ networkCentrality <- function(
   alpha = 0.9,
   net_slot = "ACTIONet",
   diffusion_it = 5,
-  res_threshold = 1e-8,
+  tol = 1e-8,
   thread_no = 0
 ) {
 
@@ -115,7 +103,7 @@ networkCentrality <- function(
       alpha = alpha,
       thread_no = thread_no,
       max_it = diffusion_it,
-      res_threshold = res_threshold,
+      tol = tol,
       net_slot = NULL
     )
 
@@ -134,7 +122,7 @@ networkCentrality <- function(
       alpha = alpha,
       thread_no = thread_no,
       max_it = diffusion_it,
-      res_threshold = res_threshold,
+      tol = tol,
       net_slot = NULL
     )
     scores <- apply(scores, 2, function(x) x / max(x))

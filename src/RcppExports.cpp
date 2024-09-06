@@ -356,25 +356,27 @@ RcppExport SEXP _actionet_compute_marker_aggregate_stats(SEXP GSEXP, SEXP SSEXP,
     return rcpp_result_gen;
 }
 // aggregate_genesets_vision
-Rcpp::List aggregate_genesets_vision(arma::sp_mat& G, arma::sp_mat& S, arma::mat& marker_mat, int network_normalization_method, double alpha, int thread_no);
-static SEXP _actionet_aggregate_genesets_vision_try(SEXP GSEXP, SEXP SSEXP, SEXP marker_matSEXP, SEXP network_normalization_methodSEXP, SEXP alphaSEXP, SEXP thread_noSEXP) {
+Rcpp::List aggregate_genesets_vision(arma::sp_mat& G, arma::sp_mat& S, arma::mat& marker_mat, int norm_type, double alpha, int max_it, double tol, int thread_no);
+static SEXP _actionet_aggregate_genesets_vision_try(SEXP GSEXP, SEXP SSEXP, SEXP marker_matSEXP, SEXP norm_typeSEXP, SEXP alphaSEXP, SEXP max_itSEXP, SEXP tolSEXP, SEXP thread_noSEXP) {
 BEGIN_RCPP
     Rcpp::RObject rcpp_result_gen;
     Rcpp::traits::input_parameter< arma::sp_mat& >::type G(GSEXP);
     Rcpp::traits::input_parameter< arma::sp_mat& >::type S(SSEXP);
     Rcpp::traits::input_parameter< arma::mat& >::type marker_mat(marker_matSEXP);
-    Rcpp::traits::input_parameter< int >::type network_normalization_method(network_normalization_methodSEXP);
+    Rcpp::traits::input_parameter< int >::type norm_type(norm_typeSEXP);
     Rcpp::traits::input_parameter< double >::type alpha(alphaSEXP);
+    Rcpp::traits::input_parameter< int >::type max_it(max_itSEXP);
+    Rcpp::traits::input_parameter< double >::type tol(tolSEXP);
     Rcpp::traits::input_parameter< int >::type thread_no(thread_noSEXP);
-    rcpp_result_gen = Rcpp::wrap(aggregate_genesets_vision(G, S, marker_mat, network_normalization_method, alpha, thread_no));
+    rcpp_result_gen = Rcpp::wrap(aggregate_genesets_vision(G, S, marker_mat, norm_type, alpha, max_it, tol, thread_no));
     return rcpp_result_gen;
 END_RCPP_RETURN_ERROR
 }
-RcppExport SEXP _actionet_aggregate_genesets_vision(SEXP GSEXP, SEXP SSEXP, SEXP marker_matSEXP, SEXP network_normalization_methodSEXP, SEXP alphaSEXP, SEXP thread_noSEXP) {
+RcppExport SEXP _actionet_aggregate_genesets_vision(SEXP GSEXP, SEXP SSEXP, SEXP marker_matSEXP, SEXP norm_typeSEXP, SEXP alphaSEXP, SEXP max_itSEXP, SEXP tolSEXP, SEXP thread_noSEXP) {
     SEXP rcpp_result_gen;
     {
         Rcpp::RNGScope rcpp_rngScope_gen;
-        rcpp_result_gen = PROTECT(_actionet_aggregate_genesets_vision_try(GSEXP, SSEXP, marker_matSEXP, network_normalization_methodSEXP, alphaSEXP, thread_noSEXP));
+        rcpp_result_gen = PROTECT(_actionet_aggregate_genesets_vision_try(GSEXP, SSEXP, marker_matSEXP, norm_typeSEXP, alphaSEXP, max_itSEXP, tolSEXP, thread_noSEXP));
     }
     Rboolean rcpp_isInterrupt_gen = Rf_inherits(rcpp_result_gen, "interrupted-error");
     if (rcpp_isInterrupt_gen) {
@@ -895,24 +897,24 @@ RcppExport SEXP _actionet_run_LPA(SEXP GSEXP, SEXP labelsSEXP, SEXP lambdaSEXP, 
     return rcpp_result_gen;
 }
 // compute_network_diffusion_fast
-arma::mat compute_network_diffusion_fast(arma::sp_mat& G, arma::sp_mat& X0, int thread_no, double alpha, int max_it);
-static SEXP _actionet_compute_network_diffusion_fast_try(SEXP GSEXP, SEXP X0SEXP, SEXP thread_noSEXP, SEXP alphaSEXP, SEXP max_itSEXP) {
+arma::mat compute_network_diffusion_fast(arma::sp_mat& G, arma::sp_mat& X0, double alpha, int max_it, int thread_no);
+static SEXP _actionet_compute_network_diffusion_fast_try(SEXP GSEXP, SEXP X0SEXP, SEXP alphaSEXP, SEXP max_itSEXP, SEXP thread_noSEXP) {
 BEGIN_RCPP
     Rcpp::RObject rcpp_result_gen;
     Rcpp::traits::input_parameter< arma::sp_mat& >::type G(GSEXP);
     Rcpp::traits::input_parameter< arma::sp_mat& >::type X0(X0SEXP);
-    Rcpp::traits::input_parameter< int >::type thread_no(thread_noSEXP);
     Rcpp::traits::input_parameter< double >::type alpha(alphaSEXP);
     Rcpp::traits::input_parameter< int >::type max_it(max_itSEXP);
-    rcpp_result_gen = Rcpp::wrap(compute_network_diffusion_fast(G, X0, thread_no, alpha, max_it));
+    Rcpp::traits::input_parameter< int >::type thread_no(thread_noSEXP);
+    rcpp_result_gen = Rcpp::wrap(compute_network_diffusion_fast(G, X0, alpha, max_it, thread_no));
     return rcpp_result_gen;
 END_RCPP_RETURN_ERROR
 }
-RcppExport SEXP _actionet_compute_network_diffusion_fast(SEXP GSEXP, SEXP X0SEXP, SEXP thread_noSEXP, SEXP alphaSEXP, SEXP max_itSEXP) {
+RcppExport SEXP _actionet_compute_network_diffusion_fast(SEXP GSEXP, SEXP X0SEXP, SEXP alphaSEXP, SEXP max_itSEXP, SEXP thread_noSEXP) {
     SEXP rcpp_result_gen;
     {
         Rcpp::RNGScope rcpp_rngScope_gen;
-        rcpp_result_gen = PROTECT(_actionet_compute_network_diffusion_fast_try(GSEXP, X0SEXP, thread_noSEXP, alphaSEXP, max_itSEXP));
+        rcpp_result_gen = PROTECT(_actionet_compute_network_diffusion_fast_try(GSEXP, X0SEXP, alphaSEXP, max_itSEXP, thread_noSEXP));
     }
     Rboolean rcpp_isInterrupt_gen = Rf_inherits(rcpp_result_gen, "interrupted-error");
     if (rcpp_isInterrupt_gen) {
@@ -933,26 +935,26 @@ RcppExport SEXP _actionet_compute_network_diffusion_fast(SEXP GSEXP, SEXP X0SEXP
     return rcpp_result_gen;
 }
 // compute_network_diffusion_approx
-arma::mat compute_network_diffusion_approx(arma::sp_mat& G, arma::mat& X0, int thread_no, double alpha, int max_it, double res_threshold, int norm_type);
-static SEXP _actionet_compute_network_diffusion_approx_try(SEXP GSEXP, SEXP X0SEXP, SEXP thread_noSEXP, SEXP alphaSEXP, SEXP max_itSEXP, SEXP res_thresholdSEXP, SEXP norm_typeSEXP) {
+arma::mat compute_network_diffusion_approx(arma::sp_mat& G, arma::mat& X0, int norm_type, double alpha, int max_it, double tol, int thread_no);
+static SEXP _actionet_compute_network_diffusion_approx_try(SEXP GSEXP, SEXP X0SEXP, SEXP norm_typeSEXP, SEXP alphaSEXP, SEXP max_itSEXP, SEXP tolSEXP, SEXP thread_noSEXP) {
 BEGIN_RCPP
     Rcpp::RObject rcpp_result_gen;
     Rcpp::traits::input_parameter< arma::sp_mat& >::type G(GSEXP);
     Rcpp::traits::input_parameter< arma::mat& >::type X0(X0SEXP);
-    Rcpp::traits::input_parameter< int >::type thread_no(thread_noSEXP);
+    Rcpp::traits::input_parameter< int >::type norm_type(norm_typeSEXP);
     Rcpp::traits::input_parameter< double >::type alpha(alphaSEXP);
     Rcpp::traits::input_parameter< int >::type max_it(max_itSEXP);
-    Rcpp::traits::input_parameter< double >::type res_threshold(res_thresholdSEXP);
-    Rcpp::traits::input_parameter< int >::type norm_type(norm_typeSEXP);
-    rcpp_result_gen = Rcpp::wrap(compute_network_diffusion_approx(G, X0, thread_no, alpha, max_it, res_threshold, norm_type));
+    Rcpp::traits::input_parameter< double >::type tol(tolSEXP);
+    Rcpp::traits::input_parameter< int >::type thread_no(thread_noSEXP);
+    rcpp_result_gen = Rcpp::wrap(compute_network_diffusion_approx(G, X0, norm_type, alpha, max_it, tol, thread_no));
     return rcpp_result_gen;
 END_RCPP_RETURN_ERROR
 }
-RcppExport SEXP _actionet_compute_network_diffusion_approx(SEXP GSEXP, SEXP X0SEXP, SEXP thread_noSEXP, SEXP alphaSEXP, SEXP max_itSEXP, SEXP res_thresholdSEXP, SEXP norm_typeSEXP) {
+RcppExport SEXP _actionet_compute_network_diffusion_approx(SEXP GSEXP, SEXP X0SEXP, SEXP norm_typeSEXP, SEXP alphaSEXP, SEXP max_itSEXP, SEXP tolSEXP, SEXP thread_noSEXP) {
     SEXP rcpp_result_gen;
     {
         Rcpp::RNGScope rcpp_rngScope_gen;
-        rcpp_result_gen = PROTECT(_actionet_compute_network_diffusion_approx_try(GSEXP, X0SEXP, thread_noSEXP, alphaSEXP, max_itSEXP, res_thresholdSEXP, norm_typeSEXP));
+        rcpp_result_gen = PROTECT(_actionet_compute_network_diffusion_approx_try(GSEXP, X0SEXP, norm_typeSEXP, alphaSEXP, max_itSEXP, tolSEXP, thread_noSEXP));
     }
     Rboolean rcpp_isInterrupt_gen = Rf_inherits(rcpp_result_gen, "interrupted-error");
     if (rcpp_isInterrupt_gen) {
@@ -1824,7 +1826,7 @@ static int _actionet_RcppExport_validate(const char* sig) {
         signatures.insert("arma::mat(*run_simplex_regression)(arma::mat&,arma::mat&,bool)");
         signatures.insert("Rcpp::List(*run_SPA)(arma::mat&,int)");
         signatures.insert("arma::mat(*compute_marker_aggregate_stats)(arma::sp_mat&,arma::sp_mat&,arma::sp_mat&,double,int,int,bool)");
-        signatures.insert("Rcpp::List(*aggregate_genesets_vision)(arma::sp_mat&,arma::sp_mat&,arma::mat&,int,double,int)");
+        signatures.insert("Rcpp::List(*aggregate_genesets_vision)(arma::sp_mat&,arma::sp_mat&,arma::mat&,int,double,int,double,int)");
         signatures.insert("Rcpp::List(*compute_archetype_feature_specificity)(arma::sp_mat&,arma::mat&,int)");
         signatures.insert("Rcpp::List(*compute_archetype_feature_specificity_full)(arma::mat&,arma::mat&,int)");
         signatures.insert("Rcpp::List(*compute_cluster_feature_specificity)(arma::sp_mat&,arma::uvec,int)");
@@ -1838,7 +1840,7 @@ static int _actionet_RcppExport_validate(const char* sig) {
         signatures.insert("Rcpp::List(*perturbedSVD)(arma::mat,arma::vec,arma::mat,arma::mat,arma::mat)");
         signatures.insert("arma::sp_mat(*buildNetwork)(arma::mat,std::string,std::string,double,int,bool,int)");
         signatures.insert("arma::vec(*run_LPA)(arma::sp_mat&,arma::vec,double,int,double,Rcpp::Nullable<Rcpp::IntegerVector>,int)");
-        signatures.insert("arma::mat(*compute_network_diffusion_fast)(arma::sp_mat&,arma::sp_mat&,int,double,int)");
+        signatures.insert("arma::mat(*compute_network_diffusion_fast)(arma::sp_mat&,arma::sp_mat&,double,int,int)");
         signatures.insert("arma::mat(*compute_network_diffusion_approx)(arma::sp_mat&,arma::mat&,int,double,int,double,int)");
         signatures.insert("arma::uvec(*compute_core_number)(arma::sp_mat&)");
         signatures.insert("arma::vec(*compute_archetype_core_centrality)(arma::sp_mat&,arma::uvec)");
@@ -1931,7 +1933,7 @@ static const R_CallMethodDef CallEntries[] = {
     {"_actionet_run_simplex_regression", (DL_FUNC) &_actionet_run_simplex_regression, 3},
     {"_actionet_run_SPA", (DL_FUNC) &_actionet_run_SPA, 2},
     {"_actionet_compute_marker_aggregate_stats", (DL_FUNC) &_actionet_compute_marker_aggregate_stats, 7},
-    {"_actionet_aggregate_genesets_vision", (DL_FUNC) &_actionet_aggregate_genesets_vision, 6},
+    {"_actionet_aggregate_genesets_vision", (DL_FUNC) &_actionet_aggregate_genesets_vision, 8},
     {"_actionet_compute_archetype_feature_specificity", (DL_FUNC) &_actionet_compute_archetype_feature_specificity, 3},
     {"_actionet_compute_archetype_feature_specificity_full", (DL_FUNC) &_actionet_compute_archetype_feature_specificity_full, 3},
     {"_actionet_compute_cluster_feature_specificity", (DL_FUNC) &_actionet_compute_cluster_feature_specificity, 3},

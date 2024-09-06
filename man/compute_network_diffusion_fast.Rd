@@ -8,9 +8,9 @@ set of initial scores}
 compute_network_diffusion_fast(
   G,
   X0,
-  thread_no = 0L,
   alpha = 0.85,
-  max_it = 3L
+  max_it = 3L,
+  thread_no = 0L
 )
 }
 \arguments{
@@ -18,11 +18,11 @@ compute_network_diffusion_fast(
 
 \item{X0}{Matrix of initial values per diffusion (ncol(G) == nrow(G) == ncol(X0))}
 
-\item{thread_no}{Number of parallel threads (default=0)}
-
 \item{alpha}{Random-walk depth ( between [0, 1] )}
 
 \item{max_it}{PageRank iterations}
+
+\item{thread_no}{Number of parallel threads (default=0)}
 }
 \value{
 Matrix of diffusion scores

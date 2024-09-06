@@ -17,9 +17,9 @@ arma::mat compute_marker_aggregate_stats(arma::sp_mat& G, arma::sp_mat& S, arma:
 
 // [[Rcpp::export]]
 Rcpp::List aggregate_genesets_vision(arma::sp_mat& G, arma::sp_mat& S, arma::mat& marker_mat,
-                                     int network_normalization_method = 0, double alpha = 0.85, int thread_no = 0) {
-    arma::field<arma::mat> stats = actionet::aggregate_genesets_vision(G, S, marker_mat, network_normalization_method,
-                                                                       alpha, thread_no);
+                                     int norm_type = 2, double alpha = 0.85, int max_it = 5, double tol = 1E-8, int thread_no = 0) {
+    arma::field<arma::mat> stats = actionet::aggregate_genesets_vision(G, S, marker_mat, norm_type,
+                                                                       alpha, max_it, tol, thread_no);
 
     Rcpp::List res;
 
