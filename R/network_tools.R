@@ -257,18 +257,14 @@ networkAutocorrelation <- function(
     obj_name = "obj"
   )
 
+  if (!is.sparseMatrix(G)) {
+    G <- as(G, "sparseMatrix")
+  }
+
   if (algorithm == "geary") {
-    if (is.sparseMatrix(G)) {
-      out <- autocorrelation_Geary(G = G, scores = scores, normalization_method = score_normalization_method, perm_no = perm_no, thread_no = thread_no)
-    } else {
-      out <- autocorrelation_Geary_full(G = G, scores = scores, normalization_method = score_normalization_method, perm_no = perm_no, thread_no = thread_no)
-    }
+    out <- autocorrelation_Geary(G = G, scores = scores, normalization_method = score_normalization_method, perm_no = perm_no, thread_no = thread_no)
   } else if (algorithm == "moran") {
-    if (is.sparseMatrix(G)) {
-      out <- autocorrelation_Moran(G = G, scores = scores, normalization_method = score_normalization_method, perm_no = perm_no, thread_no = thread_no)
-    } else {
-      out <- autocorrelation_Moran_full(G = G, scores = scores, normalization_method = score_normalization_method, perm_no = perm_no, thread_no = thread_no)
-    }
+    out <- autocorrelation_Moran(G = G, scores = scores, normalization_method = score_normalization_method, perm_no = perm_no, thread_no = thread_no)
   } else if (algorithm == "categorical") {
     if (is.character(scores)) {
       label_type <- "char"

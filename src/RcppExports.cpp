@@ -1043,43 +1043,6 @@ RcppExport SEXP _actionet_compute_archetype_core_centrality(SEXP GSEXP, SEXP sam
     UNPROTECT(1);
     return rcpp_result_gen;
 }
-// autocorrelation_Moran_parametric_full
-Rcpp::List autocorrelation_Moran_parametric_full(arma::mat G, arma::mat scores, int normalization_method, int thread_no);
-static SEXP _actionet_autocorrelation_Moran_parametric_full_try(SEXP GSEXP, SEXP scoresSEXP, SEXP normalization_methodSEXP, SEXP thread_noSEXP) {
-BEGIN_RCPP
-    Rcpp::RObject rcpp_result_gen;
-    Rcpp::traits::input_parameter< arma::mat >::type G(GSEXP);
-    Rcpp::traits::input_parameter< arma::mat >::type scores(scoresSEXP);
-    Rcpp::traits::input_parameter< int >::type normalization_method(normalization_methodSEXP);
-    Rcpp::traits::input_parameter< int >::type thread_no(thread_noSEXP);
-    rcpp_result_gen = Rcpp::wrap(autocorrelation_Moran_parametric_full(G, scores, normalization_method, thread_no));
-    return rcpp_result_gen;
-END_RCPP_RETURN_ERROR
-}
-RcppExport SEXP _actionet_autocorrelation_Moran_parametric_full(SEXP GSEXP, SEXP scoresSEXP, SEXP normalization_methodSEXP, SEXP thread_noSEXP) {
-    SEXP rcpp_result_gen;
-    {
-        Rcpp::RNGScope rcpp_rngScope_gen;
-        rcpp_result_gen = PROTECT(_actionet_autocorrelation_Moran_parametric_full_try(GSEXP, scoresSEXP, normalization_methodSEXP, thread_noSEXP));
-    }
-    Rboolean rcpp_isInterrupt_gen = Rf_inherits(rcpp_result_gen, "interrupted-error");
-    if (rcpp_isInterrupt_gen) {
-        UNPROTECT(1);
-        Rf_onintr();
-    }
-    bool rcpp_isLongjump_gen = Rcpp::internal::isLongjumpSentinel(rcpp_result_gen);
-    if (rcpp_isLongjump_gen) {
-        Rcpp::internal::resumeJump(rcpp_result_gen);
-    }
-    Rboolean rcpp_isError_gen = Rf_inherits(rcpp_result_gen, "try-error");
-    if (rcpp_isError_gen) {
-        SEXP rcpp_msgSEXP_gen = Rf_asChar(rcpp_result_gen);
-        UNPROTECT(1);
-        Rf_error("%s", CHAR(rcpp_msgSEXP_gen));
-    }
-    UNPROTECT(1);
-    return rcpp_result_gen;
-}
 // autocorrelation_Moran_parametric
 Rcpp::List autocorrelation_Moran_parametric(arma::sp_mat G, arma::mat scores, int normalization_method, int thread_no);
 static SEXP _actionet_autocorrelation_Moran_parametric_try(SEXP GSEXP, SEXP scoresSEXP, SEXP normalization_methodSEXP, SEXP thread_noSEXP) {
@@ -1155,44 +1118,6 @@ RcppExport SEXP _actionet_autocorrelation_Moran(SEXP GSEXP, SEXP scoresSEXP, SEX
     UNPROTECT(1);
     return rcpp_result_gen;
 }
-// autocorrelation_Moran_full
-Rcpp::List autocorrelation_Moran_full(arma::mat G, arma::mat scores, int normalization_method, int perm_no, int thread_no);
-static SEXP _actionet_autocorrelation_Moran_full_try(SEXP GSEXP, SEXP scoresSEXP, SEXP normalization_methodSEXP, SEXP perm_noSEXP, SEXP thread_noSEXP) {
-BEGIN_RCPP
-    Rcpp::RObject rcpp_result_gen;
-    Rcpp::traits::input_parameter< arma::mat >::type G(GSEXP);
-    Rcpp::traits::input_parameter< arma::mat >::type scores(scoresSEXP);
-    Rcpp::traits::input_parameter< int >::type normalization_method(normalization_methodSEXP);
-    Rcpp::traits::input_parameter< int >::type perm_no(perm_noSEXP);
-    Rcpp::traits::input_parameter< int >::type thread_no(thread_noSEXP);
-    rcpp_result_gen = Rcpp::wrap(autocorrelation_Moran_full(G, scores, normalization_method, perm_no, thread_no));
-    return rcpp_result_gen;
-END_RCPP_RETURN_ERROR
-}
-RcppExport SEXP _actionet_autocorrelation_Moran_full(SEXP GSEXP, SEXP scoresSEXP, SEXP normalization_methodSEXP, SEXP perm_noSEXP, SEXP thread_noSEXP) {
-    SEXP rcpp_result_gen;
-    {
-        Rcpp::RNGScope rcpp_rngScope_gen;
-        rcpp_result_gen = PROTECT(_actionet_autocorrelation_Moran_full_try(GSEXP, scoresSEXP, normalization_methodSEXP, perm_noSEXP, thread_noSEXP));
-    }
-    Rboolean rcpp_isInterrupt_gen = Rf_inherits(rcpp_result_gen, "interrupted-error");
-    if (rcpp_isInterrupt_gen) {
-        UNPROTECT(1);
-        Rf_onintr();
-    }
-    bool rcpp_isLongjump_gen = Rcpp::internal::isLongjumpSentinel(rcpp_result_gen);
-    if (rcpp_isLongjump_gen) {
-        Rcpp::internal::resumeJump(rcpp_result_gen);
-    }
-    Rboolean rcpp_isError_gen = Rf_inherits(rcpp_result_gen, "try-error");
-    if (rcpp_isError_gen) {
-        SEXP rcpp_msgSEXP_gen = Rf_asChar(rcpp_result_gen);
-        UNPROTECT(1);
-        Rf_error("%s", CHAR(rcpp_msgSEXP_gen));
-    }
-    UNPROTECT(1);
-    return rcpp_result_gen;
-}
 // autocorrelation_Geary
 Rcpp::List autocorrelation_Geary(arma::sp_mat G, arma::mat scores, int normalization_method, int perm_no, int thread_no);
 static SEXP _actionet_autocorrelation_Geary_try(SEXP GSEXP, SEXP scoresSEXP, SEXP normalization_methodSEXP, SEXP perm_noSEXP, SEXP thread_noSEXP) {
@@ -1212,44 +1137,6 @@ RcppExport SEXP _actionet_autocorrelation_Geary(SEXP GSEXP, SEXP scoresSEXP, SEX
     {
         Rcpp::RNGScope rcpp_rngScope_gen;
         rcpp_result_gen = PROTECT(_actionet_autocorrelation_Geary_try(GSEXP, scoresSEXP, normalization_methodSEXP, perm_noSEXP, thread_noSEXP));
-    }
-    Rboolean rcpp_isInterrupt_gen = Rf_inherits(rcpp_result_gen, "interrupted-error");
-    if (rcpp_isInterrupt_gen) {
-        UNPROTECT(1);
-        Rf_onintr();
-    }
-    bool rcpp_isLongjump_gen = Rcpp::internal::isLongjumpSentinel(rcpp_result_gen);
-    if (rcpp_isLongjump_gen) {
-        Rcpp::internal::resumeJump(rcpp_result_gen);
-    }
-    Rboolean rcpp_isError_gen = Rf_inherits(rcpp_result_gen, "try-error");
-    if (rcpp_isError_gen) {
-        SEXP rcpp_msgSEXP_gen = Rf_asChar(rcpp_result_gen);
-        UNPROTECT(1);
-        Rf_error("%s", CHAR(rcpp_msgSEXP_gen));
-    }
-    UNPROTECT(1);
-    return rcpp_result_gen;
-}
-// autocorrelation_Geary_full
-Rcpp::List autocorrelation_Geary_full(arma::mat G, arma::mat scores, int normalization_method, int perm_no, int thread_no);
-static SEXP _actionet_autocorrelation_Geary_full_try(SEXP GSEXP, SEXP scoresSEXP, SEXP normalization_methodSEXP, SEXP perm_noSEXP, SEXP thread_noSEXP) {
-BEGIN_RCPP
-    Rcpp::RObject rcpp_result_gen;
-    Rcpp::traits::input_parameter< arma::mat >::type G(GSEXP);
-    Rcpp::traits::input_parameter< arma::mat >::type scores(scoresSEXP);
-    Rcpp::traits::input_parameter< int >::type normalization_method(normalization_methodSEXP);
-    Rcpp::traits::input_parameter< int >::type perm_no(perm_noSEXP);
-    Rcpp::traits::input_parameter< int >::type thread_no(thread_noSEXP);
-    rcpp_result_gen = Rcpp::wrap(autocorrelation_Geary_full(G, scores, normalization_method, perm_no, thread_no));
-    return rcpp_result_gen;
-END_RCPP_RETURN_ERROR
-}
-RcppExport SEXP _actionet_autocorrelation_Geary_full(SEXP GSEXP, SEXP scoresSEXP, SEXP normalization_methodSEXP, SEXP perm_noSEXP, SEXP thread_noSEXP) {
-    SEXP rcpp_result_gen;
-    {
-        Rcpp::RNGScope rcpp_rngScope_gen;
-        rcpp_result_gen = PROTECT(_actionet_autocorrelation_Geary_full_try(GSEXP, scoresSEXP, normalization_methodSEXP, perm_noSEXP, thread_noSEXP));
     }
     Rboolean rcpp_isInterrupt_gen = Rf_inherits(rcpp_result_gen, "interrupted-error");
     if (rcpp_isInterrupt_gen) {
@@ -1844,12 +1731,9 @@ static int _actionet_RcppExport_validate(const char* sig) {
         signatures.insert("arma::mat(*compute_network_diffusion_approx)(arma::sp_mat&,arma::mat&,int,double,int,double,int)");
         signatures.insert("arma::uvec(*compute_core_number)(arma::sp_mat&)");
         signatures.insert("arma::vec(*compute_archetype_core_centrality)(arma::sp_mat&,arma::uvec)");
-        signatures.insert("Rcpp::List(*autocorrelation_Moran_parametric_full)(arma::mat,arma::mat,int,int)");
         signatures.insert("Rcpp::List(*autocorrelation_Moran_parametric)(arma::sp_mat,arma::mat,int,int)");
         signatures.insert("Rcpp::List(*autocorrelation_Moran)(arma::sp_mat,arma::mat,int,int,int)");
-        signatures.insert("Rcpp::List(*autocorrelation_Moran_full)(arma::mat,arma::mat,int,int,int)");
         signatures.insert("Rcpp::List(*autocorrelation_Geary)(arma::sp_mat,arma::mat,int,int,int)");
-        signatures.insert("Rcpp::List(*autocorrelation_Geary_full)(arma::mat,arma::mat,int,int,int)");
         signatures.insert("arma::mat(*assess_label_enrichment)(arma::sp_mat&,arma::mat&,int)");
         signatures.insert("Rcpp::List(*assess_enrichment)(arma::mat&,arma::sp_mat&,int)");
         signatures.insert("arma::mat(*compute_grouped_rowsums)(arma::sp_mat&,arma::Col<unsigned long long>)");
@@ -1898,12 +1782,9 @@ RcppExport SEXP _actionet_RcppExport_registerCCallable() {
     R_RegisterCCallable("actionet", "_actionet_compute_network_diffusion_approx", (DL_FUNC)_actionet_compute_network_diffusion_approx_try);
     R_RegisterCCallable("actionet", "_actionet_compute_core_number", (DL_FUNC)_actionet_compute_core_number_try);
     R_RegisterCCallable("actionet", "_actionet_compute_archetype_core_centrality", (DL_FUNC)_actionet_compute_archetype_core_centrality_try);
-    R_RegisterCCallable("actionet", "_actionet_autocorrelation_Moran_parametric_full", (DL_FUNC)_actionet_autocorrelation_Moran_parametric_full_try);
     R_RegisterCCallable("actionet", "_actionet_autocorrelation_Moran_parametric", (DL_FUNC)_actionet_autocorrelation_Moran_parametric_try);
     R_RegisterCCallable("actionet", "_actionet_autocorrelation_Moran", (DL_FUNC)_actionet_autocorrelation_Moran_try);
-    R_RegisterCCallable("actionet", "_actionet_autocorrelation_Moran_full", (DL_FUNC)_actionet_autocorrelation_Moran_full_try);
     R_RegisterCCallable("actionet", "_actionet_autocorrelation_Geary", (DL_FUNC)_actionet_autocorrelation_Geary_try);
-    R_RegisterCCallable("actionet", "_actionet_autocorrelation_Geary_full", (DL_FUNC)_actionet_autocorrelation_Geary_full_try);
     R_RegisterCCallable("actionet", "_actionet_assess_label_enrichment", (DL_FUNC)_actionet_assess_label_enrichment_try);
     R_RegisterCCallable("actionet", "_actionet_assess_enrichment", (DL_FUNC)_actionet_assess_enrichment_try);
     R_RegisterCCallable("actionet", "_actionet_compute_grouped_rowsums", (DL_FUNC)_actionet_compute_grouped_rowsums_try);
@@ -1951,12 +1832,9 @@ static const R_CallMethodDef CallEntries[] = {
     {"_actionet_compute_network_diffusion_approx", (DL_FUNC) &_actionet_compute_network_diffusion_approx, 7},
     {"_actionet_compute_core_number", (DL_FUNC) &_actionet_compute_core_number, 1},
     {"_actionet_compute_archetype_core_centrality", (DL_FUNC) &_actionet_compute_archetype_core_centrality, 2},
-    {"_actionet_autocorrelation_Moran_parametric_full", (DL_FUNC) &_actionet_autocorrelation_Moran_parametric_full, 4},
     {"_actionet_autocorrelation_Moran_parametric", (DL_FUNC) &_actionet_autocorrelation_Moran_parametric, 4},
     {"_actionet_autocorrelation_Moran", (DL_FUNC) &_actionet_autocorrelation_Moran, 5},
-    {"_actionet_autocorrelation_Moran_full", (DL_FUNC) &_actionet_autocorrelation_Moran_full, 5},
     {"_actionet_autocorrelation_Geary", (DL_FUNC) &_actionet_autocorrelation_Geary, 5},
-    {"_actionet_autocorrelation_Geary_full", (DL_FUNC) &_actionet_autocorrelation_Geary_full, 5},
     {"_actionet_assess_label_enrichment", (DL_FUNC) &_actionet_assess_label_enrichment, 3},
     {"_actionet_assess_enrichment", (DL_FUNC) &_actionet_assess_enrichment, 3},
     {"_actionet_compute_grouped_rowsums", (DL_FUNC) &_actionet_compute_grouped_rowsums, 2},

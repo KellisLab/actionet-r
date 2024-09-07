@@ -333,10 +333,6 @@ compute_archetype_core_centrality <- function(G, sample_assignments) {
     .Call(`_actionet_compute_archetype_core_centrality`, G, sample_assignments)
 }
 
-autocorrelation_Moran_parametric_full <- function(G, scores, normalization_method = 4L, thread_no = 0L) {
-    .Call(`_actionet_autocorrelation_Moran_parametric_full`, G, scores, normalization_method, thread_no)
-}
-
 autocorrelation_Moran_parametric <- function(G, scores, normalization_method = 4L, thread_no = 0L) {
     .Call(`_actionet_autocorrelation_Moran_parametric`, G, scores, normalization_method, thread_no)
 }
@@ -345,16 +341,8 @@ autocorrelation_Moran <- function(G, scores, normalization_method = 1L, perm_no 
     .Call(`_actionet_autocorrelation_Moran`, G, scores, normalization_method, perm_no, thread_no)
 }
 
-autocorrelation_Moran_full <- function(G, scores, normalization_method = 1L, perm_no = 30L, thread_no = 0L) {
-    .Call(`_actionet_autocorrelation_Moran_full`, G, scores, normalization_method, perm_no, thread_no)
-}
-
 autocorrelation_Geary <- function(G, scores, normalization_method = 1L, perm_no = 30L, thread_no = 0L) {
     .Call(`_actionet_autocorrelation_Geary`, G, scores, normalization_method, perm_no, thread_no)
-}
-
-autocorrelation_Geary_full <- function(G, scores, normalization_method = 1L, perm_no = 30L, thread_no = 0L) {
-    .Call(`_actionet_autocorrelation_Geary_full`, G, scores, normalization_method, perm_no, thread_no)
 }
 
 assess_label_enrichment <- function(G, M, thread_no = 0L) {

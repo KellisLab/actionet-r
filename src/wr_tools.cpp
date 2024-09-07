@@ -5,21 +5,7 @@
 
 // autocorrelation =====================================================================================================
 
-// [[Rcpp::export]]
-Rcpp::List
-    autocorrelation_Moran_parametric_full(arma::mat G, arma::mat scores, int normalization_method = 4,
-                                          int thread_no = 0) {
-    arma::field<arma::vec> out = actionet::autocorrelation_Moran_parametric(G, scores, normalization_method, thread_no);
-
-    Rcpp::List res;
-    res["stat"] = out[0];
-    res["zscore"] = out[1];
-    res["mu"] = out[2];
-    res["sigma"] = out[3];
-
-    return (res);
-}
-
+// TODO: Unused. Remove?
 // [[Rcpp::export]]
 Rcpp::List
     autocorrelation_Moran_parametric(arma::sp_mat G, arma::mat scores, int normalization_method = 4,
@@ -50,36 +36,8 @@ Rcpp::List autocorrelation_Moran(arma::sp_mat G, arma::mat scores, int normaliza
 }
 
 // [[Rcpp::export]]
-Rcpp::List autocorrelation_Moran_full(arma::mat G, arma::mat scores, int normalization_method = 1, int perm_no = 30,
-                                      int thread_no = 0) {
-    arma::field<arma::vec> out = actionet::autocorrelation_Moran(G, scores, normalization_method, perm_no, thread_no);
-
-    Rcpp::List res;
-    res["Moran_I"] = out[0];
-    res["zscore"] = out[1];
-    res["mu"] = out[2];
-    res["sigma"] = out[3];
-
-    return (res);
-}
-
-// [[Rcpp::export]]
 Rcpp::List autocorrelation_Geary(arma::sp_mat G, arma::mat scores, int normalization_method = 1, int perm_no = 30,
                                  int thread_no = 0) {
-    arma::field<arma::vec> out = actionet::autocorrelation_Geary(G, scores, normalization_method, perm_no, thread_no);
-
-    Rcpp::List res;
-    res["Geary_C"] = out[0];
-    res["zscore"] = out[1];
-    res["mu"] = out[2];
-    res["sigma"] = out[3];
-
-    return (res);
-}
-
-// [[Rcpp::export]]
-Rcpp::List autocorrelation_Geary_full(arma::mat G, arma::mat scores, int normalization_method = 1, int perm_no = 30,
-                                      int thread_no = 0) {
     arma::field<arma::vec> out = actionet::autocorrelation_Geary(G, scores, normalization_method, perm_no, thread_no);
 
     Rcpp::List res;

@@ -592,27 +592,6 @@ namespace actionet {
         return Rcpp::as<arma::vec >(rcpp_result_gen);
     }
 
-    inline Rcpp::List autocorrelation_Moran_parametric_full(arma::mat G, arma::mat scores, int normalization_method = 4, int thread_no = 0) {
-        typedef SEXP(*Ptr_autocorrelation_Moran_parametric_full)(SEXP,SEXP,SEXP,SEXP);
-        static Ptr_autocorrelation_Moran_parametric_full p_autocorrelation_Moran_parametric_full = NULL;
-        if (p_autocorrelation_Moran_parametric_full == NULL) {
-            validateSignature("Rcpp::List(*autocorrelation_Moran_parametric_full)(arma::mat,arma::mat,int,int)");
-            p_autocorrelation_Moran_parametric_full = (Ptr_autocorrelation_Moran_parametric_full)R_GetCCallable("actionet", "_actionet_autocorrelation_Moran_parametric_full");
-        }
-        RObject rcpp_result_gen;
-        {
-            RNGScope RCPP_rngScope_gen;
-            rcpp_result_gen = p_autocorrelation_Moran_parametric_full(Shield<SEXP>(Rcpp::wrap(G)), Shield<SEXP>(Rcpp::wrap(scores)), Shield<SEXP>(Rcpp::wrap(normalization_method)), Shield<SEXP>(Rcpp::wrap(thread_no)));
-        }
-        if (rcpp_result_gen.inherits("interrupted-error"))
-            throw Rcpp::internal::InterruptedException();
-        if (Rcpp::internal::isLongjumpSentinel(rcpp_result_gen))
-            throw Rcpp::LongjumpException(rcpp_result_gen);
-        if (rcpp_result_gen.inherits("try-error"))
-            throw Rcpp::exception(Rcpp::as<std::string>(rcpp_result_gen).c_str());
-        return Rcpp::as<Rcpp::List >(rcpp_result_gen);
-    }
-
     inline Rcpp::List autocorrelation_Moran_parametric(arma::sp_mat G, arma::mat scores, int normalization_method = 4, int thread_no = 0) {
         typedef SEXP(*Ptr_autocorrelation_Moran_parametric)(SEXP,SEXP,SEXP,SEXP);
         static Ptr_autocorrelation_Moran_parametric p_autocorrelation_Moran_parametric = NULL;
@@ -655,27 +634,6 @@ namespace actionet {
         return Rcpp::as<Rcpp::List >(rcpp_result_gen);
     }
 
-    inline Rcpp::List autocorrelation_Moran_full(arma::mat G, arma::mat scores, int normalization_method = 1, int perm_no = 30, int thread_no = 0) {
-        typedef SEXP(*Ptr_autocorrelation_Moran_full)(SEXP,SEXP,SEXP,SEXP,SEXP);
-        static Ptr_autocorrelation_Moran_full p_autocorrelation_Moran_full = NULL;
-        if (p_autocorrelation_Moran_full == NULL) {
-            validateSignature("Rcpp::List(*autocorrelation_Moran_full)(arma::mat,arma::mat,int,int,int)");
-            p_autocorrelation_Moran_full = (Ptr_autocorrelation_Moran_full)R_GetCCallable("actionet", "_actionet_autocorrelation_Moran_full");
-        }
-        RObject rcpp_result_gen;
-        {
-            RNGScope RCPP_rngScope_gen;
-            rcpp_result_gen = p_autocorrelation_Moran_full(Shield<SEXP>(Rcpp::wrap(G)), Shield<SEXP>(Rcpp::wrap(scores)), Shield<SEXP>(Rcpp::wrap(normalization_method)), Shield<SEXP>(Rcpp::wrap(perm_no)), Shield<SEXP>(Rcpp::wrap(thread_no)));
-        }
-        if (rcpp_result_gen.inherits("interrupted-error"))
-            throw Rcpp::internal::InterruptedException();
-        if (Rcpp::internal::isLongjumpSentinel(rcpp_result_gen))
-            throw Rcpp::LongjumpException(rcpp_result_gen);
-        if (rcpp_result_gen.inherits("try-error"))
-            throw Rcpp::exception(Rcpp::as<std::string>(rcpp_result_gen).c_str());
-        return Rcpp::as<Rcpp::List >(rcpp_result_gen);
-    }
-
     inline Rcpp::List autocorrelation_Geary(arma::sp_mat G, arma::mat scores, int normalization_method = 1, int perm_no = 30, int thread_no = 0) {
         typedef SEXP(*Ptr_autocorrelation_Geary)(SEXP,SEXP,SEXP,SEXP,SEXP);
         static Ptr_autocorrelation_Geary p_autocorrelation_Geary = NULL;
@@ -687,27 +645,6 @@ namespace actionet {
         {
             RNGScope RCPP_rngScope_gen;
             rcpp_result_gen = p_autocorrelation_Geary(Shield<SEXP>(Rcpp::wrap(G)), Shield<SEXP>(Rcpp::wrap(scores)), Shield<SEXP>(Rcpp::wrap(normalization_method)), Shield<SEXP>(Rcpp::wrap(perm_no)), Shield<SEXP>(Rcpp::wrap(thread_no)));
-        }
-        if (rcpp_result_gen.inherits("interrupted-error"))
-            throw Rcpp::internal::InterruptedException();
-        if (Rcpp::internal::isLongjumpSentinel(rcpp_result_gen))
-            throw Rcpp::LongjumpException(rcpp_result_gen);
-        if (rcpp_result_gen.inherits("try-error"))
-            throw Rcpp::exception(Rcpp::as<std::string>(rcpp_result_gen).c_str());
-        return Rcpp::as<Rcpp::List >(rcpp_result_gen);
-    }
-
-    inline Rcpp::List autocorrelation_Geary_full(arma::mat G, arma::mat scores, int normalization_method = 1, int perm_no = 30, int thread_no = 0) {
-        typedef SEXP(*Ptr_autocorrelation_Geary_full)(SEXP,SEXP,SEXP,SEXP,SEXP);
-        static Ptr_autocorrelation_Geary_full p_autocorrelation_Geary_full = NULL;
-        if (p_autocorrelation_Geary_full == NULL) {
-            validateSignature("Rcpp::List(*autocorrelation_Geary_full)(arma::mat,arma::mat,int,int,int)");
-            p_autocorrelation_Geary_full = (Ptr_autocorrelation_Geary_full)R_GetCCallable("actionet", "_actionet_autocorrelation_Geary_full");
-        }
-        RObject rcpp_result_gen;
-        {
-            RNGScope RCPP_rngScope_gen;
-            rcpp_result_gen = p_autocorrelation_Geary_full(Shield<SEXP>(Rcpp::wrap(G)), Shield<SEXP>(Rcpp::wrap(scores)), Shield<SEXP>(Rcpp::wrap(normalization_method)), Shield<SEXP>(Rcpp::wrap(perm_no)), Shield<SEXP>(Rcpp::wrap(thread_no)));
         }
         if (rcpp_result_gen.inherits("interrupted-error"))
             throw Rcpp::internal::InterruptedException();
