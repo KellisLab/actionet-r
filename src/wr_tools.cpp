@@ -98,22 +98,15 @@ Rcpp::List assess_enrichment(arma::mat& scores, arma::sp_mat& associations, int 
 //' @return S matrix with columns of values aggregated within each group of sample_assignments
 //'
 // [[Rcpp::export]]
-arma::mat compute_grouped_rowsums(arma::sp_mat& S, arma::Col<unsigned long long> sample_assignments) {
+arma::mat compute_grouped_rowsums(arma::sp_mat& S, arma::vec sample_assignments) {
     arma::mat pb = actionet::compute_grouped_rowsums(S, sample_assignments);
 
     return pb;
 }
 
 // [[Rcpp::export]]
-arma::mat compute_grouped_rowsums_full(arma::mat& S, arma::Col<unsigned long long> sample_assignments) {
+arma::mat compute_grouped_rowsums_full(arma::mat& S, arma::vec sample_assignments) {
     arma::mat pb = actionet::compute_grouped_rowsums(S, sample_assignments);
-
-    return pb;
-}
-
-// [[Rcpp::export]]
-arma::mat compute_grouped_rowmeans(arma::sp_mat& S, arma::Col<unsigned long long> sample_assignments) {
-    arma::mat pb = actionet::compute_grouped_rowmeans(S, sample_assignments);
 
     return pb;
 }
@@ -126,21 +119,28 @@ arma::mat compute_grouped_rowmeans(arma::sp_mat& S, arma::Col<unsigned long long
 //' @return S matrix with columns of values average within each group of sample_assignments
 //'
 // [[Rcpp::export]]
-arma::mat compute_grouped_rowmeans_full(arma::mat& S, arma::Col<unsigned long long> sample_assignments) {
+arma::mat compute_grouped_rowmeans(arma::sp_mat& S, arma::vec sample_assignments) {
     arma::mat pb = actionet::compute_grouped_rowmeans(S, sample_assignments);
 
     return pb;
 }
 
 // [[Rcpp::export]]
-arma::mat compute_grouped_rowvars(arma::sp_mat& S, arma::Col<unsigned long long> sample_assignments) {
+arma::mat compute_grouped_rowmeans_full(arma::mat& S, arma::vec sample_assignments) {
+    arma::mat pb = actionet::compute_grouped_rowmeans(S, sample_assignments);
+
+    return pb;
+}
+
+// [[Rcpp::export]]
+arma::mat compute_grouped_rowvars(arma::sp_mat& S, arma::vec sample_assignments) {
     arma::mat pb = actionet::compute_grouped_rowvars(S, sample_assignments);
 
     return pb;
 }
 
 // [[Rcpp::export]]
-arma::mat compute_grouped_rowvars_full(arma::mat& S, arma::Col<unsigned long long> sample_assignments) {
+arma::mat compute_grouped_rowvars_full(arma::mat& S, arma::vec sample_assignments) {
     arma::mat pb = actionet::compute_grouped_rowvars(S, sample_assignments);
 
     return pb;

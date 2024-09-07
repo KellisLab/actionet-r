@@ -387,10 +387,6 @@ compute_grouped_rowsums_full <- function(S, sample_assignments) {
     .Call(`_actionet_compute_grouped_rowsums_full`, S, sample_assignments)
 }
 
-compute_grouped_rowmeans <- function(S, sample_assignments) {
-    .Call(`_actionet_compute_grouped_rowmeans`, S, sample_assignments)
-}
-
 #' Average matrix within groups
 #'
 #' @param S matrix
@@ -398,6 +394,10 @@ compute_grouped_rowmeans <- function(S, sample_assignments) {
 #'
 #' @return S matrix with columns of values average within each group of sample_assignments
 #'
+compute_grouped_rowmeans <- function(S, sample_assignments) {
+    .Call(`_actionet_compute_grouped_rowmeans`, S, sample_assignments)
+}
+
 compute_grouped_rowmeans_full <- function(S, sample_assignments) {
     .Call(`_actionet_compute_grouped_rowmeans_full`, S, sample_assignments)
 }

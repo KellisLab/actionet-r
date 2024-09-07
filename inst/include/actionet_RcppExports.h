@@ -697,11 +697,11 @@ namespace actionet {
         return Rcpp::as<Rcpp::List >(rcpp_result_gen);
     }
 
-    inline arma::mat compute_grouped_rowsums(arma::sp_mat& S, arma::Col<unsigned long long> sample_assignments) {
+    inline arma::mat compute_grouped_rowsums(arma::sp_mat& S, arma::vec sample_assignments) {
         typedef SEXP(*Ptr_compute_grouped_rowsums)(SEXP,SEXP);
         static Ptr_compute_grouped_rowsums p_compute_grouped_rowsums = NULL;
         if (p_compute_grouped_rowsums == NULL) {
-            validateSignature("arma::mat(*compute_grouped_rowsums)(arma::sp_mat&,arma::Col<unsigned long long>)");
+            validateSignature("arma::mat(*compute_grouped_rowsums)(arma::sp_mat&,arma::vec)");
             p_compute_grouped_rowsums = (Ptr_compute_grouped_rowsums)R_GetCCallable("actionet", "_actionet_compute_grouped_rowsums");
         }
         RObject rcpp_result_gen;
@@ -718,11 +718,11 @@ namespace actionet {
         return Rcpp::as<arma::mat >(rcpp_result_gen);
     }
 
-    inline arma::mat compute_grouped_rowsums_full(arma::mat& S, arma::Col<unsigned long long> sample_assignments) {
+    inline arma::mat compute_grouped_rowsums_full(arma::mat& S, arma::vec sample_assignments) {
         typedef SEXP(*Ptr_compute_grouped_rowsums_full)(SEXP,SEXP);
         static Ptr_compute_grouped_rowsums_full p_compute_grouped_rowsums_full = NULL;
         if (p_compute_grouped_rowsums_full == NULL) {
-            validateSignature("arma::mat(*compute_grouped_rowsums_full)(arma::mat&,arma::Col<unsigned long long>)");
+            validateSignature("arma::mat(*compute_grouped_rowsums_full)(arma::mat&,arma::vec)");
             p_compute_grouped_rowsums_full = (Ptr_compute_grouped_rowsums_full)R_GetCCallable("actionet", "_actionet_compute_grouped_rowsums_full");
         }
         RObject rcpp_result_gen;
@@ -739,11 +739,11 @@ namespace actionet {
         return Rcpp::as<arma::mat >(rcpp_result_gen);
     }
 
-    inline arma::mat compute_grouped_rowmeans(arma::sp_mat& S, arma::Col<unsigned long long> sample_assignments) {
+    inline arma::mat compute_grouped_rowmeans(arma::sp_mat& S, arma::vec sample_assignments) {
         typedef SEXP(*Ptr_compute_grouped_rowmeans)(SEXP,SEXP);
         static Ptr_compute_grouped_rowmeans p_compute_grouped_rowmeans = NULL;
         if (p_compute_grouped_rowmeans == NULL) {
-            validateSignature("arma::mat(*compute_grouped_rowmeans)(arma::sp_mat&,arma::Col<unsigned long long>)");
+            validateSignature("arma::mat(*compute_grouped_rowmeans)(arma::sp_mat&,arma::vec)");
             p_compute_grouped_rowmeans = (Ptr_compute_grouped_rowmeans)R_GetCCallable("actionet", "_actionet_compute_grouped_rowmeans");
         }
         RObject rcpp_result_gen;
@@ -760,11 +760,11 @@ namespace actionet {
         return Rcpp::as<arma::mat >(rcpp_result_gen);
     }
 
-    inline arma::mat compute_grouped_rowmeans_full(arma::mat& S, arma::Col<unsigned long long> sample_assignments) {
+    inline arma::mat compute_grouped_rowmeans_full(arma::mat& S, arma::vec sample_assignments) {
         typedef SEXP(*Ptr_compute_grouped_rowmeans_full)(SEXP,SEXP);
         static Ptr_compute_grouped_rowmeans_full p_compute_grouped_rowmeans_full = NULL;
         if (p_compute_grouped_rowmeans_full == NULL) {
-            validateSignature("arma::mat(*compute_grouped_rowmeans_full)(arma::mat&,arma::Col<unsigned long long>)");
+            validateSignature("arma::mat(*compute_grouped_rowmeans_full)(arma::mat&,arma::vec)");
             p_compute_grouped_rowmeans_full = (Ptr_compute_grouped_rowmeans_full)R_GetCCallable("actionet", "_actionet_compute_grouped_rowmeans_full");
         }
         RObject rcpp_result_gen;
@@ -781,11 +781,11 @@ namespace actionet {
         return Rcpp::as<arma::mat >(rcpp_result_gen);
     }
 
-    inline arma::mat compute_grouped_rowvars(arma::sp_mat& S, arma::Col<unsigned long long> sample_assignments) {
+    inline arma::mat compute_grouped_rowvars(arma::sp_mat& S, arma::vec sample_assignments) {
         typedef SEXP(*Ptr_compute_grouped_rowvars)(SEXP,SEXP);
         static Ptr_compute_grouped_rowvars p_compute_grouped_rowvars = NULL;
         if (p_compute_grouped_rowvars == NULL) {
-            validateSignature("arma::mat(*compute_grouped_rowvars)(arma::sp_mat&,arma::Col<unsigned long long>)");
+            validateSignature("arma::mat(*compute_grouped_rowvars)(arma::sp_mat&,arma::vec)");
             p_compute_grouped_rowvars = (Ptr_compute_grouped_rowvars)R_GetCCallable("actionet", "_actionet_compute_grouped_rowvars");
         }
         RObject rcpp_result_gen;
@@ -802,11 +802,11 @@ namespace actionet {
         return Rcpp::as<arma::mat >(rcpp_result_gen);
     }
 
-    inline arma::mat compute_grouped_rowvars_full(arma::mat& S, arma::Col<unsigned long long> sample_assignments) {
+    inline arma::mat compute_grouped_rowvars_full(arma::mat& S, arma::vec sample_assignments) {
         typedef SEXP(*Ptr_compute_grouped_rowvars_full)(SEXP,SEXP);
         static Ptr_compute_grouped_rowvars_full p_compute_grouped_rowvars_full = NULL;
         if (p_compute_grouped_rowvars_full == NULL) {
-            validateSignature("arma::mat(*compute_grouped_rowvars_full)(arma::mat&,arma::Col<unsigned long long>)");
+            validateSignature("arma::mat(*compute_grouped_rowvars_full)(arma::mat&,arma::vec)");
             p_compute_grouped_rowvars_full = (Ptr_compute_grouped_rowvars_full)R_GetCCallable("actionet", "_actionet_compute_grouped_rowvars_full");
         }
         RObject rcpp_result_gen;

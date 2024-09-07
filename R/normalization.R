@@ -75,71 +75,76 @@ normalize.Linnorm <- function(ace,
 }
 
 #' @export
-normalize.default <- function(ace,
-                              assay_name = "counts",
-                              assay_out = "logcounts",
-                              top_features_frac = 1.0,
-                              scale_param = median,
-                              transformation = "log",
-                              anchor_features = NULL) {
-  S <- SummarizedExperiment::assays(ace)[[assay_name]]
+normalize.default <- function(
+  ace,
+  assay_name = "counts",
+  assay_out = "logcounts",
+  log_transform = TRUE,
+  scale_param = stats::median
+) {
 
-  Snorm <- normalize.matrix(S, top_features_frac = top_features_frac, scale_param = scale_param, transformation = transformation, anchor_features = anchor_features)
-
-  rownames(Snorm) <- rownames(ace)
-  colnames(Snorm) <- colnames(ace)
-  SummarizedExperiment::assays(ace)[[assay_out]] <- Snorm
-  return(ace)
+    S = SummarizedExperiment::assays(ace)[[assay_name]]
+    B = normalize.matrix(S, log_transform, scale_param)
+    rownames(B) = rownames(ace)
+    colnames(B) = colnames(ace)
+    SummarizedExperiment::assays(ace)[[assay_out]] = B
+    return(ace)
 }
 
 #' @export
-normalize.ace <- function(ace,
-                          norm_method = "default",
-                          batch_attr = NULL,
-                          assay_name = "counts",
-                          assay_out = "logcounts",
-                          top_features_frac = 1.0,
-                          scale_param = median,
-                          transformation = "log",
-                          anchor_features = NULL,
-                          BPPARAM = SerialParam(),
-                          ...) {
-  if (norm_method == "scran") {
-    ace <- normalize.scuttle(
-      ace = ace,
-      batch_attr = batch_attr,
-      assay_name = assay_name,
-      assay_out = assay_out,
-      BPPARAM = BPPARAM
-    )
-  } else if (norm_method == "multiBatchNorm") {
-    ace <- normalize.multiBatchNorm(
-      ace = ace,
-      batch_attr = batch_attr,
-      assay_name = assay_name,
-      assay_out = assay_out,
-      BPPARAM = BPPARAM
-    )
-  } else if (norm_method == "linnorm") {
-    ace <- normalize.Linnorm(
-      ace = ace,
-      assay_name = assay_name,
-      assay_out = assay_out
-    )
-  } else {
-    ace <- normalize.default(
-      ace = ace,
-      assay_name = assay_name,
-      assay_out = assay_out,
-      top_features_frac = top_features_frac, scale_param = scale_param, transformation = transformation, anchor_features = anchor_features
-    )
-    norm_method <- sprintf("default_top%0.2f_%s", top_features_frac, transformation)
-  }
-  metadata(ace)$input_assay <- assay_name
-  metadata(ace)$norm_method <- norm_method
-  metadata(ace)$default_assay <- assay_out
+normalize.ace <- function(
+  ace,
+  norm_method = "default",
+  batch_attr = NULL,
+  assay_name = "counts",
+  assay_out = "logcounts",
+  BPPARAM = SerialParam(),
+  ...
+) {
 
-  return(ace)
+    if (norm_method == "scran") {
+
+        ace = normalize.scuttle(
+          ace = ace,
+          batch_attr = batch_attr,
+          assay_name = assay_name,
+          assay_out = assay_out,
+          BPPARAM = BPPARAM
+        )
+
+    } else if (norm_method == "multiBatchNorm") {
+
+        ace = normalize.multiBatchNorm(
+          ace = ace,
+          batch_attr = batch_attr,
+          assay_name = assay_name,
+          assay_out = assay_out,
+          BPPARAM = BPPARAM
+        )
+
+    } else if (norm_method == "linnorm") {
+
+        ace = normalize.Linnorm(
+          ace = ace,
+          assay_name = assay_name,
+          assay_out = assay_out
+        )
+
+    } else {
+
+        ace = normalize.default(
+          ace = ace,
+          assay_name = assay_name,
+          assay_out = assay_out,
+          log_transform = TRUE,
+          scale_param = stats::median
+        )
+        norm_method = "default"
+    }
+
+    metadata(ace)$norm_method = norm_method
+
+    return(ace)
 }
 
 

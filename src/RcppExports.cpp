@@ -1229,12 +1229,12 @@ RcppExport SEXP _actionet_assess_enrichment(SEXP scoresSEXP, SEXP associationsSE
     return rcpp_result_gen;
 }
 // compute_grouped_rowsums
-arma::mat compute_grouped_rowsums(arma::sp_mat& S, arma::Col<unsigned long long> sample_assignments);
+arma::mat compute_grouped_rowsums(arma::sp_mat& S, arma::vec sample_assignments);
 static SEXP _actionet_compute_grouped_rowsums_try(SEXP SSEXP, SEXP sample_assignmentsSEXP) {
 BEGIN_RCPP
     Rcpp::RObject rcpp_result_gen;
     Rcpp::traits::input_parameter< arma::sp_mat& >::type S(SSEXP);
-    Rcpp::traits::input_parameter< arma::Col<unsigned long long> >::type sample_assignments(sample_assignmentsSEXP);
+    Rcpp::traits::input_parameter< arma::vec >::type sample_assignments(sample_assignmentsSEXP);
     rcpp_result_gen = Rcpp::wrap(compute_grouped_rowsums(S, sample_assignments));
     return rcpp_result_gen;
 END_RCPP_RETURN_ERROR
@@ -1264,12 +1264,12 @@ RcppExport SEXP _actionet_compute_grouped_rowsums(SEXP SSEXP, SEXP sample_assign
     return rcpp_result_gen;
 }
 // compute_grouped_rowsums_full
-arma::mat compute_grouped_rowsums_full(arma::mat& S, arma::Col<unsigned long long> sample_assignments);
+arma::mat compute_grouped_rowsums_full(arma::mat& S, arma::vec sample_assignments);
 static SEXP _actionet_compute_grouped_rowsums_full_try(SEXP SSEXP, SEXP sample_assignmentsSEXP) {
 BEGIN_RCPP
     Rcpp::RObject rcpp_result_gen;
     Rcpp::traits::input_parameter< arma::mat& >::type S(SSEXP);
-    Rcpp::traits::input_parameter< arma::Col<unsigned long long> >::type sample_assignments(sample_assignmentsSEXP);
+    Rcpp::traits::input_parameter< arma::vec >::type sample_assignments(sample_assignmentsSEXP);
     rcpp_result_gen = Rcpp::wrap(compute_grouped_rowsums_full(S, sample_assignments));
     return rcpp_result_gen;
 END_RCPP_RETURN_ERROR
@@ -1299,12 +1299,12 @@ RcppExport SEXP _actionet_compute_grouped_rowsums_full(SEXP SSEXP, SEXP sample_a
     return rcpp_result_gen;
 }
 // compute_grouped_rowmeans
-arma::mat compute_grouped_rowmeans(arma::sp_mat& S, arma::Col<unsigned long long> sample_assignments);
+arma::mat compute_grouped_rowmeans(arma::sp_mat& S, arma::vec sample_assignments);
 static SEXP _actionet_compute_grouped_rowmeans_try(SEXP SSEXP, SEXP sample_assignmentsSEXP) {
 BEGIN_RCPP
     Rcpp::RObject rcpp_result_gen;
     Rcpp::traits::input_parameter< arma::sp_mat& >::type S(SSEXP);
-    Rcpp::traits::input_parameter< arma::Col<unsigned long long> >::type sample_assignments(sample_assignmentsSEXP);
+    Rcpp::traits::input_parameter< arma::vec >::type sample_assignments(sample_assignmentsSEXP);
     rcpp_result_gen = Rcpp::wrap(compute_grouped_rowmeans(S, sample_assignments));
     return rcpp_result_gen;
 END_RCPP_RETURN_ERROR
@@ -1334,12 +1334,12 @@ RcppExport SEXP _actionet_compute_grouped_rowmeans(SEXP SSEXP, SEXP sample_assig
     return rcpp_result_gen;
 }
 // compute_grouped_rowmeans_full
-arma::mat compute_grouped_rowmeans_full(arma::mat& S, arma::Col<unsigned long long> sample_assignments);
+arma::mat compute_grouped_rowmeans_full(arma::mat& S, arma::vec sample_assignments);
 static SEXP _actionet_compute_grouped_rowmeans_full_try(SEXP SSEXP, SEXP sample_assignmentsSEXP) {
 BEGIN_RCPP
     Rcpp::RObject rcpp_result_gen;
     Rcpp::traits::input_parameter< arma::mat& >::type S(SSEXP);
-    Rcpp::traits::input_parameter< arma::Col<unsigned long long> >::type sample_assignments(sample_assignmentsSEXP);
+    Rcpp::traits::input_parameter< arma::vec >::type sample_assignments(sample_assignmentsSEXP);
     rcpp_result_gen = Rcpp::wrap(compute_grouped_rowmeans_full(S, sample_assignments));
     return rcpp_result_gen;
 END_RCPP_RETURN_ERROR
@@ -1369,12 +1369,12 @@ RcppExport SEXP _actionet_compute_grouped_rowmeans_full(SEXP SSEXP, SEXP sample_
     return rcpp_result_gen;
 }
 // compute_grouped_rowvars
-arma::mat compute_grouped_rowvars(arma::sp_mat& S, arma::Col<unsigned long long> sample_assignments);
+arma::mat compute_grouped_rowvars(arma::sp_mat& S, arma::vec sample_assignments);
 static SEXP _actionet_compute_grouped_rowvars_try(SEXP SSEXP, SEXP sample_assignmentsSEXP) {
 BEGIN_RCPP
     Rcpp::RObject rcpp_result_gen;
     Rcpp::traits::input_parameter< arma::sp_mat& >::type S(SSEXP);
-    Rcpp::traits::input_parameter< arma::Col<unsigned long long> >::type sample_assignments(sample_assignmentsSEXP);
+    Rcpp::traits::input_parameter< arma::vec >::type sample_assignments(sample_assignmentsSEXP);
     rcpp_result_gen = Rcpp::wrap(compute_grouped_rowvars(S, sample_assignments));
     return rcpp_result_gen;
 END_RCPP_RETURN_ERROR
@@ -1404,12 +1404,12 @@ RcppExport SEXP _actionet_compute_grouped_rowvars(SEXP SSEXP, SEXP sample_assign
     return rcpp_result_gen;
 }
 // compute_grouped_rowvars_full
-arma::mat compute_grouped_rowvars_full(arma::mat& S, arma::Col<unsigned long long> sample_assignments);
+arma::mat compute_grouped_rowvars_full(arma::mat& S, arma::vec sample_assignments);
 static SEXP _actionet_compute_grouped_rowvars_full_try(SEXP SSEXP, SEXP sample_assignmentsSEXP) {
 BEGIN_RCPP
     Rcpp::RObject rcpp_result_gen;
     Rcpp::traits::input_parameter< arma::mat& >::type S(SSEXP);
-    Rcpp::traits::input_parameter< arma::Col<unsigned long long> >::type sample_assignments(sample_assignmentsSEXP);
+    Rcpp::traits::input_parameter< arma::vec >::type sample_assignments(sample_assignmentsSEXP);
     rcpp_result_gen = Rcpp::wrap(compute_grouped_rowvars_full(S, sample_assignments));
     return rcpp_result_gen;
 END_RCPP_RETURN_ERROR
@@ -1736,12 +1736,12 @@ static int _actionet_RcppExport_validate(const char* sig) {
         signatures.insert("Rcpp::List(*autocorrelation_Geary)(arma::sp_mat,arma::mat,int,int,int)");
         signatures.insert("arma::mat(*assess_label_enrichment)(arma::sp_mat&,arma::mat&,int)");
         signatures.insert("Rcpp::List(*assess_enrichment)(arma::mat&,arma::sp_mat&,int)");
-        signatures.insert("arma::mat(*compute_grouped_rowsums)(arma::sp_mat&,arma::Col<unsigned long long>)");
-        signatures.insert("arma::mat(*compute_grouped_rowsums_full)(arma::mat&,arma::Col<unsigned long long>)");
-        signatures.insert("arma::mat(*compute_grouped_rowmeans)(arma::sp_mat&,arma::Col<unsigned long long>)");
-        signatures.insert("arma::mat(*compute_grouped_rowmeans_full)(arma::mat&,arma::Col<unsigned long long>)");
-        signatures.insert("arma::mat(*compute_grouped_rowvars)(arma::sp_mat&,arma::Col<unsigned long long>)");
-        signatures.insert("arma::mat(*compute_grouped_rowvars_full)(arma::mat&,arma::Col<unsigned long long>)");
+        signatures.insert("arma::mat(*compute_grouped_rowsums)(arma::sp_mat&,arma::vec)");
+        signatures.insert("arma::mat(*compute_grouped_rowsums_full)(arma::mat&,arma::vec)");
+        signatures.insert("arma::mat(*compute_grouped_rowmeans)(arma::sp_mat&,arma::vec)");
+        signatures.insert("arma::mat(*compute_grouped_rowmeans_full)(arma::mat&,arma::vec)");
+        signatures.insert("arma::mat(*compute_grouped_rowvars)(arma::sp_mat&,arma::vec)");
+        signatures.insert("arma::mat(*compute_grouped_rowvars_full)(arma::mat&,arma::vec)");
         signatures.insert("arma::mat(*MWM_hungarian)(arma::mat&)");
         signatures.insert("arma::umat(*MWM_rank1)(arma::vec,arma::vec,double,double)");
         signatures.insert("arma::mat(*normalize_mat)(arma::mat&,int,int)");

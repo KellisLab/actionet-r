@@ -12,81 +12,54 @@ orthoProject <- function(A, S, prenorm = F, postnorm = F) {
 }
 
 #' @export
-normalize.matrix <- function(S,
-                             top_features_frac = 1.0,
-                             scale_param = median,
-                             transformation = "log",
-                             anchor_features = NULL,
-                             post_rescale = FALSE) {
+normalize.matrix <- function(
+  S,
+  log_transform = FALSE,
+  scale_param = NULL
+) {
+
   if (!is.matrix(S) && !ACTIONetExperiment:::is.sparseMatrix(S)) {
-    err <- sprintf("`S` must be `matrix` or `sparseMatrix`.\n")
+    err = sprintf("`S` must be `matrix` or `sparseMatrix`.\n")
     stop(err)
   }
 
-  if (!is.null(anchor_features)) {
-    lib_sizes <- Matrix::colSums(S[anchor_features, ])
-  } else if (top_features_frac < 1.0) {
-    universality <- Matrix::rowMeans(S != 0)
-    selected_features <- which(universality > (1.0 - top_features_frac))
-    lib_sizes <- Matrix::colSums(S[selected_features, ])
+  if (is.null(scale_param)) {
+    scale_param = 1
+  } else if ( !is.function(scale_param) && !is.numeric(scale_param) ) {
+    err = sprintf("`scale_param` must be `function` or `numeric`.\n")
+    stop(err)
+  } else if ( !(length(scale_param) == NCOL(S)) &&  !(length(scale_param) == 1) ) {
+    err = sprintf("`scale_param` must be of length 1 or `NCOL(S)`.\n")
+  }
+
+  if(ACTIONetExperiment:::is.sparseMatrix(S) && !is(S, "CsparseMatrix")) {
+    S = as(S, "CsparseMatrix")
+  }
+
+  cs = Matrix::colSums(S)
+  cs[cs == 0] = 1
+  B = Matrix::t(Matrix::t(S) / cs)
+
+  if (is.function(scale_param)){
+    B = B * scale_param(cs)
   } else {
-    lib_sizes <- Matrix::colSums(S)
-  }
-
-  if (is.matrix(S)) {
-    S_scaled <- S %*% diag(1.0 / lib_sizes)
-  } else {
-    S_scaled <- S %*% Diagonal(n = length(lib_sizes), x = 1.0 / lib_sizes)
-  }
-
-  if (ACTIONetExperiment:::is.sparseMatrix(S) && !is(S, "dMatrix")) {
-    S <- as(S, "dMatrix")
-  }
-
-  if (is.function(scale_param)) {
-    kappa <- scale_param(Matrix::colSums(S) / Matrix::colSums(S_scaled))
-    S_scaled_norm <- S_scaled * kappa
-  } else if (length(scale_param) == 1) {
-    S_scaled_norm <- S_scaled * scale_param
-  } else if (length(scale_param) == ncol(S)) {
-    if (is.matrix(S_scaled)) {
-      S_scaled_norm <- S_scaled %*% diag(x = scale_param)
+    if(length(scale_param) > 1){
+      B = Matrix::t(Matrix::t(B) * scale_param)
     } else {
-      S_scaled_norm <- S_scaled %*% Diagonal(n = length(scale_param), x = scale_param)
-    }
-  } else {
-    stop(sprintf("invalid scale_param in the normalize.matrix() function."))
-  }
-
-  if (transformation == "log") {
-    S_scaled_norm_trans <- log1p(S_scaled_norm)
-  } else if (transformation == "tukey") {
-    if (is.matrix(S_scaled_norm)) {
-      S_scaled_norm_trans <- S_scaled_norm
-      idx <- which(S_scaled_norm_trans > 0)
-      vv <- S_scaled_norm_trans[idx]
-      vv_transformed <- sqrt(vv) + sqrt(1 + vv)
-      S_scaled_norm_trans[idx] <- vv_transformed
-    } else {
-      S_scaled_norm_trans@x <- sqrt(S_scaled_norm_trans@x) + sqrt(S_scaled_norm_trans@x + 1)
-    }
-  }
-  
-  if (post_rescale == TRUE) {
-    cs <- Matrix::colSums(S_scaled_norm_trans)
-    kappa <- median(cs) / cs
-
-    if (is.matrix(S_scaled_norm_trans)) {
-      S_scaled_norm_trans <- S_scaled_norm_trans %*% diag(x = kappa)
-    } else {
-      S_scaled_norm_trans <- S_scaled_norm_trans %*% Diagonal(n = length(kappa), x = kappa)
+      B = B * scale_param
     }
   }
 
-  return(S_scaled_norm_trans)
+  if (log_transform == TRUE) {
+    B = log1p(B)
+  }
+
+  if(ACTIONetExperiment:::is.sparseMatrix(S) && !is(S, "CsparseMatrix")) {
+    S = as(S, "CsparseMatrix")
+  }
+
+  return(B)
 }
-
-
 
 .groupedRowSums <- function(S, group_vec) {
   if (ACTIONetExperiment:::is.sparseMatrix(S)) {
