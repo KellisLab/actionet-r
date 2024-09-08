@@ -11,7 +11,7 @@ else ifeq ($(UNAME),Darwin)
 endif
 
 CXX_STD = CXX17
-PKG_CPPFLAGS = -I"../inst/include" -I"libactionet/include"
+PKG_CPPFLAGS = -I"../inst/include" -I"libactionet/include" -DARMA_64BIT_WORD
 # PKG_CFLAGS = -fmax-errors=10 -w
 PKG_CXXFLAGS = -std=c++17
 # PKG_CXXFLAGS += -w -fmax-errors=10
