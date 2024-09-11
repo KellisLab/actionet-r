@@ -816,6 +816,41 @@ RcppExport SEXP _actionet_perturbedSVD(SEXP uSEXP, SEXP dSEXP, SEXP vSEXP, SEXP 
     UNPROTECT(1);
     return rcpp_result_gen;
 }
+// computeNodeColors
+arma::mat computeNodeColors(arma::mat& coordinates, int thread_no);
+static SEXP _actionet_computeNodeColors_try(SEXP coordinatesSEXP, SEXP thread_noSEXP) {
+BEGIN_RCPP
+    Rcpp::RObject rcpp_result_gen;
+    Rcpp::traits::input_parameter< arma::mat& >::type coordinates(coordinatesSEXP);
+    Rcpp::traits::input_parameter< int >::type thread_no(thread_noSEXP);
+    rcpp_result_gen = Rcpp::wrap(computeNodeColors(coordinates, thread_no));
+    return rcpp_result_gen;
+END_RCPP_RETURN_ERROR
+}
+RcppExport SEXP _actionet_computeNodeColors(SEXP coordinatesSEXP, SEXP thread_noSEXP) {
+    SEXP rcpp_result_gen;
+    {
+        Rcpp::RNGScope rcpp_rngScope_gen;
+        rcpp_result_gen = PROTECT(_actionet_computeNodeColors_try(coordinatesSEXP, thread_noSEXP));
+    }
+    Rboolean rcpp_isInterrupt_gen = Rf_inherits(rcpp_result_gen, "interrupted-error");
+    if (rcpp_isInterrupt_gen) {
+        UNPROTECT(1);
+        Rf_onintr();
+    }
+    bool rcpp_isLongjump_gen = Rcpp::internal::isLongjumpSentinel(rcpp_result_gen);
+    if (rcpp_isLongjump_gen) {
+        Rcpp::internal::resumeJump(rcpp_result_gen);
+    }
+    Rboolean rcpp_isError_gen = Rf_inherits(rcpp_result_gen, "try-error");
+    if (rcpp_isError_gen) {
+        SEXP rcpp_msgSEXP_gen = Rf_asChar(rcpp_result_gen);
+        UNPROTECT(1);
+        Rf_error("%s", CHAR(rcpp_msgSEXP_gen));
+    }
+    UNPROTECT(1);
+    return rcpp_result_gen;
+}
 // buildNetwork
 arma::sp_mat buildNetwork(arma::mat H, std::string algorithm, std::string distance_metric, double density, int thread_no, bool mutual_edges_only, int k);
 static SEXP _actionet_buildNetwork_try(SEXP HSEXP, SEXP algorithmSEXP, SEXP distance_metricSEXP, SEXP densitySEXP, SEXP thread_noSEXP, SEXP mutual_edges_onlySEXP, SEXP kSEXP) {
@@ -1657,29 +1692,43 @@ RcppExport SEXP _actionet_XICOR(SEXP XSEXP, SEXP YSEXP, SEXP compute_pvalSEXP, S
     return rcpp_result_gen;
 }
 // layoutNetwork
-Rcpp::List layoutNetwork(arma::sp_mat& G, arma::mat& initial_position, const std::string& method, double min_dist, double spread, double gamma, unsigned int n_epochs, double learning_rate, int seed, int thread_no);
-static SEXP _actionet_layoutNetwork_try(SEXP GSEXP, SEXP initial_positionSEXP, SEXP methodSEXP, SEXP min_distSEXP, SEXP spreadSEXP, SEXP gammaSEXP, SEXP n_epochsSEXP, SEXP learning_rateSEXP, SEXP seedSEXP, SEXP thread_noSEXP) {
+arma::mat layoutNetwork(arma::sp_mat& G, arma::mat& initial_coordinates, std::string method, unsigned int n_components, float spread, float min_dist, unsigned int n_epochs, float learning_rate, float repulsion_strength, float negative_sample_rate, bool approx_pow, bool pcg_rand, bool batch, unsigned int grain_size, int seed, int thread_no, bool verbose, float a, float b, std::string opt_method, float alpha, float beta1, float beta2, float eps);
+static SEXP _actionet_layoutNetwork_try(SEXP GSEXP, SEXP initial_coordinatesSEXP, SEXP methodSEXP, SEXP n_componentsSEXP, SEXP spreadSEXP, SEXP min_distSEXP, SEXP n_epochsSEXP, SEXP learning_rateSEXP, SEXP repulsion_strengthSEXP, SEXP negative_sample_rateSEXP, SEXP approx_powSEXP, SEXP pcg_randSEXP, SEXP batchSEXP, SEXP grain_sizeSEXP, SEXP seedSEXP, SEXP thread_noSEXP, SEXP verboseSEXP, SEXP aSEXP, SEXP bSEXP, SEXP opt_methodSEXP, SEXP alphaSEXP, SEXP beta1SEXP, SEXP beta2SEXP, SEXP epsSEXP) {
 BEGIN_RCPP
     Rcpp::RObject rcpp_result_gen;
     Rcpp::traits::input_parameter< arma::sp_mat& >::type G(GSEXP);
-    Rcpp::traits::input_parameter< arma::mat& >::type initial_position(initial_positionSEXP);
-    Rcpp::traits::input_parameter< const std::string& >::type method(methodSEXP);
-    Rcpp::traits::input_parameter< double >::type min_dist(min_distSEXP);
-    Rcpp::traits::input_parameter< double >::type spread(spreadSEXP);
-    Rcpp::traits::input_parameter< double >::type gamma(gammaSEXP);
+    Rcpp::traits::input_parameter< arma::mat& >::type initial_coordinates(initial_coordinatesSEXP);
+    Rcpp::traits::input_parameter< std::string >::type method(methodSEXP);
+    Rcpp::traits::input_parameter< unsigned int >::type n_components(n_componentsSEXP);
+    Rcpp::traits::input_parameter< float >::type spread(spreadSEXP);
+    Rcpp::traits::input_parameter< float >::type min_dist(min_distSEXP);
     Rcpp::traits::input_parameter< unsigned int >::type n_epochs(n_epochsSEXP);
-    Rcpp::traits::input_parameter< double >::type learning_rate(learning_rateSEXP);
+    Rcpp::traits::input_parameter< float >::type learning_rate(learning_rateSEXP);
+    Rcpp::traits::input_parameter< float >::type repulsion_strength(repulsion_strengthSEXP);
+    Rcpp::traits::input_parameter< float >::type negative_sample_rate(negative_sample_rateSEXP);
+    Rcpp::traits::input_parameter< bool >::type approx_pow(approx_powSEXP);
+    Rcpp::traits::input_parameter< bool >::type pcg_rand(pcg_randSEXP);
+    Rcpp::traits::input_parameter< bool >::type batch(batchSEXP);
+    Rcpp::traits::input_parameter< unsigned int >::type grain_size(grain_sizeSEXP);
     Rcpp::traits::input_parameter< int >::type seed(seedSEXP);
     Rcpp::traits::input_parameter< int >::type thread_no(thread_noSEXP);
-    rcpp_result_gen = Rcpp::wrap(layoutNetwork(G, initial_position, method, min_dist, spread, gamma, n_epochs, learning_rate, seed, thread_no));
+    Rcpp::traits::input_parameter< bool >::type verbose(verboseSEXP);
+    Rcpp::traits::input_parameter< float >::type a(aSEXP);
+    Rcpp::traits::input_parameter< float >::type b(bSEXP);
+    Rcpp::traits::input_parameter< std::string >::type opt_method(opt_methodSEXP);
+    Rcpp::traits::input_parameter< float >::type alpha(alphaSEXP);
+    Rcpp::traits::input_parameter< float >::type beta1(beta1SEXP);
+    Rcpp::traits::input_parameter< float >::type beta2(beta2SEXP);
+    Rcpp::traits::input_parameter< float >::type eps(epsSEXP);
+    rcpp_result_gen = Rcpp::wrap(layoutNetwork(G, initial_coordinates, method, n_components, spread, min_dist, n_epochs, learning_rate, repulsion_strength, negative_sample_rate, approx_pow, pcg_rand, batch, grain_size, seed, thread_no, verbose, a, b, opt_method, alpha, beta1, beta2, eps));
     return rcpp_result_gen;
 END_RCPP_RETURN_ERROR
 }
-RcppExport SEXP _actionet_layoutNetwork(SEXP GSEXP, SEXP initial_positionSEXP, SEXP methodSEXP, SEXP min_distSEXP, SEXP spreadSEXP, SEXP gammaSEXP, SEXP n_epochsSEXP, SEXP learning_rateSEXP, SEXP seedSEXP, SEXP thread_noSEXP) {
+RcppExport SEXP _actionet_layoutNetwork(SEXP GSEXP, SEXP initial_coordinatesSEXP, SEXP methodSEXP, SEXP n_componentsSEXP, SEXP spreadSEXP, SEXP min_distSEXP, SEXP n_epochsSEXP, SEXP learning_rateSEXP, SEXP repulsion_strengthSEXP, SEXP negative_sample_rateSEXP, SEXP approx_powSEXP, SEXP pcg_randSEXP, SEXP batchSEXP, SEXP grain_sizeSEXP, SEXP seedSEXP, SEXP thread_noSEXP, SEXP verboseSEXP, SEXP aSEXP, SEXP bSEXP, SEXP opt_methodSEXP, SEXP alphaSEXP, SEXP beta1SEXP, SEXP beta2SEXP, SEXP epsSEXP) {
     SEXP rcpp_result_gen;
     {
         Rcpp::RNGScope rcpp_rngScope_gen;
-        rcpp_result_gen = PROTECT(_actionet_layoutNetwork_try(GSEXP, initial_positionSEXP, methodSEXP, min_distSEXP, spreadSEXP, gammaSEXP, n_epochsSEXP, learning_rateSEXP, seedSEXP, thread_noSEXP));
+        rcpp_result_gen = PROTECT(_actionet_layoutNetwork_try(GSEXP, initial_coordinatesSEXP, methodSEXP, n_componentsSEXP, spreadSEXP, min_distSEXP, n_epochsSEXP, learning_rateSEXP, repulsion_strengthSEXP, negative_sample_rateSEXP, approx_powSEXP, pcg_randSEXP, batchSEXP, grain_sizeSEXP, seedSEXP, thread_noSEXP, verboseSEXP, aSEXP, bSEXP, opt_methodSEXP, alphaSEXP, beta1SEXP, beta2SEXP, epsSEXP));
     }
     Rboolean rcpp_isInterrupt_gen = Rf_inherits(rcpp_result_gen, "interrupted-error");
     if (rcpp_isInterrupt_gen) {
@@ -1725,6 +1774,7 @@ static int _actionet_RcppExport_validate(const char* sig) {
         signatures.insert("Rcpp::List(*runSVD)(arma::sp_mat&,int,int,int,int,int)");
         signatures.insert("Rcpp::List(*runSVD_full)(arma::mat&,int,int,int,int,int)");
         signatures.insert("Rcpp::List(*perturbedSVD)(arma::mat,arma::vec,arma::mat,arma::mat,arma::mat)");
+        signatures.insert("arma::mat(*computeNodeColors)(arma::mat&,int)");
         signatures.insert("arma::sp_mat(*buildNetwork)(arma::mat,std::string,std::string,double,int,bool,int)");
         signatures.insert("arma::vec(*run_LPA)(arma::sp_mat&,arma::vec,double,int,double,Rcpp::Nullable<Rcpp::IntegerVector>,int)");
         signatures.insert("arma::mat(*compute_network_diffusion_fast)(arma::sp_mat&,arma::sp_mat&,double,int,int)");
@@ -1748,7 +1798,7 @@ static int _actionet_RcppExport_validate(const char* sig) {
         signatures.insert("arma::sp_mat(*normalize_spmat)(arma::sp_mat&,int,int)");
         signatures.insert("arma::vec(*xicor)(arma::vec,arma::vec,bool,int)");
         signatures.insert("Rcpp::List(*XICOR)(arma::mat&,arma::mat&,bool,int,int)");
-        signatures.insert("Rcpp::List(*layoutNetwork)(arma::sp_mat&,arma::mat&,const std::string&,double,double,double,unsigned int,double,int,int)");
+        signatures.insert("arma::mat(*layoutNetwork)(arma::sp_mat&,arma::mat&,std::string,unsigned int,float,float,unsigned int,float,float,float,bool,bool,bool,unsigned int,int,int,bool,float,float,std::string,float,float,float,float)");
     }
     return signatures.find(sig) != signatures.end();
 }
@@ -1776,6 +1826,7 @@ RcppExport SEXP _actionet_RcppExport_registerCCallable() {
     R_RegisterCCallable("actionet", "_actionet_runSVD", (DL_FUNC)_actionet_runSVD_try);
     R_RegisterCCallable("actionet", "_actionet_runSVD_full", (DL_FUNC)_actionet_runSVD_full_try);
     R_RegisterCCallable("actionet", "_actionet_perturbedSVD", (DL_FUNC)_actionet_perturbedSVD_try);
+    R_RegisterCCallable("actionet", "_actionet_computeNodeColors", (DL_FUNC)_actionet_computeNodeColors_try);
     R_RegisterCCallable("actionet", "_actionet_buildNetwork", (DL_FUNC)_actionet_buildNetwork_try);
     R_RegisterCCallable("actionet", "_actionet_run_LPA", (DL_FUNC)_actionet_run_LPA_try);
     R_RegisterCCallable("actionet", "_actionet_compute_network_diffusion_fast", (DL_FUNC)_actionet_compute_network_diffusion_fast_try);
@@ -1826,6 +1877,7 @@ static const R_CallMethodDef CallEntries[] = {
     {"_actionet_runSVD", (DL_FUNC) &_actionet_runSVD, 6},
     {"_actionet_runSVD_full", (DL_FUNC) &_actionet_runSVD_full, 6},
     {"_actionet_perturbedSVD", (DL_FUNC) &_actionet_perturbedSVD, 5},
+    {"_actionet_computeNodeColors", (DL_FUNC) &_actionet_computeNodeColors, 2},
     {"_actionet_buildNetwork", (DL_FUNC) &_actionet_buildNetwork, 7},
     {"_actionet_run_LPA", (DL_FUNC) &_actionet_run_LPA, 7},
     {"_actionet_compute_network_diffusion_fast", (DL_FUNC) &_actionet_compute_network_diffusion_fast, 5},
@@ -1849,7 +1901,7 @@ static const R_CallMethodDef CallEntries[] = {
     {"_actionet_normalize_spmat", (DL_FUNC) &_actionet_normalize_spmat, 3},
     {"_actionet_xicor", (DL_FUNC) &_actionet_xicor, 4},
     {"_actionet_XICOR", (DL_FUNC) &_actionet_XICOR, 5},
-    {"_actionet_layoutNetwork", (DL_FUNC) &_actionet_layoutNetwork, 10},
+    {"_actionet_layoutNetwork", (DL_FUNC) &_actionet_layoutNetwork, 24},
     {"_actionet_RcppExport_registerCCallable", (DL_FUNC) &_actionet_RcppExport_registerCCallable, 0},
     {NULL, NULL, 0}
 };

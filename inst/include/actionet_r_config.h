@@ -6,8 +6,12 @@
 
 // Automatically return all arma::vec and related as Rcpp:NumericVector instead of 1-D matrix
 #define RCPP_ARMADILLO_RETURN_ANYVEC_AS_VECTOR
+#ifndef LIBACTIONET_BUILD_R
+    #define LIBACTIONET_BUILD_R
+#endif //LIBACTIONET_BUILD_R
 
-#include <RcppArmadillo.h>
+#include <RcppArmadillo.h> // For some dumbass reason R won't use Rcpp from the header below.
+#include "libactionet_config.hpp"
 #include "libactionet.hpp"
 // [[Rcpp::depends(RcppArmadillo)]]
 

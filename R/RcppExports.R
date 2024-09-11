@@ -246,6 +246,10 @@ perturbedSVD <- function(u, d, v, A, B) {
     .Call(`_actionet_perturbedSVD`, u, d, v, A, B)
 }
 
+computeNodeColors <- function(coordinates, thread_no) {
+    .Call(`_actionet_computeNodeColors`, coordinates, thread_no)
+}
+
 #' Builds an interaction network from the multi-level archetypal decompositions
 #'
 #' @param H_stacked Output of the collect_archetypes() function.
@@ -443,26 +447,8 @@ XICOR <- function(X, Y, compute_pval = TRUE, seed = 0L, thread_no = 0L) {
     .Call(`_actionet_XICOR`, X, Y, compute_pval, seed, thread_no)
 }
 
-#' Performs stochastic force-directed layout on the input graph (ACTIONet)
-#'
-#' @param G Adjacency matrix of the ACTIONet graph
-#' @param S_r Reduced kernel matrix (is used for reproducible initialization).
-#' @param compactness_level A value between 0-100, indicating the compactness
-#' of ACTIONet layout (default=50)
-#' @param n_epochs Number of epochs for SGD algorithm (default=100).
-#' @param thread_no Number of threads (default = 0).
-#'
-#' @return A named list \itemize{
-#' \item coordinates 2D coordinates of vertices.
-#' \item coordinates_3D 3D coordinates of vertices.
-#' \item colors De novo color of nodes inferred from their 3D embedding.
-#' }
-#'
-#' @examples
-#'	G = buildNetwork(prune.out$H_stacked)
-#'	vis.out = layoutNetwrok(G, S_r)
-layoutNetwork <- function(G, initial_position, method = "umap", min_dist = 1, spread = 1, gamma = 1.0, n_epochs = 500L, learning_rate = 1.0, seed = 0L, thread_no = 0L) {
-    .Call(`_actionet_layoutNetwork`, G, initial_position, method, min_dist, spread, gamma, n_epochs, learning_rate, seed, thread_no)
+layoutNetwork <- function(G, initial_coordinates, method = "umap", n_components = 2L, spread = 1, min_dist = 1, n_epochs = 0L, learning_rate = 1, repulsion_strength = 1, negative_sample_rate = 5, approx_pow = FALSE, pcg_rand = TRUE, batch = TRUE, grain_size = 1L, seed = 0L, thread_no = 0L, verbose = TRUE, a = 0, b = 0, opt_method = "adam", alpha = -1, beta1 = 0.5, beta2 = 0.9, eps = 1e-7) {
+    .Call(`_actionet_layoutNetwork`, G, initial_coordinates, method, n_components, spread, min_dist, n_epochs, learning_rate, repulsion_strength, negative_sample_rate, approx_pow, pcg_rand, batch, grain_size, seed, thread_no, verbose, a, b, opt_method, alpha, beta1, beta2, eps)
 }
 
 # Register entry points for exported C++ functions

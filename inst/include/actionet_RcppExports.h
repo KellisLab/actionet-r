@@ -466,6 +466,27 @@ namespace actionet {
         return Rcpp::as<Rcpp::List >(rcpp_result_gen);
     }
 
+    inline arma::mat computeNodeColors(arma::mat& coordinates, int thread_no) {
+        typedef SEXP(*Ptr_computeNodeColors)(SEXP,SEXP);
+        static Ptr_computeNodeColors p_computeNodeColors = NULL;
+        if (p_computeNodeColors == NULL) {
+            validateSignature("arma::mat(*computeNodeColors)(arma::mat&,int)");
+            p_computeNodeColors = (Ptr_computeNodeColors)R_GetCCallable("actionet", "_actionet_computeNodeColors");
+        }
+        RObject rcpp_result_gen;
+        {
+            RNGScope RCPP_rngScope_gen;
+            rcpp_result_gen = p_computeNodeColors(Shield<SEXP>(Rcpp::wrap(coordinates)), Shield<SEXP>(Rcpp::wrap(thread_no)));
+        }
+        if (rcpp_result_gen.inherits("interrupted-error"))
+            throw Rcpp::internal::InterruptedException();
+        if (Rcpp::internal::isLongjumpSentinel(rcpp_result_gen))
+            throw Rcpp::LongjumpException(rcpp_result_gen);
+        if (rcpp_result_gen.inherits("try-error"))
+            throw Rcpp::exception(Rcpp::as<std::string>(rcpp_result_gen).c_str());
+        return Rcpp::as<arma::mat >(rcpp_result_gen);
+    }
+
     inline arma::sp_mat buildNetwork(arma::mat H, std::string algorithm = "k*nn", std::string distance_metric = "jsd", double density = 1.0, int thread_no = 0, bool mutual_edges_only = true, int k = 10) {
         typedef SEXP(*Ptr_buildNetwork)(SEXP,SEXP,SEXP,SEXP,SEXP,SEXP,SEXP);
         static Ptr_buildNetwork p_buildNetwork = NULL;
@@ -949,17 +970,17 @@ namespace actionet {
         return Rcpp::as<Rcpp::List >(rcpp_result_gen);
     }
 
-    inline Rcpp::List layoutNetwork(arma::sp_mat& G, arma::mat& initial_position, const std::string& method = "umap", double min_dist = 1, double spread = 1, double gamma = 1.0, unsigned int n_epochs = 500, double learning_rate = 1.0, int seed = 0, int thread_no = 0) {
-        typedef SEXP(*Ptr_layoutNetwork)(SEXP,SEXP,SEXP,SEXP,SEXP,SEXP,SEXP,SEXP,SEXP,SEXP);
+    inline arma::mat layoutNetwork(arma::sp_mat& G, arma::mat& initial_coordinates, std::string method = "umap", unsigned int n_components = 2, float spread = 1, float min_dist = 1, unsigned int n_epochs = 0, float learning_rate = 1, float repulsion_strength = 1, float negative_sample_rate = 5, bool approx_pow = false, bool pcg_rand = true, bool batch = true, unsigned int grain_size = 1, int seed = 0, int thread_no = 0, bool verbose = true, float a = 0, float b = 0, std::string opt_method = "adam", float alpha = -1, float beta1 = 0.5, float beta2 = 0.9, float eps = 1e-7) {
+        typedef SEXP(*Ptr_layoutNetwork)(SEXP,SEXP,SEXP,SEXP,SEXP,SEXP,SEXP,SEXP,SEXP,SEXP,SEXP,SEXP,SEXP,SEXP,SEXP,SEXP,SEXP,SEXP,SEXP,SEXP,SEXP,SEXP,SEXP,SEXP);
         static Ptr_layoutNetwork p_layoutNetwork = NULL;
         if (p_layoutNetwork == NULL) {
-            validateSignature("Rcpp::List(*layoutNetwork)(arma::sp_mat&,arma::mat&,const std::string&,double,double,double,unsigned int,double,int,int)");
+            validateSignature("arma::mat(*layoutNetwork)(arma::sp_mat&,arma::mat&,std::string,unsigned int,float,float,unsigned int,float,float,float,bool,bool,bool,unsigned int,int,int,bool,float,float,std::string,float,float,float,float)");
             p_layoutNetwork = (Ptr_layoutNetwork)R_GetCCallable("actionet", "_actionet_layoutNetwork");
         }
         RObject rcpp_result_gen;
         {
             RNGScope RCPP_rngScope_gen;
-            rcpp_result_gen = p_layoutNetwork(Shield<SEXP>(Rcpp::wrap(G)), Shield<SEXP>(Rcpp::wrap(initial_position)), Shield<SEXP>(Rcpp::wrap(method)), Shield<SEXP>(Rcpp::wrap(min_dist)), Shield<SEXP>(Rcpp::wrap(spread)), Shield<SEXP>(Rcpp::wrap(gamma)), Shield<SEXP>(Rcpp::wrap(n_epochs)), Shield<SEXP>(Rcpp::wrap(learning_rate)), Shield<SEXP>(Rcpp::wrap(seed)), Shield<SEXP>(Rcpp::wrap(thread_no)));
+            rcpp_result_gen = p_layoutNetwork(Shield<SEXP>(Rcpp::wrap(G)), Shield<SEXP>(Rcpp::wrap(initial_coordinates)), Shield<SEXP>(Rcpp::wrap(method)), Shield<SEXP>(Rcpp::wrap(n_components)), Shield<SEXP>(Rcpp::wrap(spread)), Shield<SEXP>(Rcpp::wrap(min_dist)), Shield<SEXP>(Rcpp::wrap(n_epochs)), Shield<SEXP>(Rcpp::wrap(learning_rate)), Shield<SEXP>(Rcpp::wrap(repulsion_strength)), Shield<SEXP>(Rcpp::wrap(negative_sample_rate)), Shield<SEXP>(Rcpp::wrap(approx_pow)), Shield<SEXP>(Rcpp::wrap(pcg_rand)), Shield<SEXP>(Rcpp::wrap(batch)), Shield<SEXP>(Rcpp::wrap(grain_size)), Shield<SEXP>(Rcpp::wrap(seed)), Shield<SEXP>(Rcpp::wrap(thread_no)), Shield<SEXP>(Rcpp::wrap(verbose)), Shield<SEXP>(Rcpp::wrap(a)), Shield<SEXP>(Rcpp::wrap(b)), Shield<SEXP>(Rcpp::wrap(opt_method)), Shield<SEXP>(Rcpp::wrap(alpha)), Shield<SEXP>(Rcpp::wrap(beta1)), Shield<SEXP>(Rcpp::wrap(beta2)), Shield<SEXP>(Rcpp::wrap(eps)));
         }
         if (rcpp_result_gen.inherits("interrupted-error"))
             throw Rcpp::internal::InterruptedException();
@@ -967,7 +988,7 @@ namespace actionet {
             throw Rcpp::LongjumpException(rcpp_result_gen);
         if (rcpp_result_gen.inherits("try-error"))
             throw Rcpp::exception(Rcpp::as<std::string>(rcpp_result_gen).c_str());
-        return Rcpp::as<Rcpp::List >(rcpp_result_gen);
+        return Rcpp::as<arma::mat >(rcpp_result_gen);
     }
 
 }
