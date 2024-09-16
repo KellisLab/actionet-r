@@ -1,6 +1,8 @@
 // Rcpp interface for `visualization` module
 // Organized by module header in th order imported.
 // [[Rcpp::interfaces(r, cpp)]]
+#include <utility>
+
 #include "actionet_r_config.h"
 
 // generate_layout =====================================================================================================
@@ -13,10 +15,10 @@ arma::mat layoutNetwork(arma::sp_mat& G, arma::mat& initial_coordinates, std::st
                         int seed = 0, int thread_no = 0, bool verbose = true, float a = 0, float b = 0,
                         std::string opt_method = "adam", float alpha = -1, float beta1 = 0.5,
                         float beta2 = 0.9, float eps = 1e-7) {
-    arma::mat coordinates = actionet::layoutNetwork(G, initial_coordinates, method, n_components, spread, min_dist,
+    arma::mat coordinates = actionet::layoutNetwork(G, initial_coordinates, std::move(method), n_components, spread, min_dist,
                                                     n_epochs, learning_rate, repulsion_strength, negative_sample_rate,
                                                     approx_pow, pcg_rand, batch, grain_size, seed, thread_no, verbose,
-                                                    a, b, opt_method, alpha, beta1, beta2, eps);
+                                                    a, b, std::move(opt_method), alpha, beta1, beta2, eps);
 
     return coordinates;
 }

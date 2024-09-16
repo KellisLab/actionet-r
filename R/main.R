@@ -35,7 +35,7 @@ runACTIONet <- function(ace,
                         k_min = 2,
                         k_max = 30,
                         assay_name = NULL,
-                        reduction_slot = NULL,
+                        reduction_slot = "action",
                         reduction_normalization = 1,
                         net_slot_out = "ACTIONet",
                         min_cells_per_arch = 2,
@@ -61,14 +61,11 @@ runACTIONet <- function(ace,
                         thread_no = 0,
                         backbone_density = 0.5,
                         seed = 0) {
-  if (!is(ace, "ACTIONetExperiment")) {
-    ace <- as(ace, "ACTIONetExperiment")
-  }
+
+  ace <- .validate_ace(ace, as_ace = TRUE, allow_se_like = TRUE, return_elem = TRUE)
 
   layout_algorithm <- tolower(layout_algorithm)
   layout_algorithm <- match.arg(layout_algorithm, several.ok = FALSE)
-
-  set.seed(seed)
 
   if (is.null(assay_name)) {
     if ("default_assay" %in% names(metadata(ace))) {
@@ -92,12 +89,11 @@ runACTIONet <- function(ace,
   }
   .validate_map(ace = ace, map_slot = reduction_slot, return_elem = FALSE)
 
-  # if (!(sprintf("%s_normalized", reduction_slot) %in% names(colMaps(ace)))) {
   ace <- normalize.reduction(ace, reduction_slot = reduction_slot, reduction_normalization = reduction_normalization)
-  # }
+
   reduction_slot <- sprintf("%s_normalized", reduction_slot)
 
-  # Calls "decomp.ACTIONMR" and fills in the appropriate slots in the ace object
+  # Calls "decomp.ACTION" and fills in the appropriate slots in the ace object
   ace <- .run.ACTIONMR.ace(
     ace = ace,
     k_min = k_min,

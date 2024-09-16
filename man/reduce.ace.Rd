@@ -7,23 +7,27 @@
 reduce.ace(
   ace,
   reduced_dim = 50,
-  max_iter = 1000,
-  assay_name = NULL,
-  reduction_out = "ACTION",
-  SVD_algorithm = 0,
+  assay_name = "logcounts",
+  reduction_out = "action",
+  algorithm = c("irlb", "halko", "feng"),
+  max_it = NULL,
   seed = 0
 )
 }
 \arguments{
 \item{ace}{ACTIONetExperiment object.}
 
-\item{reduced_dim}{Dimension of SVD used for reducing kernel matrix}
-
-\item{max_iter}{Number of SVD iterations}
+\item{reduced_dim}{Dimension of reduced kernel matrix. Number of singular vectors to estimate. Passed to <code>runSVD()</code>.}
 
 \item{assay_name}{Name of assay to reduce.}
 
-\item{reduction_out}{Name of slot to store reduction.}
+\item{reduction_out}{Name of slot to store reduced output.}
+
+\item{algorithm}{Singular value decomposition algorithm. Passed to <code>runSVD()</code>.}
+
+\item{max_it}{Number of SVD iterations. If `NULL`: 1000 for "ilrb", 5 otherwise.}
+
+\item{seed}{Random seed.}
 }
 \value{
 ACTIONetExperiment object with reduction in colMaps(ace).

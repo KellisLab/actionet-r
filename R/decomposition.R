@@ -175,79 +175,40 @@ decomp.AA <- function(X,
   return(out)
 }
 
-
 #' Run ACTION_decomposition
 decomp.ACTION <- function(X,
-                          k,
-                          max_iter = 50,
-                          min_delta = 1e-300,
+                          k_min,
+                          k_max,
+                          specificity_th = -3,
+                          min_cells_per_arch = 2,
+                          max_it = 100,
+                          tol = 1e-16,
                           thread_no = 0,
-                          return_raw = FALSE) {
+                          norm = 1
+                          ) {
   if (!is.matrix(X)) {
     err <- sprintf("'X' must be of type 'matrix'.\n")
     warning(err)
     X <- as.matrix(X)
   }
 
-  ACTION.out <- run_ACTION(
-    S_r = X,
-    k_min = k,
-    k_max = k,
-    thread_no = thread_no,
-    max_it = max_iter,
-    min_delta = min_delta
-  )
-
-  if (return_raw == TRUE) {
-    out <- ACTION.out
-  } else {
-    out <- list(
-      W = ACTION.out$W,
-      H = ACTION.out$H,
-      misc = list(C = ACTION.out$C)
-    )
-  }
-  return(out)
-}
-
-
-decomp.ACTIONMR <- function(X,
-                            k_min,
-                            k_max,
-                            specificity_th = -3,
-                            min_cells_per_arch = 2,
-                            unification_backbone_density = 0.5,
-                            unification_resolution = 1.0,
-                            unification_min_cluster_size = 3,
-                            max_iter = 50,
-                            min_delta = 1e-100,
-                            thread_no = 0,
-                            normalization = 0,
-                            return_raw = FALSE) {
-  if (!is.matrix(X)) {
-    err <- sprintf("'X' must be of type 'matrix'.\n")
-    warning(err)
-    X <- as.matrix(X)
-  }
-
-  ACTION.out <- run_ACTION(
+  action.out <- decompACTION(
     S_r = X,
     k_min = k_min,
     k_max = k_max,
-    thread_no = thread_no,
-    max_it = max_iter,
-    tol = min_delta,
-    normalization = normalization
-  )
+    max_it = max_it,
+    tol = tol,
+    thread_no = thread_no
+    )
 
   # Prune nonspecific and/or unreliable archetypes
   pruning.out <- .collectArchetypes(
-    C_trace = ACTION.out$C,
-    H_trace = ACTION.out$H,
+    C_trace = action.out$C,
+    H_trace = action.out$H,
     specificity_th = specificity_th,
     min_cells_per_arch = min_cells_per_arch
   )
-
+  message("")
   # Identiy equivalent classes of archetypes and group them together
   C_stacked <- pruning.out$C_stacked
   H_stacked <- pruning.out$H_stacked
@@ -255,15 +216,15 @@ decomp.ACTIONMR <- function(X,
     S_r = X,
     C_stacked = C_stacked,
     H_stacked = H_stacked,
-    normalization = normalization,
+    normalization = 0,
     thread_no = thread_no
   )
 
   H <- unification.out$H_merged
   W <- X %*% unification.out$C_merged
   misc <- list(
-    H = ACTION.out$H,
-    C = ACTION.out$C,
+    H = action.out$H,
+    C = action.out$C,
     H_stacked = pruning.out$H_stacked,
     C_stacked = pruning.out$C_stacked,
     H_merged = unification.out$H_merged,
@@ -301,16 +262,16 @@ decomp.ACTIONMR <- function(X,
 
 
 .collectArchetypes <- function(C_trace,
-                             H_trace,
-                             specificity_th = -3,
-                             min_cells_per_arch = 2) {
-  out <- collect_archetypes(
+                               H_trace,
+                               specificity_th = -3,
+                               min_cells_per_arch = 2) {
+  out <- collectArchetypes(
     C_trace = C_trace,
     H_trace = H_trace,
     spec_th = specificity_th,
     min_obs = min_cells_per_arch
-  )
-
+    )
+  
   return(out)
 }
 
@@ -325,11 +286,11 @@ decomp.ACTIONMR <- function(X,
     stop(err)
   }
 
-  out <- merge_archetypes(
+  out <- mergeArchetypes(
     S_r = S_r,
     C_stacked = C_stacked,
     H_stacked = H_stacked,
-    normalization = normalization,
+    norm = normalization,
     thread_no = thread_no
   )
 

@@ -25,17 +25,17 @@ namespace actionet {
         }
     }
 
-    inline Rcpp::List run_AA(arma::mat& A, arma::mat& W0, int max_it = 100, double tol = 1e-6) {
-        typedef SEXP(*Ptr_run_AA)(SEXP,SEXP,SEXP,SEXP);
-        static Ptr_run_AA p_run_AA = NULL;
-        if (p_run_AA == NULL) {
-            validateSignature("Rcpp::List(*run_AA)(arma::mat&,arma::mat&,int,double)");
-            p_run_AA = (Ptr_run_AA)R_GetCCallable("actionet", "_actionet_run_AA");
+    inline Rcpp::List runAA(arma::mat& A, arma::mat& W0, int max_it = 100, double tol = 1e-6) {
+        typedef SEXP(*Ptr_runAA)(SEXP,SEXP,SEXP,SEXP);
+        static Ptr_runAA p_runAA = NULL;
+        if (p_runAA == NULL) {
+            validateSignature("Rcpp::List(*runAA)(arma::mat&,arma::mat&,int,double)");
+            p_runAA = (Ptr_runAA)R_GetCCallable("actionet", "_actionet_runAA");
         }
         RObject rcpp_result_gen;
         {
             RNGScope RCPP_rngScope_gen;
-            rcpp_result_gen = p_run_AA(Shield<SEXP>(Rcpp::wrap(A)), Shield<SEXP>(Rcpp::wrap(W0)), Shield<SEXP>(Rcpp::wrap(max_it)), Shield<SEXP>(Rcpp::wrap(tol)));
+            rcpp_result_gen = p_runAA(Shield<SEXP>(Rcpp::wrap(A)), Shield<SEXP>(Rcpp::wrap(W0)), Shield<SEXP>(Rcpp::wrap(max_it)), Shield<SEXP>(Rcpp::wrap(tol)));
         }
         if (rcpp_result_gen.inherits("interrupted-error"))
             throw Rcpp::internal::InterruptedException();
@@ -46,17 +46,17 @@ namespace actionet {
         return Rcpp::as<Rcpp::List >(rcpp_result_gen);
     }
 
-    inline Rcpp::List run_ACTION(arma::mat& S_r, int k_min = 2, int k_max = 30, int normalization = 1, int max_it = 100, double tol = 1e-6, int thread_no = 0) {
-        typedef SEXP(*Ptr_run_ACTION)(SEXP,SEXP,SEXP,SEXP,SEXP,SEXP,SEXP);
-        static Ptr_run_ACTION p_run_ACTION = NULL;
-        if (p_run_ACTION == NULL) {
-            validateSignature("Rcpp::List(*run_ACTION)(arma::mat&,int,int,int,int,double,int)");
-            p_run_ACTION = (Ptr_run_ACTION)R_GetCCallable("actionet", "_actionet_run_ACTION");
+    inline Rcpp::List decompACTION(arma::mat& S_r, int k_min = 2, int k_max = 30, int max_it = 100, double tol = 1e-16, int thread_no = 0) {
+        typedef SEXP(*Ptr_decompACTION)(SEXP,SEXP,SEXP,SEXP,SEXP,SEXP);
+        static Ptr_decompACTION p_decompACTION = NULL;
+        if (p_decompACTION == NULL) {
+            validateSignature("Rcpp::List(*decompACTION)(arma::mat&,int,int,int,double,int)");
+            p_decompACTION = (Ptr_decompACTION)R_GetCCallable("actionet", "_actionet_decompACTION");
         }
         RObject rcpp_result_gen;
         {
             RNGScope RCPP_rngScope_gen;
-            rcpp_result_gen = p_run_ACTION(Shield<SEXP>(Rcpp::wrap(S_r)), Shield<SEXP>(Rcpp::wrap(k_min)), Shield<SEXP>(Rcpp::wrap(k_max)), Shield<SEXP>(Rcpp::wrap(normalization)), Shield<SEXP>(Rcpp::wrap(max_it)), Shield<SEXP>(Rcpp::wrap(tol)), Shield<SEXP>(Rcpp::wrap(thread_no)));
+            rcpp_result_gen = p_decompACTION(Shield<SEXP>(Rcpp::wrap(S_r)), Shield<SEXP>(Rcpp::wrap(k_min)), Shield<SEXP>(Rcpp::wrap(k_max)), Shield<SEXP>(Rcpp::wrap(max_it)), Shield<SEXP>(Rcpp::wrap(tol)), Shield<SEXP>(Rcpp::wrap(thread_no)));
         }
         if (rcpp_result_gen.inherits("interrupted-error"))
             throw Rcpp::internal::InterruptedException();
@@ -67,17 +67,17 @@ namespace actionet {
         return Rcpp::as<Rcpp::List >(rcpp_result_gen);
     }
 
-    inline Rcpp::List collect_archetypes(const Rcpp::List& C_trace, const Rcpp::List& H_trace, double spec_th = -3, int min_obs = 3) {
-        typedef SEXP(*Ptr_collect_archetypes)(SEXP,SEXP,SEXP,SEXP);
-        static Ptr_collect_archetypes p_collect_archetypes = NULL;
-        if (p_collect_archetypes == NULL) {
-            validateSignature("Rcpp::List(*collect_archetypes)(const Rcpp::List&,const Rcpp::List&,double,int)");
-            p_collect_archetypes = (Ptr_collect_archetypes)R_GetCCallable("actionet", "_actionet_collect_archetypes");
+    inline Rcpp::List runACTION(arma::mat& S_r, int k_min = 2, int k_max = 30, int max_it = 100, double tol = 1e-16, double spec_th = -3, int min_obs = 3, int norm = 0, int thread_no = 0) {
+        typedef SEXP(*Ptr_runACTION)(SEXP,SEXP,SEXP,SEXP,SEXP,SEXP,SEXP,SEXP,SEXP);
+        static Ptr_runACTION p_runACTION = NULL;
+        if (p_runACTION == NULL) {
+            validateSignature("Rcpp::List(*runACTION)(arma::mat&,int,int,int,double,double,int,int,int)");
+            p_runACTION = (Ptr_runACTION)R_GetCCallable("actionet", "_actionet_runACTION");
         }
         RObject rcpp_result_gen;
         {
             RNGScope RCPP_rngScope_gen;
-            rcpp_result_gen = p_collect_archetypes(Shield<SEXP>(Rcpp::wrap(C_trace)), Shield<SEXP>(Rcpp::wrap(H_trace)), Shield<SEXP>(Rcpp::wrap(spec_th)), Shield<SEXP>(Rcpp::wrap(min_obs)));
+            rcpp_result_gen = p_runACTION(Shield<SEXP>(Rcpp::wrap(S_r)), Shield<SEXP>(Rcpp::wrap(k_min)), Shield<SEXP>(Rcpp::wrap(k_max)), Shield<SEXP>(Rcpp::wrap(max_it)), Shield<SEXP>(Rcpp::wrap(tol)), Shield<SEXP>(Rcpp::wrap(spec_th)), Shield<SEXP>(Rcpp::wrap(min_obs)), Shield<SEXP>(Rcpp::wrap(norm)), Shield<SEXP>(Rcpp::wrap(thread_no)));
         }
         if (rcpp_result_gen.inherits("interrupted-error"))
             throw Rcpp::internal::InterruptedException();
@@ -88,17 +88,17 @@ namespace actionet {
         return Rcpp::as<Rcpp::List >(rcpp_result_gen);
     }
 
-    inline Rcpp::List merge_archetypes(arma::mat& S_r, arma::mat C_stacked, arma::mat H_stacked, int normalization = 0, int thread_no = 0) {
-        typedef SEXP(*Ptr_merge_archetypes)(SEXP,SEXP,SEXP,SEXP,SEXP);
-        static Ptr_merge_archetypes p_merge_archetypes = NULL;
-        if (p_merge_archetypes == NULL) {
-            validateSignature("Rcpp::List(*merge_archetypes)(arma::mat&,arma::mat,arma::mat,int,int)");
-            p_merge_archetypes = (Ptr_merge_archetypes)R_GetCCallable("actionet", "_actionet_merge_archetypes");
+    inline Rcpp::List collectArchetypes(const Rcpp::List& C_trace, const Rcpp::List& H_trace, double spec_th = -3, int min_obs = 3) {
+        typedef SEXP(*Ptr_collectArchetypes)(SEXP,SEXP,SEXP,SEXP);
+        static Ptr_collectArchetypes p_collectArchetypes = NULL;
+        if (p_collectArchetypes == NULL) {
+            validateSignature("Rcpp::List(*collectArchetypes)(const Rcpp::List&,const Rcpp::List&,double,int)");
+            p_collectArchetypes = (Ptr_collectArchetypes)R_GetCCallable("actionet", "_actionet_collectArchetypes");
         }
         RObject rcpp_result_gen;
         {
             RNGScope RCPP_rngScope_gen;
-            rcpp_result_gen = p_merge_archetypes(Shield<SEXP>(Rcpp::wrap(S_r)), Shield<SEXP>(Rcpp::wrap(C_stacked)), Shield<SEXP>(Rcpp::wrap(H_stacked)), Shield<SEXP>(Rcpp::wrap(normalization)), Shield<SEXP>(Rcpp::wrap(thread_no)));
+            rcpp_result_gen = p_collectArchetypes(Shield<SEXP>(Rcpp::wrap(C_trace)), Shield<SEXP>(Rcpp::wrap(H_trace)), Shield<SEXP>(Rcpp::wrap(spec_th)), Shield<SEXP>(Rcpp::wrap(min_obs)));
         }
         if (rcpp_result_gen.inherits("interrupted-error"))
             throw Rcpp::internal::InterruptedException();
@@ -109,17 +109,17 @@ namespace actionet {
         return Rcpp::as<Rcpp::List >(rcpp_result_gen);
     }
 
-    inline Rcpp::List reduce_kernel(arma::sp_mat& S, int reduced_dim = 50, int iter = 5, int seed = 0, int SVD_algorithm = 0, int verbose = 1) {
-        typedef SEXP(*Ptr_reduce_kernel)(SEXP,SEXP,SEXP,SEXP,SEXP,SEXP);
-        static Ptr_reduce_kernel p_reduce_kernel = NULL;
-        if (p_reduce_kernel == NULL) {
-            validateSignature("Rcpp::List(*reduce_kernel)(arma::sp_mat&,int,int,int,int,int)");
-            p_reduce_kernel = (Ptr_reduce_kernel)R_GetCCallable("actionet", "_actionet_reduce_kernel");
+    inline Rcpp::List mergeArchetypes(arma::mat& S_r, arma::mat& C_stacked, arma::mat& H_stacked, int norm = 0, int thread_no = 0) {
+        typedef SEXP(*Ptr_mergeArchetypes)(SEXP,SEXP,SEXP,SEXP,SEXP);
+        static Ptr_mergeArchetypes p_mergeArchetypes = NULL;
+        if (p_mergeArchetypes == NULL) {
+            validateSignature("Rcpp::List(*mergeArchetypes)(arma::mat&,arma::mat&,arma::mat&,int,int)");
+            p_mergeArchetypes = (Ptr_mergeArchetypes)R_GetCCallable("actionet", "_actionet_mergeArchetypes");
         }
         RObject rcpp_result_gen;
         {
             RNGScope RCPP_rngScope_gen;
-            rcpp_result_gen = p_reduce_kernel(Shield<SEXP>(Rcpp::wrap(S)), Shield<SEXP>(Rcpp::wrap(reduced_dim)), Shield<SEXP>(Rcpp::wrap(iter)), Shield<SEXP>(Rcpp::wrap(seed)), Shield<SEXP>(Rcpp::wrap(SVD_algorithm)), Shield<SEXP>(Rcpp::wrap(verbose)));
+            rcpp_result_gen = p_mergeArchetypes(Shield<SEXP>(Rcpp::wrap(S_r)), Shield<SEXP>(Rcpp::wrap(C_stacked)), Shield<SEXP>(Rcpp::wrap(H_stacked)), Shield<SEXP>(Rcpp::wrap(norm)), Shield<SEXP>(Rcpp::wrap(thread_no)));
         }
         if (rcpp_result_gen.inherits("interrupted-error"))
             throw Rcpp::internal::InterruptedException();
@@ -130,17 +130,17 @@ namespace actionet {
         return Rcpp::as<Rcpp::List >(rcpp_result_gen);
     }
 
-    inline Rcpp::List reduce_kernel_full(arma::mat& S, int reduced_dim = 50, int iter = 5, int seed = 0, int SVD_algorithm = 0, int verbose = 1) {
-        typedef SEXP(*Ptr_reduce_kernel_full)(SEXP,SEXP,SEXP,SEXP,SEXP,SEXP);
-        static Ptr_reduce_kernel_full p_reduce_kernel_full = NULL;
-        if (p_reduce_kernel_full == NULL) {
-            validateSignature("Rcpp::List(*reduce_kernel_full)(arma::mat&,int,int,int,int,int)");
-            p_reduce_kernel_full = (Ptr_reduce_kernel_full)R_GetCCallable("actionet", "_actionet_reduce_kernel_full");
+    inline Rcpp::List reduceKernelSparse(arma::sp_mat& S, int k = 50, int svd_alg = 0, int max_it = 0, int seed = 0, bool verbose = true) {
+        typedef SEXP(*Ptr_reduceKernelSparse)(SEXP,SEXP,SEXP,SEXP,SEXP,SEXP);
+        static Ptr_reduceKernelSparse p_reduceKernelSparse = NULL;
+        if (p_reduceKernelSparse == NULL) {
+            validateSignature("Rcpp::List(*reduceKernelSparse)(arma::sp_mat&,int,int,int,int,bool)");
+            p_reduceKernelSparse = (Ptr_reduceKernelSparse)R_GetCCallable("actionet", "_actionet_reduceKernelSparse");
         }
         RObject rcpp_result_gen;
         {
             RNGScope RCPP_rngScope_gen;
-            rcpp_result_gen = p_reduce_kernel_full(Shield<SEXP>(Rcpp::wrap(S)), Shield<SEXP>(Rcpp::wrap(reduced_dim)), Shield<SEXP>(Rcpp::wrap(iter)), Shield<SEXP>(Rcpp::wrap(seed)), Shield<SEXP>(Rcpp::wrap(SVD_algorithm)), Shield<SEXP>(Rcpp::wrap(verbose)));
+            rcpp_result_gen = p_reduceKernelSparse(Shield<SEXP>(Rcpp::wrap(S)), Shield<SEXP>(Rcpp::wrap(k)), Shield<SEXP>(Rcpp::wrap(svd_alg)), Shield<SEXP>(Rcpp::wrap(max_it)), Shield<SEXP>(Rcpp::wrap(seed)), Shield<SEXP>(Rcpp::wrap(verbose)));
         }
         if (rcpp_result_gen.inherits("interrupted-error"))
             throw Rcpp::internal::InterruptedException();
@@ -151,17 +151,38 @@ namespace actionet {
         return Rcpp::as<Rcpp::List >(rcpp_result_gen);
     }
 
-    inline arma::mat run_simplex_regression(arma::mat& A, arma::mat& B, bool computeXtX = false) {
-        typedef SEXP(*Ptr_run_simplex_regression)(SEXP,SEXP,SEXP);
-        static Ptr_run_simplex_regression p_run_simplex_regression = NULL;
-        if (p_run_simplex_regression == NULL) {
-            validateSignature("arma::mat(*run_simplex_regression)(arma::mat&,arma::mat&,bool)");
-            p_run_simplex_regression = (Ptr_run_simplex_regression)R_GetCCallable("actionet", "_actionet_run_simplex_regression");
+    inline Rcpp::List reduceKernelDense(arma::mat& S, int k = 50, int svd_alg = 0, int max_it = 0, int seed = 0, bool verbose = true) {
+        typedef SEXP(*Ptr_reduceKernelDense)(SEXP,SEXP,SEXP,SEXP,SEXP,SEXP);
+        static Ptr_reduceKernelDense p_reduceKernelDense = NULL;
+        if (p_reduceKernelDense == NULL) {
+            validateSignature("Rcpp::List(*reduceKernelDense)(arma::mat&,int,int,int,int,bool)");
+            p_reduceKernelDense = (Ptr_reduceKernelDense)R_GetCCallable("actionet", "_actionet_reduceKernelDense");
         }
         RObject rcpp_result_gen;
         {
             RNGScope RCPP_rngScope_gen;
-            rcpp_result_gen = p_run_simplex_regression(Shield<SEXP>(Rcpp::wrap(A)), Shield<SEXP>(Rcpp::wrap(B)), Shield<SEXP>(Rcpp::wrap(computeXtX)));
+            rcpp_result_gen = p_reduceKernelDense(Shield<SEXP>(Rcpp::wrap(S)), Shield<SEXP>(Rcpp::wrap(k)), Shield<SEXP>(Rcpp::wrap(svd_alg)), Shield<SEXP>(Rcpp::wrap(max_it)), Shield<SEXP>(Rcpp::wrap(seed)), Shield<SEXP>(Rcpp::wrap(verbose)));
+        }
+        if (rcpp_result_gen.inherits("interrupted-error"))
+            throw Rcpp::internal::InterruptedException();
+        if (Rcpp::internal::isLongjumpSentinel(rcpp_result_gen))
+            throw Rcpp::LongjumpException(rcpp_result_gen);
+        if (rcpp_result_gen.inherits("try-error"))
+            throw Rcpp::exception(Rcpp::as<std::string>(rcpp_result_gen).c_str());
+        return Rcpp::as<Rcpp::List >(rcpp_result_gen);
+    }
+
+    inline arma::mat runSimplexRegression(arma::mat& A, arma::mat& B, bool computeXtX = false) {
+        typedef SEXP(*Ptr_runSimplexRegression)(SEXP,SEXP,SEXP);
+        static Ptr_runSimplexRegression p_runSimplexRegression = NULL;
+        if (p_runSimplexRegression == NULL) {
+            validateSignature("arma::mat(*runSimplexRegression)(arma::mat&,arma::mat&,bool)");
+            p_runSimplexRegression = (Ptr_runSimplexRegression)R_GetCCallable("actionet", "_actionet_runSimplexRegression");
+        }
+        RObject rcpp_result_gen;
+        {
+            RNGScope RCPP_rngScope_gen;
+            rcpp_result_gen = p_runSimplexRegression(Shield<SEXP>(Rcpp::wrap(A)), Shield<SEXP>(Rcpp::wrap(B)), Shield<SEXP>(Rcpp::wrap(computeXtX)));
         }
         if (rcpp_result_gen.inherits("interrupted-error"))
             throw Rcpp::internal::InterruptedException();
@@ -172,17 +193,17 @@ namespace actionet {
         return Rcpp::as<arma::mat >(rcpp_result_gen);
     }
 
-    inline Rcpp::List run_SPA(arma::mat& A, int k) {
-        typedef SEXP(*Ptr_run_SPA)(SEXP,SEXP);
-        static Ptr_run_SPA p_run_SPA = NULL;
-        if (p_run_SPA == NULL) {
-            validateSignature("Rcpp::List(*run_SPA)(arma::mat&,int)");
-            p_run_SPA = (Ptr_run_SPA)R_GetCCallable("actionet", "_actionet_run_SPA");
+    inline Rcpp::List runSPA(arma::mat& A, int k) {
+        typedef SEXP(*Ptr_runSPA)(SEXP,SEXP);
+        static Ptr_runSPA p_runSPA = NULL;
+        if (p_runSPA == NULL) {
+            validateSignature("Rcpp::List(*runSPA)(arma::mat&,int)");
+            p_runSPA = (Ptr_runSPA)R_GetCCallable("actionet", "_actionet_runSPA");
         }
         RObject rcpp_result_gen;
         {
             RNGScope RCPP_rngScope_gen;
-            rcpp_result_gen = p_run_SPA(Shield<SEXP>(Rcpp::wrap(A)), Shield<SEXP>(Rcpp::wrap(k)));
+            rcpp_result_gen = p_runSPA(Shield<SEXP>(Rcpp::wrap(A)), Shield<SEXP>(Rcpp::wrap(k)));
         }
         if (rcpp_result_gen.inherits("interrupted-error"))
             throw Rcpp::internal::InterruptedException();
@@ -235,17 +256,17 @@ namespace actionet {
         return Rcpp::as<Rcpp::List >(rcpp_result_gen);
     }
 
-    inline Rcpp::List compute_archetype_feature_specificity(arma::sp_mat& S, arma::mat& H, int thread_no = 0) {
-        typedef SEXP(*Ptr_compute_archetype_feature_specificity)(SEXP,SEXP,SEXP);
-        static Ptr_compute_archetype_feature_specificity p_compute_archetype_feature_specificity = NULL;
-        if (p_compute_archetype_feature_specificity == NULL) {
-            validateSignature("Rcpp::List(*compute_archetype_feature_specificity)(arma::sp_mat&,arma::mat&,int)");
-            p_compute_archetype_feature_specificity = (Ptr_compute_archetype_feature_specificity)R_GetCCallable("actionet", "_actionet_compute_archetype_feature_specificity");
+    inline Rcpp::List archetypeFeatureSpecificitySparse(arma::sp_mat& S, arma::mat& H, int thread_no = 0) {
+        typedef SEXP(*Ptr_archetypeFeatureSpecificitySparse)(SEXP,SEXP,SEXP);
+        static Ptr_archetypeFeatureSpecificitySparse p_archetypeFeatureSpecificitySparse = NULL;
+        if (p_archetypeFeatureSpecificitySparse == NULL) {
+            validateSignature("Rcpp::List(*archetypeFeatureSpecificitySparse)(arma::sp_mat&,arma::mat&,int)");
+            p_archetypeFeatureSpecificitySparse = (Ptr_archetypeFeatureSpecificitySparse)R_GetCCallable("actionet", "_actionet_archetypeFeatureSpecificitySparse");
         }
         RObject rcpp_result_gen;
         {
             RNGScope RCPP_rngScope_gen;
-            rcpp_result_gen = p_compute_archetype_feature_specificity(Shield<SEXP>(Rcpp::wrap(S)), Shield<SEXP>(Rcpp::wrap(H)), Shield<SEXP>(Rcpp::wrap(thread_no)));
+            rcpp_result_gen = p_archetypeFeatureSpecificitySparse(Shield<SEXP>(Rcpp::wrap(S)), Shield<SEXP>(Rcpp::wrap(H)), Shield<SEXP>(Rcpp::wrap(thread_no)));
         }
         if (rcpp_result_gen.inherits("interrupted-error"))
             throw Rcpp::internal::InterruptedException();
@@ -256,17 +277,17 @@ namespace actionet {
         return Rcpp::as<Rcpp::List >(rcpp_result_gen);
     }
 
-    inline Rcpp::List compute_archetype_feature_specificity_full(arma::mat& S, arma::mat& H, int thread_no = 0) {
-        typedef SEXP(*Ptr_compute_archetype_feature_specificity_full)(SEXP,SEXP,SEXP);
-        static Ptr_compute_archetype_feature_specificity_full p_compute_archetype_feature_specificity_full = NULL;
-        if (p_compute_archetype_feature_specificity_full == NULL) {
-            validateSignature("Rcpp::List(*compute_archetype_feature_specificity_full)(arma::mat&,arma::mat&,int)");
-            p_compute_archetype_feature_specificity_full = (Ptr_compute_archetype_feature_specificity_full)R_GetCCallable("actionet", "_actionet_compute_archetype_feature_specificity_full");
+    inline Rcpp::List archetypeFeatureSpecificityDense(arma::mat& S, arma::mat& H, int thread_no = 0) {
+        typedef SEXP(*Ptr_archetypeFeatureSpecificityDense)(SEXP,SEXP,SEXP);
+        static Ptr_archetypeFeatureSpecificityDense p_archetypeFeatureSpecificityDense = NULL;
+        if (p_archetypeFeatureSpecificityDense == NULL) {
+            validateSignature("Rcpp::List(*archetypeFeatureSpecificityDense)(arma::mat&,arma::mat&,int)");
+            p_archetypeFeatureSpecificityDense = (Ptr_archetypeFeatureSpecificityDense)R_GetCCallable("actionet", "_actionet_archetypeFeatureSpecificityDense");
         }
         RObject rcpp_result_gen;
         {
             RNGScope RCPP_rngScope_gen;
-            rcpp_result_gen = p_compute_archetype_feature_specificity_full(Shield<SEXP>(Rcpp::wrap(S)), Shield<SEXP>(Rcpp::wrap(H)), Shield<SEXP>(Rcpp::wrap(thread_no)));
+            rcpp_result_gen = p_archetypeFeatureSpecificityDense(Shield<SEXP>(Rcpp::wrap(S)), Shield<SEXP>(Rcpp::wrap(H)), Shield<SEXP>(Rcpp::wrap(thread_no)));
         }
         if (rcpp_result_gen.inherits("interrupted-error"))
             throw Rcpp::internal::InterruptedException();
@@ -277,17 +298,17 @@ namespace actionet {
         return Rcpp::as<Rcpp::List >(rcpp_result_gen);
     }
 
-    inline Rcpp::List compute_cluster_feature_specificity(arma::sp_mat& S, arma::uvec sample_assignments, int thread_no = 0) {
-        typedef SEXP(*Ptr_compute_cluster_feature_specificity)(SEXP,SEXP,SEXP);
-        static Ptr_compute_cluster_feature_specificity p_compute_cluster_feature_specificity = NULL;
-        if (p_compute_cluster_feature_specificity == NULL) {
-            validateSignature("Rcpp::List(*compute_cluster_feature_specificity)(arma::sp_mat&,arma::uvec,int)");
-            p_compute_cluster_feature_specificity = (Ptr_compute_cluster_feature_specificity)R_GetCCallable("actionet", "_actionet_compute_cluster_feature_specificity");
+    inline Rcpp::List clusterFeatureSpecificitySparse(arma::sp_mat& S, arma::uvec& sample_assignments, int thread_no = 0) {
+        typedef SEXP(*Ptr_clusterFeatureSpecificitySparse)(SEXP,SEXP,SEXP);
+        static Ptr_clusterFeatureSpecificitySparse p_clusterFeatureSpecificitySparse = NULL;
+        if (p_clusterFeatureSpecificitySparse == NULL) {
+            validateSignature("Rcpp::List(*clusterFeatureSpecificitySparse)(arma::sp_mat&,arma::uvec&,int)");
+            p_clusterFeatureSpecificitySparse = (Ptr_clusterFeatureSpecificitySparse)R_GetCCallable("actionet", "_actionet_clusterFeatureSpecificitySparse");
         }
         RObject rcpp_result_gen;
         {
             RNGScope RCPP_rngScope_gen;
-            rcpp_result_gen = p_compute_cluster_feature_specificity(Shield<SEXP>(Rcpp::wrap(S)), Shield<SEXP>(Rcpp::wrap(sample_assignments)), Shield<SEXP>(Rcpp::wrap(thread_no)));
+            rcpp_result_gen = p_clusterFeatureSpecificitySparse(Shield<SEXP>(Rcpp::wrap(S)), Shield<SEXP>(Rcpp::wrap(sample_assignments)), Shield<SEXP>(Rcpp::wrap(thread_no)));
         }
         if (rcpp_result_gen.inherits("interrupted-error"))
             throw Rcpp::internal::InterruptedException();
@@ -298,17 +319,17 @@ namespace actionet {
         return Rcpp::as<Rcpp::List >(rcpp_result_gen);
     }
 
-    inline Rcpp::List compute_cluster_feature_specificity_full(arma::mat& S, arma::uvec sample_assignments, int thread_no = 0) {
-        typedef SEXP(*Ptr_compute_cluster_feature_specificity_full)(SEXP,SEXP,SEXP);
-        static Ptr_compute_cluster_feature_specificity_full p_compute_cluster_feature_specificity_full = NULL;
-        if (p_compute_cluster_feature_specificity_full == NULL) {
-            validateSignature("Rcpp::List(*compute_cluster_feature_specificity_full)(arma::mat&,arma::uvec,int)");
-            p_compute_cluster_feature_specificity_full = (Ptr_compute_cluster_feature_specificity_full)R_GetCCallable("actionet", "_actionet_compute_cluster_feature_specificity_full");
+    inline Rcpp::List clusterFeatureSpecificityDense(arma::mat& S, arma::uvec& sample_assignments, int thread_no = 0) {
+        typedef SEXP(*Ptr_clusterFeatureSpecificityDense)(SEXP,SEXP,SEXP);
+        static Ptr_clusterFeatureSpecificityDense p_clusterFeatureSpecificityDense = NULL;
+        if (p_clusterFeatureSpecificityDense == NULL) {
+            validateSignature("Rcpp::List(*clusterFeatureSpecificityDense)(arma::mat&,arma::uvec&,int)");
+            p_clusterFeatureSpecificityDense = (Ptr_clusterFeatureSpecificityDense)R_GetCCallable("actionet", "_actionet_clusterFeatureSpecificityDense");
         }
         RObject rcpp_result_gen;
         {
             RNGScope RCPP_rngScope_gen;
-            rcpp_result_gen = p_compute_cluster_feature_specificity_full(Shield<SEXP>(Rcpp::wrap(S)), Shield<SEXP>(Rcpp::wrap(sample_assignments)), Shield<SEXP>(Rcpp::wrap(thread_no)));
+            rcpp_result_gen = p_clusterFeatureSpecificityDense(Shield<SEXP>(Rcpp::wrap(S)), Shield<SEXP>(Rcpp::wrap(sample_assignments)), Shield<SEXP>(Rcpp::wrap(thread_no)));
         }
         if (rcpp_result_gen.inherits("interrupted-error"))
             throw Rcpp::internal::InterruptedException();
@@ -319,17 +340,17 @@ namespace actionet {
         return Rcpp::as<Rcpp::List >(rcpp_result_gen);
     }
 
-    inline Rcpp::List orthogonalize_batch_effect(arma::sp_mat& S, arma::mat& old_S_r, arma::mat& old_V, arma::mat& old_A, arma::mat& old_B, arma::vec& old_sigma, arma::mat& design) {
-        typedef SEXP(*Ptr_orthogonalize_batch_effect)(SEXP,SEXP,SEXP,SEXP,SEXP,SEXP,SEXP);
-        static Ptr_orthogonalize_batch_effect p_orthogonalize_batch_effect = NULL;
-        if (p_orthogonalize_batch_effect == NULL) {
-            validateSignature("Rcpp::List(*orthogonalize_batch_effect)(arma::sp_mat&,arma::mat&,arma::mat&,arma::mat&,arma::mat&,arma::vec&,arma::mat&)");
-            p_orthogonalize_batch_effect = (Ptr_orthogonalize_batch_effect)R_GetCCallable("actionet", "_actionet_orthogonalize_batch_effect");
+    inline Rcpp::List orthogonalizeBatchEffect(arma::sp_mat& S, arma::mat& old_S_r, arma::mat& old_V, arma::mat& old_A, arma::mat& old_B, arma::vec& old_sigma, arma::mat& design) {
+        typedef SEXP(*Ptr_orthogonalizeBatchEffect)(SEXP,SEXP,SEXP,SEXP,SEXP,SEXP,SEXP);
+        static Ptr_orthogonalizeBatchEffect p_orthogonalizeBatchEffect = NULL;
+        if (p_orthogonalizeBatchEffect == NULL) {
+            validateSignature("Rcpp::List(*orthogonalizeBatchEffect)(arma::sp_mat&,arma::mat&,arma::mat&,arma::mat&,arma::mat&,arma::vec&,arma::mat&)");
+            p_orthogonalizeBatchEffect = (Ptr_orthogonalizeBatchEffect)R_GetCCallable("actionet", "_actionet_orthogonalizeBatchEffect");
         }
         RObject rcpp_result_gen;
         {
             RNGScope RCPP_rngScope_gen;
-            rcpp_result_gen = p_orthogonalize_batch_effect(Shield<SEXP>(Rcpp::wrap(S)), Shield<SEXP>(Rcpp::wrap(old_S_r)), Shield<SEXP>(Rcpp::wrap(old_V)), Shield<SEXP>(Rcpp::wrap(old_A)), Shield<SEXP>(Rcpp::wrap(old_B)), Shield<SEXP>(Rcpp::wrap(old_sigma)), Shield<SEXP>(Rcpp::wrap(design)));
+            rcpp_result_gen = p_orthogonalizeBatchEffect(Shield<SEXP>(Rcpp::wrap(S)), Shield<SEXP>(Rcpp::wrap(old_S_r)), Shield<SEXP>(Rcpp::wrap(old_V)), Shield<SEXP>(Rcpp::wrap(old_A)), Shield<SEXP>(Rcpp::wrap(old_B)), Shield<SEXP>(Rcpp::wrap(old_sigma)), Shield<SEXP>(Rcpp::wrap(design)));
         }
         if (rcpp_result_gen.inherits("interrupted-error"))
             throw Rcpp::internal::InterruptedException();
@@ -340,17 +361,17 @@ namespace actionet {
         return Rcpp::as<Rcpp::List >(rcpp_result_gen);
     }
 
-    inline Rcpp::List orthogonalize_batch_effect_full(arma::mat& S, arma::mat& old_S_r, arma::mat& old_V, arma::mat& old_A, arma::mat& old_B, arma::vec& old_sigma, arma::mat& design) {
-        typedef SEXP(*Ptr_orthogonalize_batch_effect_full)(SEXP,SEXP,SEXP,SEXP,SEXP,SEXP,SEXP);
-        static Ptr_orthogonalize_batch_effect_full p_orthogonalize_batch_effect_full = NULL;
-        if (p_orthogonalize_batch_effect_full == NULL) {
-            validateSignature("Rcpp::List(*orthogonalize_batch_effect_full)(arma::mat&,arma::mat&,arma::mat&,arma::mat&,arma::mat&,arma::vec&,arma::mat&)");
-            p_orthogonalize_batch_effect_full = (Ptr_orthogonalize_batch_effect_full)R_GetCCallable("actionet", "_actionet_orthogonalize_batch_effect_full");
+    inline Rcpp::List orthogonalizeBatchEffect_full(arma::mat& S, arma::mat& old_S_r, arma::mat& old_V, arma::mat& old_A, arma::mat& old_B, arma::vec& old_sigma, arma::mat& design) {
+        typedef SEXP(*Ptr_orthogonalizeBatchEffect_full)(SEXP,SEXP,SEXP,SEXP,SEXP,SEXP,SEXP);
+        static Ptr_orthogonalizeBatchEffect_full p_orthogonalizeBatchEffect_full = NULL;
+        if (p_orthogonalizeBatchEffect_full == NULL) {
+            validateSignature("Rcpp::List(*orthogonalizeBatchEffect_full)(arma::mat&,arma::mat&,arma::mat&,arma::mat&,arma::mat&,arma::vec&,arma::mat&)");
+            p_orthogonalizeBatchEffect_full = (Ptr_orthogonalizeBatchEffect_full)R_GetCCallable("actionet", "_actionet_orthogonalizeBatchEffect_full");
         }
         RObject rcpp_result_gen;
         {
             RNGScope RCPP_rngScope_gen;
-            rcpp_result_gen = p_orthogonalize_batch_effect_full(Shield<SEXP>(Rcpp::wrap(S)), Shield<SEXP>(Rcpp::wrap(old_S_r)), Shield<SEXP>(Rcpp::wrap(old_V)), Shield<SEXP>(Rcpp::wrap(old_A)), Shield<SEXP>(Rcpp::wrap(old_B)), Shield<SEXP>(Rcpp::wrap(old_sigma)), Shield<SEXP>(Rcpp::wrap(design)));
+            rcpp_result_gen = p_orthogonalizeBatchEffect_full(Shield<SEXP>(Rcpp::wrap(S)), Shield<SEXP>(Rcpp::wrap(old_S_r)), Shield<SEXP>(Rcpp::wrap(old_V)), Shield<SEXP>(Rcpp::wrap(old_A)), Shield<SEXP>(Rcpp::wrap(old_B)), Shield<SEXP>(Rcpp::wrap(old_sigma)), Shield<SEXP>(Rcpp::wrap(design)));
         }
         if (rcpp_result_gen.inherits("interrupted-error"))
             throw Rcpp::internal::InterruptedException();
@@ -361,17 +382,17 @@ namespace actionet {
         return Rcpp::as<Rcpp::List >(rcpp_result_gen);
     }
 
-    inline Rcpp::List orthogonalize_basal(arma::sp_mat& S, arma::mat& old_S_r, arma::mat& old_V, arma::mat& old_A, arma::mat& old_B, arma::vec& old_sigma, arma::mat& basal) {
-        typedef SEXP(*Ptr_orthogonalize_basal)(SEXP,SEXP,SEXP,SEXP,SEXP,SEXP,SEXP);
-        static Ptr_orthogonalize_basal p_orthogonalize_basal = NULL;
-        if (p_orthogonalize_basal == NULL) {
-            validateSignature("Rcpp::List(*orthogonalize_basal)(arma::sp_mat&,arma::mat&,arma::mat&,arma::mat&,arma::mat&,arma::vec&,arma::mat&)");
-            p_orthogonalize_basal = (Ptr_orthogonalize_basal)R_GetCCallable("actionet", "_actionet_orthogonalize_basal");
+    inline Rcpp::List orthogonalizeBasal(arma::sp_mat& S, arma::mat& old_S_r, arma::mat& old_V, arma::mat& old_A, arma::mat& old_B, arma::vec& old_sigma, arma::mat& basal) {
+        typedef SEXP(*Ptr_orthogonalizeBasal)(SEXP,SEXP,SEXP,SEXP,SEXP,SEXP,SEXP);
+        static Ptr_orthogonalizeBasal p_orthogonalizeBasal = NULL;
+        if (p_orthogonalizeBasal == NULL) {
+            validateSignature("Rcpp::List(*orthogonalizeBasal)(arma::sp_mat&,arma::mat&,arma::mat&,arma::mat&,arma::mat&,arma::vec&,arma::mat&)");
+            p_orthogonalizeBasal = (Ptr_orthogonalizeBasal)R_GetCCallable("actionet", "_actionet_orthogonalizeBasal");
         }
         RObject rcpp_result_gen;
         {
             RNGScope RCPP_rngScope_gen;
-            rcpp_result_gen = p_orthogonalize_basal(Shield<SEXP>(Rcpp::wrap(S)), Shield<SEXP>(Rcpp::wrap(old_S_r)), Shield<SEXP>(Rcpp::wrap(old_V)), Shield<SEXP>(Rcpp::wrap(old_A)), Shield<SEXP>(Rcpp::wrap(old_B)), Shield<SEXP>(Rcpp::wrap(old_sigma)), Shield<SEXP>(Rcpp::wrap(basal)));
+            rcpp_result_gen = p_orthogonalizeBasal(Shield<SEXP>(Rcpp::wrap(S)), Shield<SEXP>(Rcpp::wrap(old_S_r)), Shield<SEXP>(Rcpp::wrap(old_V)), Shield<SEXP>(Rcpp::wrap(old_A)), Shield<SEXP>(Rcpp::wrap(old_B)), Shield<SEXP>(Rcpp::wrap(old_sigma)), Shield<SEXP>(Rcpp::wrap(basal)));
         }
         if (rcpp_result_gen.inherits("interrupted-error"))
             throw Rcpp::internal::InterruptedException();
@@ -382,17 +403,17 @@ namespace actionet {
         return Rcpp::as<Rcpp::List >(rcpp_result_gen);
     }
 
-    inline Rcpp::List orthogonalize_basal_full(arma::mat& S, arma::mat& old_S_r, arma::mat& old_V, arma::mat& old_A, arma::mat& old_B, arma::vec& old_sigma, arma::mat& basal) {
-        typedef SEXP(*Ptr_orthogonalize_basal_full)(SEXP,SEXP,SEXP,SEXP,SEXP,SEXP,SEXP);
-        static Ptr_orthogonalize_basal_full p_orthogonalize_basal_full = NULL;
-        if (p_orthogonalize_basal_full == NULL) {
-            validateSignature("Rcpp::List(*orthogonalize_basal_full)(arma::mat&,arma::mat&,arma::mat&,arma::mat&,arma::mat&,arma::vec&,arma::mat&)");
-            p_orthogonalize_basal_full = (Ptr_orthogonalize_basal_full)R_GetCCallable("actionet", "_actionet_orthogonalize_basal_full");
+    inline Rcpp::List orthogonalizeBasal_full(arma::mat& S, arma::mat& old_S_r, arma::mat& old_V, arma::mat& old_A, arma::mat& old_B, arma::vec& old_sigma, arma::mat& basal) {
+        typedef SEXP(*Ptr_orthogonalizeBasal_full)(SEXP,SEXP,SEXP,SEXP,SEXP,SEXP,SEXP);
+        static Ptr_orthogonalizeBasal_full p_orthogonalizeBasal_full = NULL;
+        if (p_orthogonalizeBasal_full == NULL) {
+            validateSignature("Rcpp::List(*orthogonalizeBasal_full)(arma::mat&,arma::mat&,arma::mat&,arma::mat&,arma::mat&,arma::vec&,arma::mat&)");
+            p_orthogonalizeBasal_full = (Ptr_orthogonalizeBasal_full)R_GetCCallable("actionet", "_actionet_orthogonalizeBasal_full");
         }
         RObject rcpp_result_gen;
         {
             RNGScope RCPP_rngScope_gen;
-            rcpp_result_gen = p_orthogonalize_basal_full(Shield<SEXP>(Rcpp::wrap(S)), Shield<SEXP>(Rcpp::wrap(old_S_r)), Shield<SEXP>(Rcpp::wrap(old_V)), Shield<SEXP>(Rcpp::wrap(old_A)), Shield<SEXP>(Rcpp::wrap(old_B)), Shield<SEXP>(Rcpp::wrap(old_sigma)), Shield<SEXP>(Rcpp::wrap(basal)));
+            rcpp_result_gen = p_orthogonalizeBasal_full(Shield<SEXP>(Rcpp::wrap(S)), Shield<SEXP>(Rcpp::wrap(old_S_r)), Shield<SEXP>(Rcpp::wrap(old_V)), Shield<SEXP>(Rcpp::wrap(old_A)), Shield<SEXP>(Rcpp::wrap(old_B)), Shield<SEXP>(Rcpp::wrap(old_sigma)), Shield<SEXP>(Rcpp::wrap(basal)));
         }
         if (rcpp_result_gen.inherits("interrupted-error"))
             throw Rcpp::internal::InterruptedException();
@@ -403,17 +424,17 @@ namespace actionet {
         return Rcpp::as<Rcpp::List >(rcpp_result_gen);
     }
 
-    inline Rcpp::List runSVD(arma::sp_mat& A, int k = 30, int max_it = 0, int seed = 0, int algorithm = 0, int verbose = 1) {
-        typedef SEXP(*Ptr_runSVD)(SEXP,SEXP,SEXP,SEXP,SEXP,SEXP);
-        static Ptr_runSVD p_runSVD = NULL;
-        if (p_runSVD == NULL) {
-            validateSignature("Rcpp::List(*runSVD)(arma::sp_mat&,int,int,int,int,int)");
-            p_runSVD = (Ptr_runSVD)R_GetCCallable("actionet", "_actionet_runSVD");
+    inline Rcpp::List runSVDSparse(arma::sp_mat& A, int k = 30, int max_it = 0, int seed = 0, int algorithm = 0, bool verbose = true) {
+        typedef SEXP(*Ptr_runSVDSparse)(SEXP,SEXP,SEXP,SEXP,SEXP,SEXP);
+        static Ptr_runSVDSparse p_runSVDSparse = NULL;
+        if (p_runSVDSparse == NULL) {
+            validateSignature("Rcpp::List(*runSVDSparse)(arma::sp_mat&,int,int,int,int,bool)");
+            p_runSVDSparse = (Ptr_runSVDSparse)R_GetCCallable("actionet", "_actionet_runSVDSparse");
         }
         RObject rcpp_result_gen;
         {
             RNGScope RCPP_rngScope_gen;
-            rcpp_result_gen = p_runSVD(Shield<SEXP>(Rcpp::wrap(A)), Shield<SEXP>(Rcpp::wrap(k)), Shield<SEXP>(Rcpp::wrap(max_it)), Shield<SEXP>(Rcpp::wrap(seed)), Shield<SEXP>(Rcpp::wrap(algorithm)), Shield<SEXP>(Rcpp::wrap(verbose)));
+            rcpp_result_gen = p_runSVDSparse(Shield<SEXP>(Rcpp::wrap(A)), Shield<SEXP>(Rcpp::wrap(k)), Shield<SEXP>(Rcpp::wrap(max_it)), Shield<SEXP>(Rcpp::wrap(seed)), Shield<SEXP>(Rcpp::wrap(algorithm)), Shield<SEXP>(Rcpp::wrap(verbose)));
         }
         if (rcpp_result_gen.inherits("interrupted-error"))
             throw Rcpp::internal::InterruptedException();
@@ -424,17 +445,17 @@ namespace actionet {
         return Rcpp::as<Rcpp::List >(rcpp_result_gen);
     }
 
-    inline Rcpp::List runSVD_full(arma::mat& A, int k = 30, int max_it = 0, int seed = 0, int algorithm = 0, int verbose = 1) {
-        typedef SEXP(*Ptr_runSVD_full)(SEXP,SEXP,SEXP,SEXP,SEXP,SEXP);
-        static Ptr_runSVD_full p_runSVD_full = NULL;
-        if (p_runSVD_full == NULL) {
-            validateSignature("Rcpp::List(*runSVD_full)(arma::mat&,int,int,int,int,int)");
-            p_runSVD_full = (Ptr_runSVD_full)R_GetCCallable("actionet", "_actionet_runSVD_full");
+    inline Rcpp::List runSVDDense(arma::mat& A, int k = 30, int max_it = 0, int seed = 0, int algorithm = 0, bool verbose = true) {
+        typedef SEXP(*Ptr_runSVDDense)(SEXP,SEXP,SEXP,SEXP,SEXP,SEXP);
+        static Ptr_runSVDDense p_runSVDDense = NULL;
+        if (p_runSVDDense == NULL) {
+            validateSignature("Rcpp::List(*runSVDDense)(arma::mat&,int,int,int,int,bool)");
+            p_runSVDDense = (Ptr_runSVDDense)R_GetCCallable("actionet", "_actionet_runSVDDense");
         }
         RObject rcpp_result_gen;
         {
             RNGScope RCPP_rngScope_gen;
-            rcpp_result_gen = p_runSVD_full(Shield<SEXP>(Rcpp::wrap(A)), Shield<SEXP>(Rcpp::wrap(k)), Shield<SEXP>(Rcpp::wrap(max_it)), Shield<SEXP>(Rcpp::wrap(seed)), Shield<SEXP>(Rcpp::wrap(algorithm)), Shield<SEXP>(Rcpp::wrap(verbose)));
+            rcpp_result_gen = p_runSVDDense(Shield<SEXP>(Rcpp::wrap(A)), Shield<SEXP>(Rcpp::wrap(k)), Shield<SEXP>(Rcpp::wrap(max_it)), Shield<SEXP>(Rcpp::wrap(seed)), Shield<SEXP>(Rcpp::wrap(algorithm)), Shield<SEXP>(Rcpp::wrap(verbose)));
         }
         if (rcpp_result_gen.inherits("interrupted-error"))
             throw Rcpp::internal::InterruptedException();
@@ -466,38 +487,17 @@ namespace actionet {
         return Rcpp::as<Rcpp::List >(rcpp_result_gen);
     }
 
-    inline arma::mat computeNodeColors(arma::mat& coordinates, int thread_no) {
-        typedef SEXP(*Ptr_computeNodeColors)(SEXP,SEXP);
-        static Ptr_computeNodeColors p_computeNodeColors = NULL;
-        if (p_computeNodeColors == NULL) {
-            validateSignature("arma::mat(*computeNodeColors)(arma::mat&,int)");
-            p_computeNodeColors = (Ptr_computeNodeColors)R_GetCCallable("actionet", "_actionet_computeNodeColors");
-        }
-        RObject rcpp_result_gen;
-        {
-            RNGScope RCPP_rngScope_gen;
-            rcpp_result_gen = p_computeNodeColors(Shield<SEXP>(Rcpp::wrap(coordinates)), Shield<SEXP>(Rcpp::wrap(thread_no)));
-        }
-        if (rcpp_result_gen.inherits("interrupted-error"))
-            throw Rcpp::internal::InterruptedException();
-        if (Rcpp::internal::isLongjumpSentinel(rcpp_result_gen))
-            throw Rcpp::LongjumpException(rcpp_result_gen);
-        if (rcpp_result_gen.inherits("try-error"))
-            throw Rcpp::exception(Rcpp::as<std::string>(rcpp_result_gen).c_str());
-        return Rcpp::as<arma::mat >(rcpp_result_gen);
-    }
-
-    inline arma::sp_mat buildNetwork(arma::mat H, std::string algorithm = "k*nn", std::string distance_metric = "jsd", double density = 1.0, int thread_no = 0, bool mutual_edges_only = true, int k = 10) {
-        typedef SEXP(*Ptr_buildNetwork)(SEXP,SEXP,SEXP,SEXP,SEXP,SEXP,SEXP);
+    inline arma::sp_mat buildNetwork(const arma::mat& H, std::string algorithm = "k*nn", std::string distance_metric = "jsd", double density = 1.0, int thread_no = 0, double M = 16, double ef_construction = 200, double ef = 50, bool mutual_edges_only = true, int k = 10) {
+        typedef SEXP(*Ptr_buildNetwork)(SEXP,SEXP,SEXP,SEXP,SEXP,SEXP,SEXP,SEXP,SEXP,SEXP);
         static Ptr_buildNetwork p_buildNetwork = NULL;
         if (p_buildNetwork == NULL) {
-            validateSignature("arma::sp_mat(*buildNetwork)(arma::mat,std::string,std::string,double,int,bool,int)");
+            validateSignature("arma::sp_mat(*buildNetwork)(const arma::mat&,std::string,std::string,double,int,double,double,double,bool,int)");
             p_buildNetwork = (Ptr_buildNetwork)R_GetCCallable("actionet", "_actionet_buildNetwork");
         }
         RObject rcpp_result_gen;
         {
             RNGScope RCPP_rngScope_gen;
-            rcpp_result_gen = p_buildNetwork(Shield<SEXP>(Rcpp::wrap(H)), Shield<SEXP>(Rcpp::wrap(algorithm)), Shield<SEXP>(Rcpp::wrap(distance_metric)), Shield<SEXP>(Rcpp::wrap(density)), Shield<SEXP>(Rcpp::wrap(thread_no)), Shield<SEXP>(Rcpp::wrap(mutual_edges_only)), Shield<SEXP>(Rcpp::wrap(k)));
+            rcpp_result_gen = p_buildNetwork(Shield<SEXP>(Rcpp::wrap(H)), Shield<SEXP>(Rcpp::wrap(algorithm)), Shield<SEXP>(Rcpp::wrap(distance_metric)), Shield<SEXP>(Rcpp::wrap(density)), Shield<SEXP>(Rcpp::wrap(thread_no)), Shield<SEXP>(Rcpp::wrap(M)), Shield<SEXP>(Rcpp::wrap(ef_construction)), Shield<SEXP>(Rcpp::wrap(ef)), Shield<SEXP>(Rcpp::wrap(mutual_edges_only)), Shield<SEXP>(Rcpp::wrap(k)));
         }
         if (rcpp_result_gen.inherits("interrupted-error"))
             throw Rcpp::internal::InterruptedException();
@@ -508,17 +508,17 @@ namespace actionet {
         return Rcpp::as<arma::sp_mat >(rcpp_result_gen);
     }
 
-    inline arma::vec run_LPA(arma::sp_mat& G, arma::vec labels, double lambda = 1, int iters = 3, double sig_threshold = 3, Rcpp::Nullable<Rcpp::IntegerVector> fixed_labels_ = R_NilValue, int thread_no = 0) {
-        typedef SEXP(*Ptr_run_LPA)(SEXP,SEXP,SEXP,SEXP,SEXP,SEXP,SEXP);
-        static Ptr_run_LPA p_run_LPA = NULL;
-        if (p_run_LPA == NULL) {
-            validateSignature("arma::vec(*run_LPA)(arma::sp_mat&,arma::vec,double,int,double,Rcpp::Nullable<Rcpp::IntegerVector>,int)");
-            p_run_LPA = (Ptr_run_LPA)R_GetCCallable("actionet", "_actionet_run_LPA");
+    inline arma::vec runLPA(arma::sp_mat& G, arma::vec& labels, double lambda = 1, int iters = 3, double sig_threshold = 3, Rcpp::Nullable<Rcpp::IntegerVector> fixed_labels_ = R_NilValue, int thread_no = 0) {
+        typedef SEXP(*Ptr_runLPA)(SEXP,SEXP,SEXP,SEXP,SEXP,SEXP,SEXP);
+        static Ptr_runLPA p_runLPA = NULL;
+        if (p_runLPA == NULL) {
+            validateSignature("arma::vec(*runLPA)(arma::sp_mat&,arma::vec&,double,int,double,Rcpp::Nullable<Rcpp::IntegerVector>,int)");
+            p_runLPA = (Ptr_runLPA)R_GetCCallable("actionet", "_actionet_runLPA");
         }
         RObject rcpp_result_gen;
         {
             RNGScope RCPP_rngScope_gen;
-            rcpp_result_gen = p_run_LPA(Shield<SEXP>(Rcpp::wrap(G)), Shield<SEXP>(Rcpp::wrap(labels)), Shield<SEXP>(Rcpp::wrap(lambda)), Shield<SEXP>(Rcpp::wrap(iters)), Shield<SEXP>(Rcpp::wrap(sig_threshold)), Shield<SEXP>(Rcpp::wrap(fixed_labels_)), Shield<SEXP>(Rcpp::wrap(thread_no)));
+            rcpp_result_gen = p_runLPA(Shield<SEXP>(Rcpp::wrap(G)), Shield<SEXP>(Rcpp::wrap(labels)), Shield<SEXP>(Rcpp::wrap(lambda)), Shield<SEXP>(Rcpp::wrap(iters)), Shield<SEXP>(Rcpp::wrap(sig_threshold)), Shield<SEXP>(Rcpp::wrap(fixed_labels_)), Shield<SEXP>(Rcpp::wrap(thread_no)));
         }
         if (rcpp_result_gen.inherits("interrupted-error"))
             throw Rcpp::internal::InterruptedException();
@@ -529,17 +529,17 @@ namespace actionet {
         return Rcpp::as<arma::vec >(rcpp_result_gen);
     }
 
-    inline arma::mat compute_network_diffusion_fast(arma::sp_mat& G, arma::sp_mat& X0, double alpha = 0.85, int max_it = 3, int thread_no = 0) {
-        typedef SEXP(*Ptr_compute_network_diffusion_fast)(SEXP,SEXP,SEXP,SEXP,SEXP);
-        static Ptr_compute_network_diffusion_fast p_compute_network_diffusion_fast = NULL;
-        if (p_compute_network_diffusion_fast == NULL) {
-            validateSignature("arma::mat(*compute_network_diffusion_fast)(arma::sp_mat&,arma::sp_mat&,double,int,int)");
-            p_compute_network_diffusion_fast = (Ptr_compute_network_diffusion_fast)R_GetCCallable("actionet", "_actionet_compute_network_diffusion_fast");
+    inline arma::mat computeNetworkDiffusion(arma::sp_mat& G, arma::mat& X0, double alpha = 0.85, int max_it = 5, int thread_no = 0, bool approx = false, int norm_method = 0, double tol = 1e-8) {
+        typedef SEXP(*Ptr_computeNetworkDiffusion)(SEXP,SEXP,SEXP,SEXP,SEXP,SEXP,SEXP,SEXP);
+        static Ptr_computeNetworkDiffusion p_computeNetworkDiffusion = NULL;
+        if (p_computeNetworkDiffusion == NULL) {
+            validateSignature("arma::mat(*computeNetworkDiffusion)(arma::sp_mat&,arma::mat&,double,int,int,bool,int,double)");
+            p_computeNetworkDiffusion = (Ptr_computeNetworkDiffusion)R_GetCCallable("actionet", "_actionet_computeNetworkDiffusion");
         }
         RObject rcpp_result_gen;
         {
             RNGScope RCPP_rngScope_gen;
-            rcpp_result_gen = p_compute_network_diffusion_fast(Shield<SEXP>(Rcpp::wrap(G)), Shield<SEXP>(Rcpp::wrap(X0)), Shield<SEXP>(Rcpp::wrap(alpha)), Shield<SEXP>(Rcpp::wrap(max_it)), Shield<SEXP>(Rcpp::wrap(thread_no)));
+            rcpp_result_gen = p_computeNetworkDiffusion(Shield<SEXP>(Rcpp::wrap(G)), Shield<SEXP>(Rcpp::wrap(X0)), Shield<SEXP>(Rcpp::wrap(alpha)), Shield<SEXP>(Rcpp::wrap(max_it)), Shield<SEXP>(Rcpp::wrap(thread_no)), Shield<SEXP>(Rcpp::wrap(approx)), Shield<SEXP>(Rcpp::wrap(norm_method)), Shield<SEXP>(Rcpp::wrap(tol)));
         }
         if (rcpp_result_gen.inherits("interrupted-error"))
             throw Rcpp::internal::InterruptedException();
@@ -550,38 +550,17 @@ namespace actionet {
         return Rcpp::as<arma::mat >(rcpp_result_gen);
     }
 
-    inline arma::mat compute_network_diffusion_approx(arma::sp_mat& G, arma::mat& X0, int norm_type = 0, double alpha = 0.85, int max_it = 5, double tol = 1e-8, int thread_no = 0) {
-        typedef SEXP(*Ptr_compute_network_diffusion_approx)(SEXP,SEXP,SEXP,SEXP,SEXP,SEXP,SEXP);
-        static Ptr_compute_network_diffusion_approx p_compute_network_diffusion_approx = NULL;
-        if (p_compute_network_diffusion_approx == NULL) {
-            validateSignature("arma::mat(*compute_network_diffusion_approx)(arma::sp_mat&,arma::mat&,int,double,int,double,int)");
-            p_compute_network_diffusion_approx = (Ptr_compute_network_diffusion_approx)R_GetCCallable("actionet", "_actionet_compute_network_diffusion_approx");
+    inline arma::uvec computeCoreness(arma::sp_mat& G) {
+        typedef SEXP(*Ptr_computeCoreness)(SEXP);
+        static Ptr_computeCoreness p_computeCoreness = NULL;
+        if (p_computeCoreness == NULL) {
+            validateSignature("arma::uvec(*computeCoreness)(arma::sp_mat&)");
+            p_computeCoreness = (Ptr_computeCoreness)R_GetCCallable("actionet", "_actionet_computeCoreness");
         }
         RObject rcpp_result_gen;
         {
             RNGScope RCPP_rngScope_gen;
-            rcpp_result_gen = p_compute_network_diffusion_approx(Shield<SEXP>(Rcpp::wrap(G)), Shield<SEXP>(Rcpp::wrap(X0)), Shield<SEXP>(Rcpp::wrap(norm_type)), Shield<SEXP>(Rcpp::wrap(alpha)), Shield<SEXP>(Rcpp::wrap(max_it)), Shield<SEXP>(Rcpp::wrap(tol)), Shield<SEXP>(Rcpp::wrap(thread_no)));
-        }
-        if (rcpp_result_gen.inherits("interrupted-error"))
-            throw Rcpp::internal::InterruptedException();
-        if (Rcpp::internal::isLongjumpSentinel(rcpp_result_gen))
-            throw Rcpp::LongjumpException(rcpp_result_gen);
-        if (rcpp_result_gen.inherits("try-error"))
-            throw Rcpp::exception(Rcpp::as<std::string>(rcpp_result_gen).c_str());
-        return Rcpp::as<arma::mat >(rcpp_result_gen);
-    }
-
-    inline arma::uvec compute_core_number(arma::sp_mat& G) {
-        typedef SEXP(*Ptr_compute_core_number)(SEXP);
-        static Ptr_compute_core_number p_compute_core_number = NULL;
-        if (p_compute_core_number == NULL) {
-            validateSignature("arma::uvec(*compute_core_number)(arma::sp_mat&)");
-            p_compute_core_number = (Ptr_compute_core_number)R_GetCCallable("actionet", "_actionet_compute_core_number");
-        }
-        RObject rcpp_result_gen;
-        {
-            RNGScope RCPP_rngScope_gen;
-            rcpp_result_gen = p_compute_core_number(Shield<SEXP>(Rcpp::wrap(G)));
+            rcpp_result_gen = p_computeCoreness(Shield<SEXP>(Rcpp::wrap(G)));
         }
         if (rcpp_result_gen.inherits("interrupted-error"))
             throw Rcpp::internal::InterruptedException();
@@ -592,17 +571,17 @@ namespace actionet {
         return Rcpp::as<arma::uvec >(rcpp_result_gen);
     }
 
-    inline arma::vec compute_archetype_core_centrality(arma::sp_mat& G, arma::uvec sample_assignments) {
-        typedef SEXP(*Ptr_compute_archetype_core_centrality)(SEXP,SEXP);
-        static Ptr_compute_archetype_core_centrality p_compute_archetype_core_centrality = NULL;
-        if (p_compute_archetype_core_centrality == NULL) {
-            validateSignature("arma::vec(*compute_archetype_core_centrality)(arma::sp_mat&,arma::uvec)");
-            p_compute_archetype_core_centrality = (Ptr_compute_archetype_core_centrality)R_GetCCallable("actionet", "_actionet_compute_archetype_core_centrality");
+    inline arma::vec computeArchetypeCentrality(arma::sp_mat& G, const arma::uvec& sample_assignments) {
+        typedef SEXP(*Ptr_computeArchetypeCentrality)(SEXP,SEXP);
+        static Ptr_computeArchetypeCentrality p_computeArchetypeCentrality = NULL;
+        if (p_computeArchetypeCentrality == NULL) {
+            validateSignature("arma::vec(*computeArchetypeCentrality)(arma::sp_mat&,const arma::uvec&)");
+            p_computeArchetypeCentrality = (Ptr_computeArchetypeCentrality)R_GetCCallable("actionet", "_actionet_computeArchetypeCentrality");
         }
         RObject rcpp_result_gen;
         {
             RNGScope RCPP_rngScope_gen;
-            rcpp_result_gen = p_compute_archetype_core_centrality(Shield<SEXP>(Rcpp::wrap(G)), Shield<SEXP>(Rcpp::wrap(sample_assignments)));
+            rcpp_result_gen = p_computeArchetypeCentrality(Shield<SEXP>(Rcpp::wrap(G)), Shield<SEXP>(Rcpp::wrap(sample_assignments)));
         }
         if (rcpp_result_gen.inherits("interrupted-error"))
             throw Rcpp::internal::InterruptedException();
@@ -613,11 +592,11 @@ namespace actionet {
         return Rcpp::as<arma::vec >(rcpp_result_gen);
     }
 
-    inline Rcpp::List autocorrelation_Moran_parametric(arma::sp_mat G, arma::mat scores, int normalization_method = 4, int thread_no = 0) {
+    inline Rcpp::List autocorrelation_Moran_parametric(const arma::sp_mat& G, const arma::mat& scores, int normalization_method = 4, int thread_no = 0) {
         typedef SEXP(*Ptr_autocorrelation_Moran_parametric)(SEXP,SEXP,SEXP,SEXP);
         static Ptr_autocorrelation_Moran_parametric p_autocorrelation_Moran_parametric = NULL;
         if (p_autocorrelation_Moran_parametric == NULL) {
-            validateSignature("Rcpp::List(*autocorrelation_Moran_parametric)(arma::sp_mat,arma::mat,int,int)");
+            validateSignature("Rcpp::List(*autocorrelation_Moran_parametric)(const arma::sp_mat&,const arma::mat&,int,int)");
             p_autocorrelation_Moran_parametric = (Ptr_autocorrelation_Moran_parametric)R_GetCCallable("actionet", "_actionet_autocorrelation_Moran_parametric");
         }
         RObject rcpp_result_gen;
@@ -634,11 +613,11 @@ namespace actionet {
         return Rcpp::as<Rcpp::List >(rcpp_result_gen);
     }
 
-    inline Rcpp::List autocorrelation_Moran(arma::sp_mat G, arma::mat scores, int normalization_method = 1, int perm_no = 30, int thread_no = 0) {
+    inline Rcpp::List autocorrelation_Moran(const arma::sp_mat& G, const arma::mat& scores, int normalization_method = 1, int perm_no = 30, int thread_no = 0) {
         typedef SEXP(*Ptr_autocorrelation_Moran)(SEXP,SEXP,SEXP,SEXP,SEXP);
         static Ptr_autocorrelation_Moran p_autocorrelation_Moran = NULL;
         if (p_autocorrelation_Moran == NULL) {
-            validateSignature("Rcpp::List(*autocorrelation_Moran)(arma::sp_mat,arma::mat,int,int,int)");
+            validateSignature("Rcpp::List(*autocorrelation_Moran)(const arma::sp_mat&,const arma::mat&,int,int,int)");
             p_autocorrelation_Moran = (Ptr_autocorrelation_Moran)R_GetCCallable("actionet", "_actionet_autocorrelation_Moran");
         }
         RObject rcpp_result_gen;
@@ -655,11 +634,11 @@ namespace actionet {
         return Rcpp::as<Rcpp::List >(rcpp_result_gen);
     }
 
-    inline Rcpp::List autocorrelation_Geary(arma::sp_mat G, arma::mat scores, int normalization_method = 1, int perm_no = 30, int thread_no = 0) {
+    inline Rcpp::List autocorrelation_Geary(const arma::sp_mat& G, const arma::mat& scores, int normalization_method = 1, int perm_no = 30, int thread_no = 0) {
         typedef SEXP(*Ptr_autocorrelation_Geary)(SEXP,SEXP,SEXP,SEXP,SEXP);
         static Ptr_autocorrelation_Geary p_autocorrelation_Geary = NULL;
         if (p_autocorrelation_Geary == NULL) {
-            validateSignature("Rcpp::List(*autocorrelation_Geary)(arma::sp_mat,arma::mat,int,int,int)");
+            validateSignature("Rcpp::List(*autocorrelation_Geary)(const arma::sp_mat&,const arma::mat&,int,int,int)");
             p_autocorrelation_Geary = (Ptr_autocorrelation_Geary)R_GetCCallable("actionet", "_actionet_autocorrelation_Geary");
         }
         RObject rcpp_result_gen;
@@ -676,11 +655,11 @@ namespace actionet {
         return Rcpp::as<Rcpp::List >(rcpp_result_gen);
     }
 
-    inline arma::mat assess_label_enrichment(arma::sp_mat& G, arma::mat& M, int thread_no = 0) {
+    inline arma::mat assess_label_enrichment(const arma::sp_mat& G, arma::mat& M, int thread_no = 0) {
         typedef SEXP(*Ptr_assess_label_enrichment)(SEXP,SEXP,SEXP);
         static Ptr_assess_label_enrichment p_assess_label_enrichment = NULL;
         if (p_assess_label_enrichment == NULL) {
-            validateSignature("arma::mat(*assess_label_enrichment)(arma::sp_mat&,arma::mat&,int)");
+            validateSignature("arma::mat(*assess_label_enrichment)(const arma::sp_mat&,arma::mat&,int)");
             p_assess_label_enrichment = (Ptr_assess_label_enrichment)R_GetCCallable("actionet", "_actionet_assess_label_enrichment");
         }
         RObject rcpp_result_gen;
@@ -718,17 +697,17 @@ namespace actionet {
         return Rcpp::as<Rcpp::List >(rcpp_result_gen);
     }
 
-    inline arma::mat compute_grouped_rowsums(arma::sp_mat& S, arma::vec sample_assignments) {
-        typedef SEXP(*Ptr_compute_grouped_rowsums)(SEXP,SEXP);
-        static Ptr_compute_grouped_rowsums p_compute_grouped_rowsums = NULL;
-        if (p_compute_grouped_rowsums == NULL) {
-            validateSignature("arma::mat(*compute_grouped_rowsums)(arma::sp_mat&,arma::vec)");
-            p_compute_grouped_rowsums = (Ptr_compute_grouped_rowsums)R_GetCCallable("actionet", "_actionet_compute_grouped_rowsums");
+    inline arma::mat computeGroupedRowSumsSparse(arma::sp_mat& S, arma::vec& sample_assignments) {
+        typedef SEXP(*Ptr_computeGroupedRowSumsSparse)(SEXP,SEXP);
+        static Ptr_computeGroupedRowSumsSparse p_computeGroupedRowSumsSparse = NULL;
+        if (p_computeGroupedRowSumsSparse == NULL) {
+            validateSignature("arma::mat(*computeGroupedRowSumsSparse)(arma::sp_mat&,arma::vec&)");
+            p_computeGroupedRowSumsSparse = (Ptr_computeGroupedRowSumsSparse)R_GetCCallable("actionet", "_actionet_computeGroupedRowSumsSparse");
         }
         RObject rcpp_result_gen;
         {
             RNGScope RCPP_rngScope_gen;
-            rcpp_result_gen = p_compute_grouped_rowsums(Shield<SEXP>(Rcpp::wrap(S)), Shield<SEXP>(Rcpp::wrap(sample_assignments)));
+            rcpp_result_gen = p_computeGroupedRowSumsSparse(Shield<SEXP>(Rcpp::wrap(S)), Shield<SEXP>(Rcpp::wrap(sample_assignments)));
         }
         if (rcpp_result_gen.inherits("interrupted-error"))
             throw Rcpp::internal::InterruptedException();
@@ -739,17 +718,17 @@ namespace actionet {
         return Rcpp::as<arma::mat >(rcpp_result_gen);
     }
 
-    inline arma::mat compute_grouped_rowsums_full(arma::mat& S, arma::vec sample_assignments) {
-        typedef SEXP(*Ptr_compute_grouped_rowsums_full)(SEXP,SEXP);
-        static Ptr_compute_grouped_rowsums_full p_compute_grouped_rowsums_full = NULL;
-        if (p_compute_grouped_rowsums_full == NULL) {
-            validateSignature("arma::mat(*compute_grouped_rowsums_full)(arma::mat&,arma::vec)");
-            p_compute_grouped_rowsums_full = (Ptr_compute_grouped_rowsums_full)R_GetCCallable("actionet", "_actionet_compute_grouped_rowsums_full");
+    inline arma::mat computeGroupedRowSumsDense(arma::mat& S, arma::vec& sample_assignments) {
+        typedef SEXP(*Ptr_computeGroupedRowSumsDense)(SEXP,SEXP);
+        static Ptr_computeGroupedRowSumsDense p_computeGroupedRowSumsDense = NULL;
+        if (p_computeGroupedRowSumsDense == NULL) {
+            validateSignature("arma::mat(*computeGroupedRowSumsDense)(arma::mat&,arma::vec&)");
+            p_computeGroupedRowSumsDense = (Ptr_computeGroupedRowSumsDense)R_GetCCallable("actionet", "_actionet_computeGroupedRowSumsDense");
         }
         RObject rcpp_result_gen;
         {
             RNGScope RCPP_rngScope_gen;
-            rcpp_result_gen = p_compute_grouped_rowsums_full(Shield<SEXP>(Rcpp::wrap(S)), Shield<SEXP>(Rcpp::wrap(sample_assignments)));
+            rcpp_result_gen = p_computeGroupedRowSumsDense(Shield<SEXP>(Rcpp::wrap(S)), Shield<SEXP>(Rcpp::wrap(sample_assignments)));
         }
         if (rcpp_result_gen.inherits("interrupted-error"))
             throw Rcpp::internal::InterruptedException();
@@ -760,17 +739,17 @@ namespace actionet {
         return Rcpp::as<arma::mat >(rcpp_result_gen);
     }
 
-    inline arma::mat compute_grouped_rowmeans(arma::sp_mat& S, arma::vec sample_assignments) {
-        typedef SEXP(*Ptr_compute_grouped_rowmeans)(SEXP,SEXP);
-        static Ptr_compute_grouped_rowmeans p_compute_grouped_rowmeans = NULL;
-        if (p_compute_grouped_rowmeans == NULL) {
-            validateSignature("arma::mat(*compute_grouped_rowmeans)(arma::sp_mat&,arma::vec)");
-            p_compute_grouped_rowmeans = (Ptr_compute_grouped_rowmeans)R_GetCCallable("actionet", "_actionet_compute_grouped_rowmeans");
+    inline arma::mat computeGroupedRowMeansSparse(arma::sp_mat& S, arma::vec& sample_assignments) {
+        typedef SEXP(*Ptr_computeGroupedRowMeansSparse)(SEXP,SEXP);
+        static Ptr_computeGroupedRowMeansSparse p_computeGroupedRowMeansSparse = NULL;
+        if (p_computeGroupedRowMeansSparse == NULL) {
+            validateSignature("arma::mat(*computeGroupedRowMeansSparse)(arma::sp_mat&,arma::vec&)");
+            p_computeGroupedRowMeansSparse = (Ptr_computeGroupedRowMeansSparse)R_GetCCallable("actionet", "_actionet_computeGroupedRowMeansSparse");
         }
         RObject rcpp_result_gen;
         {
             RNGScope RCPP_rngScope_gen;
-            rcpp_result_gen = p_compute_grouped_rowmeans(Shield<SEXP>(Rcpp::wrap(S)), Shield<SEXP>(Rcpp::wrap(sample_assignments)));
+            rcpp_result_gen = p_computeGroupedRowMeansSparse(Shield<SEXP>(Rcpp::wrap(S)), Shield<SEXP>(Rcpp::wrap(sample_assignments)));
         }
         if (rcpp_result_gen.inherits("interrupted-error"))
             throw Rcpp::internal::InterruptedException();
@@ -781,17 +760,17 @@ namespace actionet {
         return Rcpp::as<arma::mat >(rcpp_result_gen);
     }
 
-    inline arma::mat compute_grouped_rowmeans_full(arma::mat& S, arma::vec sample_assignments) {
-        typedef SEXP(*Ptr_compute_grouped_rowmeans_full)(SEXP,SEXP);
-        static Ptr_compute_grouped_rowmeans_full p_compute_grouped_rowmeans_full = NULL;
-        if (p_compute_grouped_rowmeans_full == NULL) {
-            validateSignature("arma::mat(*compute_grouped_rowmeans_full)(arma::mat&,arma::vec)");
-            p_compute_grouped_rowmeans_full = (Ptr_compute_grouped_rowmeans_full)R_GetCCallable("actionet", "_actionet_compute_grouped_rowmeans_full");
+    inline arma::mat computeGroupedRowMeansDense(arma::mat& S, arma::vec& sample_assignments) {
+        typedef SEXP(*Ptr_computeGroupedRowMeansDense)(SEXP,SEXP);
+        static Ptr_computeGroupedRowMeansDense p_computeGroupedRowMeansDense = NULL;
+        if (p_computeGroupedRowMeansDense == NULL) {
+            validateSignature("arma::mat(*computeGroupedRowMeansDense)(arma::mat&,arma::vec&)");
+            p_computeGroupedRowMeansDense = (Ptr_computeGroupedRowMeansDense)R_GetCCallable("actionet", "_actionet_computeGroupedRowMeansDense");
         }
         RObject rcpp_result_gen;
         {
             RNGScope RCPP_rngScope_gen;
-            rcpp_result_gen = p_compute_grouped_rowmeans_full(Shield<SEXP>(Rcpp::wrap(S)), Shield<SEXP>(Rcpp::wrap(sample_assignments)));
+            rcpp_result_gen = p_computeGroupedRowMeansDense(Shield<SEXP>(Rcpp::wrap(S)), Shield<SEXP>(Rcpp::wrap(sample_assignments)));
         }
         if (rcpp_result_gen.inherits("interrupted-error"))
             throw Rcpp::internal::InterruptedException();
@@ -802,17 +781,17 @@ namespace actionet {
         return Rcpp::as<arma::mat >(rcpp_result_gen);
     }
 
-    inline arma::mat compute_grouped_rowvars(arma::sp_mat& S, arma::vec sample_assignments) {
-        typedef SEXP(*Ptr_compute_grouped_rowvars)(SEXP,SEXP);
-        static Ptr_compute_grouped_rowvars p_compute_grouped_rowvars = NULL;
-        if (p_compute_grouped_rowvars == NULL) {
-            validateSignature("arma::mat(*compute_grouped_rowvars)(arma::sp_mat&,arma::vec)");
-            p_compute_grouped_rowvars = (Ptr_compute_grouped_rowvars)R_GetCCallable("actionet", "_actionet_compute_grouped_rowvars");
+    inline arma::mat computeGroupedRowVarsSparse(arma::sp_mat& S, arma::vec& sample_assignments) {
+        typedef SEXP(*Ptr_computeGroupedRowVarsSparse)(SEXP,SEXP);
+        static Ptr_computeGroupedRowVarsSparse p_computeGroupedRowVarsSparse = NULL;
+        if (p_computeGroupedRowVarsSparse == NULL) {
+            validateSignature("arma::mat(*computeGroupedRowVarsSparse)(arma::sp_mat&,arma::vec&)");
+            p_computeGroupedRowVarsSparse = (Ptr_computeGroupedRowVarsSparse)R_GetCCallable("actionet", "_actionet_computeGroupedRowVarsSparse");
         }
         RObject rcpp_result_gen;
         {
             RNGScope RCPP_rngScope_gen;
-            rcpp_result_gen = p_compute_grouped_rowvars(Shield<SEXP>(Rcpp::wrap(S)), Shield<SEXP>(Rcpp::wrap(sample_assignments)));
+            rcpp_result_gen = p_computeGroupedRowVarsSparse(Shield<SEXP>(Rcpp::wrap(S)), Shield<SEXP>(Rcpp::wrap(sample_assignments)));
         }
         if (rcpp_result_gen.inherits("interrupted-error"))
             throw Rcpp::internal::InterruptedException();
@@ -823,17 +802,17 @@ namespace actionet {
         return Rcpp::as<arma::mat >(rcpp_result_gen);
     }
 
-    inline arma::mat compute_grouped_rowvars_full(arma::mat& S, arma::vec sample_assignments) {
-        typedef SEXP(*Ptr_compute_grouped_rowvars_full)(SEXP,SEXP);
-        static Ptr_compute_grouped_rowvars_full p_compute_grouped_rowvars_full = NULL;
-        if (p_compute_grouped_rowvars_full == NULL) {
-            validateSignature("arma::mat(*compute_grouped_rowvars_full)(arma::mat&,arma::vec)");
-            p_compute_grouped_rowvars_full = (Ptr_compute_grouped_rowvars_full)R_GetCCallable("actionet", "_actionet_compute_grouped_rowvars_full");
+    inline arma::mat computeGroupedRowVarsDense(arma::mat& S, arma::vec& sample_assignments) {
+        typedef SEXP(*Ptr_computeGroupedRowVarsDense)(SEXP,SEXP);
+        static Ptr_computeGroupedRowVarsDense p_computeGroupedRowVarsDense = NULL;
+        if (p_computeGroupedRowVarsDense == NULL) {
+            validateSignature("arma::mat(*computeGroupedRowVarsDense)(arma::mat&,arma::vec&)");
+            p_computeGroupedRowVarsDense = (Ptr_computeGroupedRowVarsDense)R_GetCCallable("actionet", "_actionet_computeGroupedRowVarsDense");
         }
         RObject rcpp_result_gen;
         {
             RNGScope RCPP_rngScope_gen;
-            rcpp_result_gen = p_compute_grouped_rowvars_full(Shield<SEXP>(Rcpp::wrap(S)), Shield<SEXP>(Rcpp::wrap(sample_assignments)));
+            rcpp_result_gen = p_computeGroupedRowVarsDense(Shield<SEXP>(Rcpp::wrap(S)), Shield<SEXP>(Rcpp::wrap(sample_assignments)));
         }
         if (rcpp_result_gen.inherits("interrupted-error"))
             throw Rcpp::internal::InterruptedException();
@@ -842,6 +821,111 @@ namespace actionet {
         if (rcpp_result_gen.inherits("try-error"))
             throw Rcpp::exception(Rcpp::as<std::string>(rcpp_result_gen).c_str());
         return Rcpp::as<arma::mat >(rcpp_result_gen);
+    }
+
+    inline arma::sp_mat normalizeMatrixSparse(arma::sp_mat& X, unsigned int p = 1, unsigned int dim = 0) {
+        typedef SEXP(*Ptr_normalizeMatrixSparse)(SEXP,SEXP,SEXP);
+        static Ptr_normalizeMatrixSparse p_normalizeMatrixSparse = NULL;
+        if (p_normalizeMatrixSparse == NULL) {
+            validateSignature("arma::sp_mat(*normalizeMatrixSparse)(arma::sp_mat&,unsigned int,unsigned int)");
+            p_normalizeMatrixSparse = (Ptr_normalizeMatrixSparse)R_GetCCallable("actionet", "_actionet_normalizeMatrixSparse");
+        }
+        RObject rcpp_result_gen;
+        {
+            RNGScope RCPP_rngScope_gen;
+            rcpp_result_gen = p_normalizeMatrixSparse(Shield<SEXP>(Rcpp::wrap(X)), Shield<SEXP>(Rcpp::wrap(p)), Shield<SEXP>(Rcpp::wrap(dim)));
+        }
+        if (rcpp_result_gen.inherits("interrupted-error"))
+            throw Rcpp::internal::InterruptedException();
+        if (Rcpp::internal::isLongjumpSentinel(rcpp_result_gen))
+            throw Rcpp::LongjumpException(rcpp_result_gen);
+        if (rcpp_result_gen.inherits("try-error"))
+            throw Rcpp::exception(Rcpp::as<std::string>(rcpp_result_gen).c_str());
+        return Rcpp::as<arma::sp_mat >(rcpp_result_gen);
+    }
+
+    inline arma::mat normalizeMatrixDense(arma::mat& X, unsigned int p = 1, unsigned int dim = 0) {
+        typedef SEXP(*Ptr_normalizeMatrixDense)(SEXP,SEXP,SEXP);
+        static Ptr_normalizeMatrixDense p_normalizeMatrixDense = NULL;
+        if (p_normalizeMatrixDense == NULL) {
+            validateSignature("arma::mat(*normalizeMatrixDense)(arma::mat&,unsigned int,unsigned int)");
+            p_normalizeMatrixDense = (Ptr_normalizeMatrixDense)R_GetCCallable("actionet", "_actionet_normalizeMatrixDense");
+        }
+        RObject rcpp_result_gen;
+        {
+            RNGScope RCPP_rngScope_gen;
+            rcpp_result_gen = p_normalizeMatrixDense(Shield<SEXP>(Rcpp::wrap(X)), Shield<SEXP>(Rcpp::wrap(p)), Shield<SEXP>(Rcpp::wrap(dim)));
+        }
+        if (rcpp_result_gen.inherits("interrupted-error"))
+            throw Rcpp::internal::InterruptedException();
+        if (Rcpp::internal::isLongjumpSentinel(rcpp_result_gen))
+            throw Rcpp::LongjumpException(rcpp_result_gen);
+        if (rcpp_result_gen.inherits("try-error"))
+            throw Rcpp::exception(Rcpp::as<std::string>(rcpp_result_gen).c_str());
+        return Rcpp::as<arma::mat >(rcpp_result_gen);
+    }
+
+    inline arma::mat scaleMatrixDense(arma::mat& X, arma::vec& v, unsigned int dim = 0) {
+        typedef SEXP(*Ptr_scaleMatrixDense)(SEXP,SEXP,SEXP);
+        static Ptr_scaleMatrixDense p_scaleMatrixDense = NULL;
+        if (p_scaleMatrixDense == NULL) {
+            validateSignature("arma::mat(*scaleMatrixDense)(arma::mat&,arma::vec&,unsigned int)");
+            p_scaleMatrixDense = (Ptr_scaleMatrixDense)R_GetCCallable("actionet", "_actionet_scaleMatrixDense");
+        }
+        RObject rcpp_result_gen;
+        {
+            RNGScope RCPP_rngScope_gen;
+            rcpp_result_gen = p_scaleMatrixDense(Shield<SEXP>(Rcpp::wrap(X)), Shield<SEXP>(Rcpp::wrap(v)), Shield<SEXP>(Rcpp::wrap(dim)));
+        }
+        if (rcpp_result_gen.inherits("interrupted-error"))
+            throw Rcpp::internal::InterruptedException();
+        if (Rcpp::internal::isLongjumpSentinel(rcpp_result_gen))
+            throw Rcpp::LongjumpException(rcpp_result_gen);
+        if (rcpp_result_gen.inherits("try-error"))
+            throw Rcpp::exception(Rcpp::as<std::string>(rcpp_result_gen).c_str());
+        return Rcpp::as<arma::mat >(rcpp_result_gen);
+    }
+
+    inline arma::sp_mat scaleMatrixSparse(arma::sp_mat& X, arma::vec& v, unsigned int dim = 0) {
+        typedef SEXP(*Ptr_scaleMatrixSparse)(SEXP,SEXP,SEXP);
+        static Ptr_scaleMatrixSparse p_scaleMatrixSparse = NULL;
+        if (p_scaleMatrixSparse == NULL) {
+            validateSignature("arma::sp_mat(*scaleMatrixSparse)(arma::sp_mat&,arma::vec&,unsigned int)");
+            p_scaleMatrixSparse = (Ptr_scaleMatrixSparse)R_GetCCallable("actionet", "_actionet_scaleMatrixSparse");
+        }
+        RObject rcpp_result_gen;
+        {
+            RNGScope RCPP_rngScope_gen;
+            rcpp_result_gen = p_scaleMatrixSparse(Shield<SEXP>(Rcpp::wrap(X)), Shield<SEXP>(Rcpp::wrap(v)), Shield<SEXP>(Rcpp::wrap(dim)));
+        }
+        if (rcpp_result_gen.inherits("interrupted-error"))
+            throw Rcpp::internal::InterruptedException();
+        if (Rcpp::internal::isLongjumpSentinel(rcpp_result_gen))
+            throw Rcpp::LongjumpException(rcpp_result_gen);
+        if (rcpp_result_gen.inherits("try-error"))
+            throw Rcpp::exception(Rcpp::as<std::string>(rcpp_result_gen).c_str());
+        return Rcpp::as<arma::sp_mat >(rcpp_result_gen);
+    }
+
+    inline arma::sp_mat normalizeGraph(arma::sp_mat& G, int norm_type = 0) {
+        typedef SEXP(*Ptr_normalizeGraph)(SEXP,SEXP);
+        static Ptr_normalizeGraph p_normalizeGraph = NULL;
+        if (p_normalizeGraph == NULL) {
+            validateSignature("arma::sp_mat(*normalizeGraph)(arma::sp_mat&,int)");
+            p_normalizeGraph = (Ptr_normalizeGraph)R_GetCCallable("actionet", "_actionet_normalizeGraph");
+        }
+        RObject rcpp_result_gen;
+        {
+            RNGScope RCPP_rngScope_gen;
+            rcpp_result_gen = p_normalizeGraph(Shield<SEXP>(Rcpp::wrap(G)), Shield<SEXP>(Rcpp::wrap(norm_type)));
+        }
+        if (rcpp_result_gen.inherits("interrupted-error"))
+            throw Rcpp::internal::InterruptedException();
+        if (Rcpp::internal::isLongjumpSentinel(rcpp_result_gen))
+            throw Rcpp::LongjumpException(rcpp_result_gen);
+        if (rcpp_result_gen.inherits("try-error"))
+            throw Rcpp::exception(Rcpp::as<std::string>(rcpp_result_gen).c_str());
+        return Rcpp::as<arma::sp_mat >(rcpp_result_gen);
     }
 
     inline arma::mat MWM_hungarian(arma::mat& G) {
@@ -865,11 +949,11 @@ namespace actionet {
         return Rcpp::as<arma::mat >(rcpp_result_gen);
     }
 
-    inline arma::umat MWM_rank1(arma::vec u, arma::vec v, double u_threshold = 0, double v_threshold = 0) {
+    inline arma::umat MWM_rank1(const arma::vec& u, const arma::vec& v, double u_threshold = 0, double v_threshold = 0) {
         typedef SEXP(*Ptr_MWM_rank1)(SEXP,SEXP,SEXP,SEXP);
         static Ptr_MWM_rank1 p_MWM_rank1 = NULL;
         if (p_MWM_rank1 == NULL) {
-            validateSignature("arma::umat(*MWM_rank1)(arma::vec,arma::vec,double,double)");
+            validateSignature("arma::umat(*MWM_rank1)(const arma::vec&,const arma::vec&,double,double)");
             p_MWM_rank1 = (Ptr_MWM_rank1)R_GetCCallable("actionet", "_actionet_MWM_rank1");
         }
         RObject rcpp_result_gen;
@@ -884,48 +968,6 @@ namespace actionet {
         if (rcpp_result_gen.inherits("try-error"))
             throw Rcpp::exception(Rcpp::as<std::string>(rcpp_result_gen).c_str());
         return Rcpp::as<arma::umat >(rcpp_result_gen);
-    }
-
-    inline arma::mat normalize_mat(arma::mat& X, int p = 0, int dim = 0) {
-        typedef SEXP(*Ptr_normalize_mat)(SEXP,SEXP,SEXP);
-        static Ptr_normalize_mat p_normalize_mat = NULL;
-        if (p_normalize_mat == NULL) {
-            validateSignature("arma::mat(*normalize_mat)(arma::mat&,int,int)");
-            p_normalize_mat = (Ptr_normalize_mat)R_GetCCallable("actionet", "_actionet_normalize_mat");
-        }
-        RObject rcpp_result_gen;
-        {
-            RNGScope RCPP_rngScope_gen;
-            rcpp_result_gen = p_normalize_mat(Shield<SEXP>(Rcpp::wrap(X)), Shield<SEXP>(Rcpp::wrap(p)), Shield<SEXP>(Rcpp::wrap(dim)));
-        }
-        if (rcpp_result_gen.inherits("interrupted-error"))
-            throw Rcpp::internal::InterruptedException();
-        if (Rcpp::internal::isLongjumpSentinel(rcpp_result_gen))
-            throw Rcpp::LongjumpException(rcpp_result_gen);
-        if (rcpp_result_gen.inherits("try-error"))
-            throw Rcpp::exception(Rcpp::as<std::string>(rcpp_result_gen).c_str());
-        return Rcpp::as<arma::mat >(rcpp_result_gen);
-    }
-
-    inline arma::sp_mat normalize_spmat(arma::sp_mat& X, int p = 0, int dim = 0) {
-        typedef SEXP(*Ptr_normalize_spmat)(SEXP,SEXP,SEXP);
-        static Ptr_normalize_spmat p_normalize_spmat = NULL;
-        if (p_normalize_spmat == NULL) {
-            validateSignature("arma::sp_mat(*normalize_spmat)(arma::sp_mat&,int,int)");
-            p_normalize_spmat = (Ptr_normalize_spmat)R_GetCCallable("actionet", "_actionet_normalize_spmat");
-        }
-        RObject rcpp_result_gen;
-        {
-            RNGScope RCPP_rngScope_gen;
-            rcpp_result_gen = p_normalize_spmat(Shield<SEXP>(Rcpp::wrap(X)), Shield<SEXP>(Rcpp::wrap(p)), Shield<SEXP>(Rcpp::wrap(dim)));
-        }
-        if (rcpp_result_gen.inherits("interrupted-error"))
-            throw Rcpp::internal::InterruptedException();
-        if (Rcpp::internal::isLongjumpSentinel(rcpp_result_gen))
-            throw Rcpp::LongjumpException(rcpp_result_gen);
-        if (rcpp_result_gen.inherits("try-error"))
-            throw Rcpp::exception(Rcpp::as<std::string>(rcpp_result_gen).c_str());
-        return Rcpp::as<arma::sp_mat >(rcpp_result_gen);
     }
 
     inline arma::vec xicor(arma::vec xvec, arma::vec yvec, bool compute_pval = true, int seed = 0) {

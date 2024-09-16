@@ -1,8 +1,11 @@
 .validate_ace <- function(
   ace,
+  as_ace = FALSE,
+  allow_se_like = FALSE,
   allow_null = FALSE,
   ace_name = "ace",
-  return_elem = TRUE
+  return_elem = TRUE,
+  error_on_fail = TRUE
 ){
 
   if (is.null(ace) && !allow_null) {
@@ -11,29 +14,47 @@
   }
 
   if (class(ace) != "ACTIONetExperiment") {
-    err <- sprintf("'%s' must be 'ACTIONetExperiment'.\n", ace_name)
-    stop(err)
+    if(allow_se_like) {
+      if(!class(ace) %in% c("SummarizedExperiment", "RangedSummarizedExperiment", "SingleCellExperiment")) {
+        if(error_on_fail){
+          err <- sprintf("'%s' must be 'ACTIONetExperiment' or inherit from 'SummarizedExperiment'.\n", ace_name)
+          stop(err)
+        } else {
+          return(FALSE)
+        }
+      }
+    } else {
+      if(error_on_fail) {
+        err <- sprintf("'%s' must be 'ACTIONetExperiment'.\n", ace_name)
+        stop(err)
+      } else {
+        return(FALSE)
+      }
+    }
+    if(as_ace) {
+      ace = as(ace, "ACTIONetExperiment")
+    }
   }
 
   if(return_elem == TRUE) {
     return(ace)
   } else {
-    return(NULL)
+    return(TRUE)
   }
 }
-
 
 .validate_assay <- function(
   ace,
   assay_name = NULL,
   ace_name = "ace",
   matrix_type = "either",
+  sparse_type = "CsparseMatrix",
   force_type = FALSE,
   return_elem = TRUE
 ){
 
-  .validate_ace(ace, allow_null = FALSE, ace_name = ace_name, return_elem = FALSE)
-  
+  .validate_ace(ace, as_ace = FALSE, allow_se_like = TRUE, allow_null = FALSE, ace_name = ace_name, return_elem = FALSE)
+
   if (!(assay_name %in% names(assays(ace)))) {
     err <- sprintf("'%s' is not an assay of '%s'.\n", assay_name, ace_name)
     stop(err)
@@ -45,6 +66,7 @@
      x = x,
      var_name = sprintf("assays(%s)$%s", ace_name, assay_name),
      matrix_type = matrix_type,
+     sparse_type = sparse_type,
      force_type = force_type,
      return_elem = TRUE
    )
@@ -206,19 +228,21 @@
   x,
   var_name = "x",
   matrix_type = c("either", "sparse", "dense"),
+  sparse_type = c("dMatrix", "CsparseMatrix"),
   force_type = FALSE,
   return_elem = TRUE
 ){
 
   matrix_type = match.arg(matrix_type, several.ok = FALSE)
+  sparse_type = match.arg(sparse_type, several.ok = FALSE)
 
   if (matrix_type == "sparse") {
     if(ACTIONetExperiment:::is.sparseMatrix(x)) {
-      if(!is(x, "dMatrix")) {
-        x = as(x, "dMatrix")
+      if(!is(x, sparse_type)) {
+        x = as(x, sparse_type)
       }
     } else if (force_type == TRUE) {
-      x = as(x, "dMatrix")
+      x = as(x, sparse_type)
     } else {
       err = sprintf("'%s' must be 'sparseMatrix'.\n", var_name)
       stop(err)
@@ -234,8 +258,8 @@
     }
   } else {
     if(ACTIONetExperiment:::is.sparseMatrix(x)) {
-      if(!is(x, "dMatrix")) {
-        x = as(x, "dMatrix")
+      if(!is(x, sparse_type)) {
+        x = as(x, sparse_type)
       }
     } else if (!is.matrix(x)) {
       err = sprintf("'%s' must be 'matrix' or 'sparseMatrix'.\n", var_name)
@@ -254,11 +278,13 @@
 .ace_or_assay <- function(
   obj,
   assay_name = NULL,
+  allow_se_like = FALSE,
   matrix_type = c("either", "sparse", "dense"),
   force_type = FALSE,
   obj_name = NULL,
   return_elem = TRUE
 ){
+
 
   if (is(obj, "ACTIONetExperiment")) {
     x <- .validate_assay(

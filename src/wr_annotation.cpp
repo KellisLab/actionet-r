@@ -1,6 +1,8 @@
 // Rcpp interface for `annotation` module
 // Organized by module header in th order imported.
 // [[Rcpp::interfaces(r, cpp)]]
+#include <utility>
+
 #include "actionet_r_config.h"
 
 // marker_stats ========================================================================================================
@@ -17,7 +19,8 @@ arma::mat compute_marker_aggregate_stats(arma::sp_mat& G, arma::sp_mat& S, arma:
 
 // [[Rcpp::export]]
 Rcpp::List aggregate_genesets_vision(arma::sp_mat& G, arma::sp_mat& S, arma::mat& marker_mat,
-                                     int norm_type = 2, double alpha = 0.85, int max_it = 5, double tol = 1E-8, int thread_no = 0) {
+                                     int norm_type = 2, double alpha = 0.85, int max_it = 5, double tol = 1E-8,
+                                     int thread_no = 0) {
     arma::field<arma::mat> stats = actionet::aggregate_genesets_vision(G, S, marker_mat, norm_type,
                                                                        alpha, max_it, tol, thread_no);
 
@@ -35,21 +38,21 @@ Rcpp::List aggregate_genesets_vision(arma::sp_mat& G, arma::sp_mat& S, arma::mat
 //' Compute feature specificity (from archetype footprints)
 //'
 //' @param S Input matrix (sparseMatrix)
-//' @param H A soft membership matrix - Typically H_merged from the merge_archetypes() function.
+//' @param H A soft membership matrix - Typically H_merged from the mergeArchetypes() function.
 //'
 //' @return A list with the over/under-logPvals
 //'
 //' @examples
-//' prune.out = collect_archetypes(ACTION.out$C, ACTION.out$H)
+//' prune.out = collectArchetypes(ACTION.out$C, ACTION.out$H)
 //'	G = buildNetwork(prune.out$H_stacked)
-//' unification.out = merge_archetypes(G, S_r, prune.out$C_stacked, prune.out$H_stacked)
+//' unification.out = mergeArchetypes(G, S_r, prune.out$C_stacked, prune.out$H_stacked)
 //' cell.clusters = unification.out$sample_assignments
 //' S.norm = renormalize_input_matrix(S, cell.clusters)
 //' logPvals.list = compute_archetype_feature_specificity(S.norm, unification.out$H_merged)
 //' specificity.scores = logPvals.list$upper_significance
 // [[Rcpp::export]]
-Rcpp::List compute_archetype_feature_specificity(arma::sp_mat& S, arma::mat& H, int thread_no = 0) {
-    arma::field<arma::mat> res = actionet::compute_feature_specificity(S, H, thread_no);
+Rcpp::List archetypeFeatureSpecificitySparse(arma::sp_mat& S, arma::mat& H, int thread_no = 0) {
+    arma::field<arma::mat> res = actionet::computeFeatureSpecificity(S, H, thread_no);
 
     Rcpp::List out_list;
     out_list["archetypes"] = res(0);
@@ -60,8 +63,8 @@ Rcpp::List compute_archetype_feature_specificity(arma::sp_mat& S, arma::mat& H, 
 }
 
 // [[Rcpp::export]]
-Rcpp::List compute_archetype_feature_specificity_full(arma::mat& S, arma::mat& H, int thread_no = 0) {
-    arma::field<arma::mat> res = actionet::compute_feature_specificity(S, H, thread_no);
+Rcpp::List archetypeFeatureSpecificityDense(arma::mat& S, arma::mat& H, int thread_no = 0) {
+    arma::field<arma::mat> res = actionet::computeFeatureSpecificity(S, H, thread_no);
 
     Rcpp::List out_list;
     out_list["archetypes"] = res(0);
@@ -79,16 +82,16 @@ Rcpp::List compute_archetype_feature_specificity_full(arma::mat& S, arma::mat& H
 //' @return A list with the over/under-logPvals
 //'
 //' @examples
-//' prune.out = collect_archetypes(ACTION.out$C, ACTION.out$H)
+//' prune.out = collectArchetypes(ACTION.out$C, ACTION.out$H)
 //'	G = buildNetwork(prune.out$H_stacked)
-//' unification.out = merge_archetypes(G, S_r, prune.out$C_stacked, prune.out$H_stacked)
+//' unification.out = mergeArchetypes(G, S_r, prune.out$C_stacked, prune.out$H_stacked)
 //' cell.clusters = unification.out$sample_assignments
 //' S.norm = renormalize_input_matrix(S, cell.clusters)
 //' logPvals.list = compute_cluster_feature_specificity(S.norm, cell.clusters)
 //' specificity.scores = logPvals.list$upper_significance
 // [[Rcpp::export]]
-Rcpp::List compute_cluster_feature_specificity(arma::sp_mat& S, arma::uvec sample_assignments, int thread_no = 0) {
-    arma::field<arma::mat> res = actionet::compute_feature_specificity(S, sample_assignments, thread_no);
+Rcpp::List clusterFeatureSpecificitySparse(arma::sp_mat& S, arma::uvec& sample_assignments, int thread_no = 0) {
+    arma::field<arma::mat> res = actionet::computeFeatureSpecificity(S, sample_assignments, thread_no);
 
     Rcpp::List out_list;
     out_list["average_profile"] = res(0);
@@ -99,8 +102,8 @@ Rcpp::List compute_cluster_feature_specificity(arma::sp_mat& S, arma::uvec sampl
 }
 
 // [[Rcpp::export]]
-Rcpp::List compute_cluster_feature_specificity_full(arma::mat& S, arma::uvec sample_assignments, int thread_no = 0) {
-    arma::field<arma::mat> res = actionet::compute_feature_specificity(S, sample_assignments, thread_no);
+Rcpp::List clusterFeatureSpecificityDense(arma::mat& S, arma::uvec& sample_assignments, int thread_no = 0) {
+    arma::field<arma::mat> res = actionet::computeFeatureSpecificity(S, sample_assignments, thread_no);
 
     Rcpp::List out_list;
     out_list["average_profile"] = res(0);

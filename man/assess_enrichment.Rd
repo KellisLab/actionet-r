@@ -25,7 +25,7 @@ G = colNets(ace)$ACTIONet
 associations = gProfilerDB_human$SYMBOL$REAC
 common.genes = intersect(rownames(ace), rownames(associations))
 specificity_scores = rowFactors(ace)[["H_merged_upper_significance"]]
-logPvals = compute_feature_specificity(
+logPvals = computeFeatureSpecificity(
 specificity_scores[common.genes, ], annotations[common.genes, ]
 )
 rownames(logPvals) = colnames(specificity_scores)

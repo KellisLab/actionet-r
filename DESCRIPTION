@@ -10,7 +10,7 @@ Authors@R: c(
     )
 Description: More about what it does (maybe more than one line).
 URL: www.somethinggoeshere.com
-License: What license is it under?
+License: GPL3
 Imports: Rcpp (>= 1.0.12)
 LinkingTo: Rcpp, RcppArmadillo
 Depends: R (>= 4.0.0), Rcpp, RcppArmadillo, ACTIONetExperiment, Matrix, BiocParallel

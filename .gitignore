@@ -17,4 +17,4 @@ pybind11/
 build_test/
 build/
 lib/
-testing/
+testing*/

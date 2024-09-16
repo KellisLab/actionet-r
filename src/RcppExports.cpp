@@ -14,24 +14,24 @@ Rcpp::Rostream<true>&  Rcpp::Rcout = Rcpp::Rcpp_cout_get();
 Rcpp::Rostream<false>& Rcpp::Rcerr = Rcpp::Rcpp_cerr_get();
 #endif
 
-// run_AA
-Rcpp::List run_AA(arma::mat& A, arma::mat& W0, int max_it, double tol);
-static SEXP _actionet_run_AA_try(SEXP ASEXP, SEXP W0SEXP, SEXP max_itSEXP, SEXP tolSEXP) {
+// runAA
+Rcpp::List runAA(arma::mat& A, arma::mat& W0, int max_it, double tol);
+static SEXP _actionet_runAA_try(SEXP ASEXP, SEXP W0SEXP, SEXP max_itSEXP, SEXP tolSEXP) {
 BEGIN_RCPP
     Rcpp::RObject rcpp_result_gen;
     Rcpp::traits::input_parameter< arma::mat& >::type A(ASEXP);
     Rcpp::traits::input_parameter< arma::mat& >::type W0(W0SEXP);
     Rcpp::traits::input_parameter< int >::type max_it(max_itSEXP);
     Rcpp::traits::input_parameter< double >::type tol(tolSEXP);
-    rcpp_result_gen = Rcpp::wrap(run_AA(A, W0, max_it, tol));
+    rcpp_result_gen = Rcpp::wrap(runAA(A, W0, max_it, tol));
     return rcpp_result_gen;
 END_RCPP_RETURN_ERROR
 }
-RcppExport SEXP _actionet_run_AA(SEXP ASEXP, SEXP W0SEXP, SEXP max_itSEXP, SEXP tolSEXP) {
+RcppExport SEXP _actionet_runAA(SEXP ASEXP, SEXP W0SEXP, SEXP max_itSEXP, SEXP tolSEXP) {
     SEXP rcpp_result_gen;
     {
         Rcpp::RNGScope rcpp_rngScope_gen;
-        rcpp_result_gen = PROTECT(_actionet_run_AA_try(ASEXP, W0SEXP, max_itSEXP, tolSEXP));
+        rcpp_result_gen = PROTECT(_actionet_runAA_try(ASEXP, W0SEXP, max_itSEXP, tolSEXP));
     }
     Rboolean rcpp_isInterrupt_gen = Rf_inherits(rcpp_result_gen, "interrupted-error");
     if (rcpp_isInterrupt_gen) {
@@ -51,27 +51,26 @@ RcppExport SEXP _actionet_run_AA(SEXP ASEXP, SEXP W0SEXP, SEXP max_itSEXP, SEXP 
     UNPROTECT(1);
     return rcpp_result_gen;
 }
-// run_ACTION
-Rcpp::List run_ACTION(arma::mat& S_r, int k_min, int k_max, int normalization, int max_it, double tol, int thread_no);
-static SEXP _actionet_run_ACTION_try(SEXP S_rSEXP, SEXP k_minSEXP, SEXP k_maxSEXP, SEXP normalizationSEXP, SEXP max_itSEXP, SEXP tolSEXP, SEXP thread_noSEXP) {
+// decompACTION
+Rcpp::List decompACTION(arma::mat& S_r, int k_min, int k_max, int max_it, double tol, int thread_no);
+static SEXP _actionet_decompACTION_try(SEXP S_rSEXP, SEXP k_minSEXP, SEXP k_maxSEXP, SEXP max_itSEXP, SEXP tolSEXP, SEXP thread_noSEXP) {
 BEGIN_RCPP
     Rcpp::RObject rcpp_result_gen;
     Rcpp::traits::input_parameter< arma::mat& >::type S_r(S_rSEXP);
     Rcpp::traits::input_parameter< int >::type k_min(k_minSEXP);
     Rcpp::traits::input_parameter< int >::type k_max(k_maxSEXP);
-    Rcpp::traits::input_parameter< int >::type normalization(normalizationSEXP);
     Rcpp::traits::input_parameter< int >::type max_it(max_itSEXP);
     Rcpp::traits::input_parameter< double >::type tol(tolSEXP);
     Rcpp::traits::input_parameter< int >::type thread_no(thread_noSEXP);
-    rcpp_result_gen = Rcpp::wrap(run_ACTION(S_r, k_min, k_max, normalization, max_it, tol, thread_no));
+    rcpp_result_gen = Rcpp::wrap(decompACTION(S_r, k_min, k_max, max_it, tol, thread_no));
     return rcpp_result_gen;
 END_RCPP_RETURN_ERROR
 }
-RcppExport SEXP _actionet_run_ACTION(SEXP S_rSEXP, SEXP k_minSEXP, SEXP k_maxSEXP, SEXP normalizationSEXP, SEXP max_itSEXP, SEXP tolSEXP, SEXP thread_noSEXP) {
+RcppExport SEXP _actionet_decompACTION(SEXP S_rSEXP, SEXP k_minSEXP, SEXP k_maxSEXP, SEXP max_itSEXP, SEXP tolSEXP, SEXP thread_noSEXP) {
     SEXP rcpp_result_gen;
     {
         Rcpp::RNGScope rcpp_rngScope_gen;
-        rcpp_result_gen = PROTECT(_actionet_run_ACTION_try(S_rSEXP, k_minSEXP, k_maxSEXP, normalizationSEXP, max_itSEXP, tolSEXP, thread_noSEXP));
+        rcpp_result_gen = PROTECT(_actionet_decompACTION_try(S_rSEXP, k_minSEXP, k_maxSEXP, max_itSEXP, tolSEXP, thread_noSEXP));
     }
     Rboolean rcpp_isInterrupt_gen = Rf_inherits(rcpp_result_gen, "interrupted-error");
     if (rcpp_isInterrupt_gen) {
@@ -91,24 +90,66 @@ RcppExport SEXP _actionet_run_ACTION(SEXP S_rSEXP, SEXP k_minSEXP, SEXP k_maxSEX
     UNPROTECT(1);
     return rcpp_result_gen;
 }
-// collect_archetypes
-Rcpp::List collect_archetypes(const Rcpp::List& C_trace, const Rcpp::List& H_trace, double spec_th, int min_obs);
-static SEXP _actionet_collect_archetypes_try(SEXP C_traceSEXP, SEXP H_traceSEXP, SEXP spec_thSEXP, SEXP min_obsSEXP) {
+// runACTION
+Rcpp::List runACTION(arma::mat& S_r, int k_min, int k_max, int max_it, double tol, double spec_th, int min_obs, int norm, int thread_no);
+static SEXP _actionet_runACTION_try(SEXP S_rSEXP, SEXP k_minSEXP, SEXP k_maxSEXP, SEXP max_itSEXP, SEXP tolSEXP, SEXP spec_thSEXP, SEXP min_obsSEXP, SEXP normSEXP, SEXP thread_noSEXP) {
+BEGIN_RCPP
+    Rcpp::RObject rcpp_result_gen;
+    Rcpp::traits::input_parameter< arma::mat& >::type S_r(S_rSEXP);
+    Rcpp::traits::input_parameter< int >::type k_min(k_minSEXP);
+    Rcpp::traits::input_parameter< int >::type k_max(k_maxSEXP);
+    Rcpp::traits::input_parameter< int >::type max_it(max_itSEXP);
+    Rcpp::traits::input_parameter< double >::type tol(tolSEXP);
+    Rcpp::traits::input_parameter< double >::type spec_th(spec_thSEXP);
+    Rcpp::traits::input_parameter< int >::type min_obs(min_obsSEXP);
+    Rcpp::traits::input_parameter< int >::type norm(normSEXP);
+    Rcpp::traits::input_parameter< int >::type thread_no(thread_noSEXP);
+    rcpp_result_gen = Rcpp::wrap(runACTION(S_r, k_min, k_max, max_it, tol, spec_th, min_obs, norm, thread_no));
+    return rcpp_result_gen;
+END_RCPP_RETURN_ERROR
+}
+RcppExport SEXP _actionet_runACTION(SEXP S_rSEXP, SEXP k_minSEXP, SEXP k_maxSEXP, SEXP max_itSEXP, SEXP tolSEXP, SEXP spec_thSEXP, SEXP min_obsSEXP, SEXP normSEXP, SEXP thread_noSEXP) {
+    SEXP rcpp_result_gen;
+    {
+        Rcpp::RNGScope rcpp_rngScope_gen;
+        rcpp_result_gen = PROTECT(_actionet_runACTION_try(S_rSEXP, k_minSEXP, k_maxSEXP, max_itSEXP, tolSEXP, spec_thSEXP, min_obsSEXP, normSEXP, thread_noSEXP));
+    }
+    Rboolean rcpp_isInterrupt_gen = Rf_inherits(rcpp_result_gen, "interrupted-error");
+    if (rcpp_isInterrupt_gen) {
+        UNPROTECT(1);
+        Rf_onintr();
+    }
+    bool rcpp_isLongjump_gen = Rcpp::internal::isLongjumpSentinel(rcpp_result_gen);
+    if (rcpp_isLongjump_gen) {
+        Rcpp::internal::resumeJump(rcpp_result_gen);
+    }
+    Rboolean rcpp_isError_gen = Rf_inherits(rcpp_result_gen, "try-error");
+    if (rcpp_isError_gen) {
+        SEXP rcpp_msgSEXP_gen = Rf_asChar(rcpp_result_gen);
+        UNPROTECT(1);
+        Rf_error("%s", CHAR(rcpp_msgSEXP_gen));
+    }
+    UNPROTECT(1);
+    return rcpp_result_gen;
+}
+// collectArchetypes
+Rcpp::List collectArchetypes(const Rcpp::List& C_trace, const Rcpp::List& H_trace, double spec_th, int min_obs);
+static SEXP _actionet_collectArchetypes_try(SEXP C_traceSEXP, SEXP H_traceSEXP, SEXP spec_thSEXP, SEXP min_obsSEXP) {
 BEGIN_RCPP
     Rcpp::RObject rcpp_result_gen;
     Rcpp::traits::input_parameter< const Rcpp::List& >::type C_trace(C_traceSEXP);
     Rcpp::traits::input_parameter< const Rcpp::List& >::type H_trace(H_traceSEXP);
     Rcpp::traits::input_parameter< double >::type spec_th(spec_thSEXP);
     Rcpp::traits::input_parameter< int >::type min_obs(min_obsSEXP);
-    rcpp_result_gen = Rcpp::wrap(collect_archetypes(C_trace, H_trace, spec_th, min_obs));
+    rcpp_result_gen = Rcpp::wrap(collectArchetypes(C_trace, H_trace, spec_th, min_obs));
     return rcpp_result_gen;
 END_RCPP_RETURN_ERROR
 }
-RcppExport SEXP _actionet_collect_archetypes(SEXP C_traceSEXP, SEXP H_traceSEXP, SEXP spec_thSEXP, SEXP min_obsSEXP) {
+RcppExport SEXP _actionet_collectArchetypes(SEXP C_traceSEXP, SEXP H_traceSEXP, SEXP spec_thSEXP, SEXP min_obsSEXP) {
     SEXP rcpp_result_gen;
     {
         Rcpp::RNGScope rcpp_rngScope_gen;
-        rcpp_result_gen = PROTECT(_actionet_collect_archetypes_try(C_traceSEXP, H_traceSEXP, spec_thSEXP, min_obsSEXP));
+        rcpp_result_gen = PROTECT(_actionet_collectArchetypes_try(C_traceSEXP, H_traceSEXP, spec_thSEXP, min_obsSEXP));
     }
     Rboolean rcpp_isInterrupt_gen = Rf_inherits(rcpp_result_gen, "interrupted-error");
     if (rcpp_isInterrupt_gen) {
@@ -128,25 +169,25 @@ RcppExport SEXP _actionet_collect_archetypes(SEXP C_traceSEXP, SEXP H_traceSEXP,
     UNPROTECT(1);
     return rcpp_result_gen;
 }
-// merge_archetypes
-Rcpp::List merge_archetypes(arma::mat& S_r, arma::mat C_stacked, arma::mat H_stacked, int normalization, int thread_no);
-static SEXP _actionet_merge_archetypes_try(SEXP S_rSEXP, SEXP C_stackedSEXP, SEXP H_stackedSEXP, SEXP normalizationSEXP, SEXP thread_noSEXP) {
+// mergeArchetypes
+Rcpp::List mergeArchetypes(arma::mat& S_r, arma::mat& C_stacked, arma::mat& H_stacked, int norm, int thread_no);
+static SEXP _actionet_mergeArchetypes_try(SEXP S_rSEXP, SEXP C_stackedSEXP, SEXP H_stackedSEXP, SEXP normSEXP, SEXP thread_noSEXP) {
 BEGIN_RCPP
     Rcpp::RObject rcpp_result_gen;
     Rcpp::traits::input_parameter< arma::mat& >::type S_r(S_rSEXP);
-    Rcpp::traits::input_parameter< arma::mat >::type C_stacked(C_stackedSEXP);
-    Rcpp::traits::input_parameter< arma::mat >::type H_stacked(H_stackedSEXP);
-    Rcpp::traits::input_parameter< int >::type normalization(normalizationSEXP);
+    Rcpp::traits::input_parameter< arma::mat& >::type C_stacked(C_stackedSEXP);
+    Rcpp::traits::input_parameter< arma::mat& >::type H_stacked(H_stackedSEXP);
+    Rcpp::traits::input_parameter< int >::type norm(normSEXP);
     Rcpp::traits::input_parameter< int >::type thread_no(thread_noSEXP);
-    rcpp_result_gen = Rcpp::wrap(merge_archetypes(S_r, C_stacked, H_stacked, normalization, thread_no));
+    rcpp_result_gen = Rcpp::wrap(mergeArchetypes(S_r, C_stacked, H_stacked, norm, thread_no));
     return rcpp_result_gen;
 END_RCPP_RETURN_ERROR
 }
-RcppExport SEXP _actionet_merge_archetypes(SEXP S_rSEXP, SEXP C_stackedSEXP, SEXP H_stackedSEXP, SEXP normalizationSEXP, SEXP thread_noSEXP) {
+RcppExport SEXP _actionet_mergeArchetypes(SEXP S_rSEXP, SEXP C_stackedSEXP, SEXP H_stackedSEXP, SEXP normSEXP, SEXP thread_noSEXP) {
     SEXP rcpp_result_gen;
     {
         Rcpp::RNGScope rcpp_rngScope_gen;
-        rcpp_result_gen = PROTECT(_actionet_merge_archetypes_try(S_rSEXP, C_stackedSEXP, H_stackedSEXP, normalizationSEXP, thread_noSEXP));
+        rcpp_result_gen = PROTECT(_actionet_mergeArchetypes_try(S_rSEXP, C_stackedSEXP, H_stackedSEXP, normSEXP, thread_noSEXP));
     }
     Rboolean rcpp_isInterrupt_gen = Rf_inherits(rcpp_result_gen, "interrupted-error");
     if (rcpp_isInterrupt_gen) {
@@ -166,26 +207,26 @@ RcppExport SEXP _actionet_merge_archetypes(SEXP S_rSEXP, SEXP C_stackedSEXP, SEX
     UNPROTECT(1);
     return rcpp_result_gen;
 }
-// reduce_kernel
-Rcpp::List reduce_kernel(arma::sp_mat& S, int reduced_dim, int iter, int seed, int SVD_algorithm, int verbose);
-static SEXP _actionet_reduce_kernel_try(SEXP SSEXP, SEXP reduced_dimSEXP, SEXP iterSEXP, SEXP seedSEXP, SEXP SVD_algorithmSEXP, SEXP verboseSEXP) {
+// reduceKernelSparse
+Rcpp::List reduceKernelSparse(arma::sp_mat& S, int k, int svd_alg, int max_it, int seed, bool verbose);
+static SEXP _actionet_reduceKernelSparse_try(SEXP SSEXP, SEXP kSEXP, SEXP svd_algSEXP, SEXP max_itSEXP, SEXP seedSEXP, SEXP verboseSEXP) {
 BEGIN_RCPP
     Rcpp::RObject rcpp_result_gen;
     Rcpp::traits::input_parameter< arma::sp_mat& >::type S(SSEXP);
-    Rcpp::traits::input_parameter< int >::type reduced_dim(reduced_dimSEXP);
-    Rcpp::traits::input_parameter< int >::type iter(iterSEXP);
+    Rcpp::traits::input_parameter< int >::type k(kSEXP);
+    Rcpp::traits::input_parameter< int >::type svd_alg(svd_algSEXP);
+    Rcpp::traits::input_parameter< int >::type max_it(max_itSEXP);
     Rcpp::traits::input_parameter< int >::type seed(seedSEXP);
-    Rcpp::traits::input_parameter< int >::type SVD_algorithm(SVD_algorithmSEXP);
-    Rcpp::traits::input_parameter< int >::type verbose(verboseSEXP);
-    rcpp_result_gen = Rcpp::wrap(reduce_kernel(S, reduced_dim, iter, seed, SVD_algorithm, verbose));
+    Rcpp::traits::input_parameter< bool >::type verbose(verboseSEXP);
+    rcpp_result_gen = Rcpp::wrap(reduceKernelSparse(S, k, svd_alg, max_it, seed, verbose));
     return rcpp_result_gen;
 END_RCPP_RETURN_ERROR
 }
-RcppExport SEXP _actionet_reduce_kernel(SEXP SSEXP, SEXP reduced_dimSEXP, SEXP iterSEXP, SEXP seedSEXP, SEXP SVD_algorithmSEXP, SEXP verboseSEXP) {
+RcppExport SEXP _actionet_reduceKernelSparse(SEXP SSEXP, SEXP kSEXP, SEXP svd_algSEXP, SEXP max_itSEXP, SEXP seedSEXP, SEXP verboseSEXP) {
     SEXP rcpp_result_gen;
     {
         Rcpp::RNGScope rcpp_rngScope_gen;
-        rcpp_result_gen = PROTECT(_actionet_reduce_kernel_try(SSEXP, reduced_dimSEXP, iterSEXP, seedSEXP, SVD_algorithmSEXP, verboseSEXP));
+        rcpp_result_gen = PROTECT(_actionet_reduceKernelSparse_try(SSEXP, kSEXP, svd_algSEXP, max_itSEXP, seedSEXP, verboseSEXP));
     }
     Rboolean rcpp_isInterrupt_gen = Rf_inherits(rcpp_result_gen, "interrupted-error");
     if (rcpp_isInterrupt_gen) {
@@ -205,26 +246,26 @@ RcppExport SEXP _actionet_reduce_kernel(SEXP SSEXP, SEXP reduced_dimSEXP, SEXP i
     UNPROTECT(1);
     return rcpp_result_gen;
 }
-// reduce_kernel_full
-Rcpp::List reduce_kernel_full(arma::mat& S, int reduced_dim, int iter, int seed, int SVD_algorithm, int verbose);
-static SEXP _actionet_reduce_kernel_full_try(SEXP SSEXP, SEXP reduced_dimSEXP, SEXP iterSEXP, SEXP seedSEXP, SEXP SVD_algorithmSEXP, SEXP verboseSEXP) {
+// reduceKernelDense
+Rcpp::List reduceKernelDense(arma::mat& S, int k, int svd_alg, int max_it, int seed, bool verbose);
+static SEXP _actionet_reduceKernelDense_try(SEXP SSEXP, SEXP kSEXP, SEXP svd_algSEXP, SEXP max_itSEXP, SEXP seedSEXP, SEXP verboseSEXP) {
 BEGIN_RCPP
     Rcpp::RObject rcpp_result_gen;
     Rcpp::traits::input_parameter< arma::mat& >::type S(SSEXP);
-    Rcpp::traits::input_parameter< int >::type reduced_dim(reduced_dimSEXP);
-    Rcpp::traits::input_parameter< int >::type iter(iterSEXP);
+    Rcpp::traits::input_parameter< int >::type k(kSEXP);
+    Rcpp::traits::input_parameter< int >::type svd_alg(svd_algSEXP);
+    Rcpp::traits::input_parameter< int >::type max_it(max_itSEXP);
     Rcpp::traits::input_parameter< int >::type seed(seedSEXP);
-    Rcpp::traits::input_parameter< int >::type SVD_algorithm(SVD_algorithmSEXP);
-    Rcpp::traits::input_parameter< int >::type verbose(verboseSEXP);
-    rcpp_result_gen = Rcpp::wrap(reduce_kernel_full(S, reduced_dim, iter, seed, SVD_algorithm, verbose));
+    Rcpp::traits::input_parameter< bool >::type verbose(verboseSEXP);
+    rcpp_result_gen = Rcpp::wrap(reduceKernelDense(S, k, svd_alg, max_it, seed, verbose));
     return rcpp_result_gen;
 END_RCPP_RETURN_ERROR
 }
-RcppExport SEXP _actionet_reduce_kernel_full(SEXP SSEXP, SEXP reduced_dimSEXP, SEXP iterSEXP, SEXP seedSEXP, SEXP SVD_algorithmSEXP, SEXP verboseSEXP) {
+RcppExport SEXP _actionet_reduceKernelDense(SEXP SSEXP, SEXP kSEXP, SEXP svd_algSEXP, SEXP max_itSEXP, SEXP seedSEXP, SEXP verboseSEXP) {
     SEXP rcpp_result_gen;
     {
         Rcpp::RNGScope rcpp_rngScope_gen;
-        rcpp_result_gen = PROTECT(_actionet_reduce_kernel_full_try(SSEXP, reduced_dimSEXP, iterSEXP, seedSEXP, SVD_algorithmSEXP, verboseSEXP));
+        rcpp_result_gen = PROTECT(_actionet_reduceKernelDense_try(SSEXP, kSEXP, svd_algSEXP, max_itSEXP, seedSEXP, verboseSEXP));
     }
     Rboolean rcpp_isInterrupt_gen = Rf_inherits(rcpp_result_gen, "interrupted-error");
     if (rcpp_isInterrupt_gen) {
@@ -244,23 +285,23 @@ RcppExport SEXP _actionet_reduce_kernel_full(SEXP SSEXP, SEXP reduced_dimSEXP, S
     UNPROTECT(1);
     return rcpp_result_gen;
 }
-// run_simplex_regression
-arma::mat run_simplex_regression(arma::mat& A, arma::mat& B, bool computeXtX);
-static SEXP _actionet_run_simplex_regression_try(SEXP ASEXP, SEXP BSEXP, SEXP computeXtXSEXP) {
+// runSimplexRegression
+arma::mat runSimplexRegression(arma::mat& A, arma::mat& B, bool computeXtX);
+static SEXP _actionet_runSimplexRegression_try(SEXP ASEXP, SEXP BSEXP, SEXP computeXtXSEXP) {
 BEGIN_RCPP
     Rcpp::RObject rcpp_result_gen;
     Rcpp::traits::input_parameter< arma::mat& >::type A(ASEXP);
     Rcpp::traits::input_parameter< arma::mat& >::type B(BSEXP);
     Rcpp::traits::input_parameter< bool >::type computeXtX(computeXtXSEXP);
-    rcpp_result_gen = Rcpp::wrap(run_simplex_regression(A, B, computeXtX));
+    rcpp_result_gen = Rcpp::wrap(runSimplexRegression(A, B, computeXtX));
     return rcpp_result_gen;
 END_RCPP_RETURN_ERROR
 }
-RcppExport SEXP _actionet_run_simplex_regression(SEXP ASEXP, SEXP BSEXP, SEXP computeXtXSEXP) {
+RcppExport SEXP _actionet_runSimplexRegression(SEXP ASEXP, SEXP BSEXP, SEXP computeXtXSEXP) {
     SEXP rcpp_result_gen;
     {
         Rcpp::RNGScope rcpp_rngScope_gen;
-        rcpp_result_gen = PROTECT(_actionet_run_simplex_regression_try(ASEXP, BSEXP, computeXtXSEXP));
+        rcpp_result_gen = PROTECT(_actionet_runSimplexRegression_try(ASEXP, BSEXP, computeXtXSEXP));
     }
     Rboolean rcpp_isInterrupt_gen = Rf_inherits(rcpp_result_gen, "interrupted-error");
     if (rcpp_isInterrupt_gen) {
@@ -280,22 +321,22 @@ RcppExport SEXP _actionet_run_simplex_regression(SEXP ASEXP, SEXP BSEXP, SEXP co
     UNPROTECT(1);
     return rcpp_result_gen;
 }
-// run_SPA
-Rcpp::List run_SPA(arma::mat& A, int k);
-static SEXP _actionet_run_SPA_try(SEXP ASEXP, SEXP kSEXP) {
+// runSPA
+Rcpp::List runSPA(arma::mat& A, int k);
+static SEXP _actionet_runSPA_try(SEXP ASEXP, SEXP kSEXP) {
 BEGIN_RCPP
     Rcpp::RObject rcpp_result_gen;
     Rcpp::traits::input_parameter< arma::mat& >::type A(ASEXP);
     Rcpp::traits::input_parameter< int >::type k(kSEXP);
-    rcpp_result_gen = Rcpp::wrap(run_SPA(A, k));
+    rcpp_result_gen = Rcpp::wrap(runSPA(A, k));
     return rcpp_result_gen;
 END_RCPP_RETURN_ERROR
 }
-RcppExport SEXP _actionet_run_SPA(SEXP ASEXP, SEXP kSEXP) {
+RcppExport SEXP _actionet_runSPA(SEXP ASEXP, SEXP kSEXP) {
     SEXP rcpp_result_gen;
     {
         Rcpp::RNGScope rcpp_rngScope_gen;
-        rcpp_result_gen = PROTECT(_actionet_run_SPA_try(ASEXP, kSEXP));
+        rcpp_result_gen = PROTECT(_actionet_runSPA_try(ASEXP, kSEXP));
     }
     Rboolean rcpp_isInterrupt_gen = Rf_inherits(rcpp_result_gen, "interrupted-error");
     if (rcpp_isInterrupt_gen) {
@@ -396,23 +437,23 @@ RcppExport SEXP _actionet_aggregate_genesets_vision(SEXP GSEXP, SEXP SSEXP, SEXP
     UNPROTECT(1);
     return rcpp_result_gen;
 }
-// compute_archetype_feature_specificity
-Rcpp::List compute_archetype_feature_specificity(arma::sp_mat& S, arma::mat& H, int thread_no);
-static SEXP _actionet_compute_archetype_feature_specificity_try(SEXP SSEXP, SEXP HSEXP, SEXP thread_noSEXP) {
+// archetypeFeatureSpecificitySparse
+Rcpp::List archetypeFeatureSpecificitySparse(arma::sp_mat& S, arma::mat& H, int thread_no);
+static SEXP _actionet_archetypeFeatureSpecificitySparse_try(SEXP SSEXP, SEXP HSEXP, SEXP thread_noSEXP) {
 BEGIN_RCPP
     Rcpp::RObject rcpp_result_gen;
     Rcpp::traits::input_parameter< arma::sp_mat& >::type S(SSEXP);
     Rcpp::traits::input_parameter< arma::mat& >::type H(HSEXP);
     Rcpp::traits::input_parameter< int >::type thread_no(thread_noSEXP);
-    rcpp_result_gen = Rcpp::wrap(compute_archetype_feature_specificity(S, H, thread_no));
+    rcpp_result_gen = Rcpp::wrap(archetypeFeatureSpecificitySparse(S, H, thread_no));
     return rcpp_result_gen;
 END_RCPP_RETURN_ERROR
 }
-RcppExport SEXP _actionet_compute_archetype_feature_specificity(SEXP SSEXP, SEXP HSEXP, SEXP thread_noSEXP) {
+RcppExport SEXP _actionet_archetypeFeatureSpecificitySparse(SEXP SSEXP, SEXP HSEXP, SEXP thread_noSEXP) {
     SEXP rcpp_result_gen;
     {
         Rcpp::RNGScope rcpp_rngScope_gen;
-        rcpp_result_gen = PROTECT(_actionet_compute_archetype_feature_specificity_try(SSEXP, HSEXP, thread_noSEXP));
+        rcpp_result_gen = PROTECT(_actionet_archetypeFeatureSpecificitySparse_try(SSEXP, HSEXP, thread_noSEXP));
     }
     Rboolean rcpp_isInterrupt_gen = Rf_inherits(rcpp_result_gen, "interrupted-error");
     if (rcpp_isInterrupt_gen) {
@@ -432,23 +473,23 @@ RcppExport SEXP _actionet_compute_archetype_feature_specificity(SEXP SSEXP, SEXP
     UNPROTECT(1);
     return rcpp_result_gen;
 }
-// compute_archetype_feature_specificity_full
-Rcpp::List compute_archetype_feature_specificity_full(arma::mat& S, arma::mat& H, int thread_no);
-static SEXP _actionet_compute_archetype_feature_specificity_full_try(SEXP SSEXP, SEXP HSEXP, SEXP thread_noSEXP) {
+// archetypeFeatureSpecificityDense
+Rcpp::List archetypeFeatureSpecificityDense(arma::mat& S, arma::mat& H, int thread_no);
+static SEXP _actionet_archetypeFeatureSpecificityDense_try(SEXP SSEXP, SEXP HSEXP, SEXP thread_noSEXP) {
 BEGIN_RCPP
     Rcpp::RObject rcpp_result_gen;
     Rcpp::traits::input_parameter< arma::mat& >::type S(SSEXP);
     Rcpp::traits::input_parameter< arma::mat& >::type H(HSEXP);
     Rcpp::traits::input_parameter< int >::type thread_no(thread_noSEXP);
-    rcpp_result_gen = Rcpp::wrap(compute_archetype_feature_specificity_full(S, H, thread_no));
+    rcpp_result_gen = Rcpp::wrap(archetypeFeatureSpecificityDense(S, H, thread_no));
     return rcpp_result_gen;
 END_RCPP_RETURN_ERROR
 }
-RcppExport SEXP _actionet_compute_archetype_feature_specificity_full(SEXP SSEXP, SEXP HSEXP, SEXP thread_noSEXP) {
+RcppExport SEXP _actionet_archetypeFeatureSpecificityDense(SEXP SSEXP, SEXP HSEXP, SEXP thread_noSEXP) {
     SEXP rcpp_result_gen;
     {
         Rcpp::RNGScope rcpp_rngScope_gen;
-        rcpp_result_gen = PROTECT(_actionet_compute_archetype_feature_specificity_full_try(SSEXP, HSEXP, thread_noSEXP));
+        rcpp_result_gen = PROTECT(_actionet_archetypeFeatureSpecificityDense_try(SSEXP, HSEXP, thread_noSEXP));
     }
     Rboolean rcpp_isInterrupt_gen = Rf_inherits(rcpp_result_gen, "interrupted-error");
     if (rcpp_isInterrupt_gen) {
@@ -468,23 +509,23 @@ RcppExport SEXP _actionet_compute_archetype_feature_specificity_full(SEXP SSEXP,
     UNPROTECT(1);
     return rcpp_result_gen;
 }
-// compute_cluster_feature_specificity
-Rcpp::List compute_cluster_feature_specificity(arma::sp_mat& S, arma::uvec sample_assignments, int thread_no);
-static SEXP _actionet_compute_cluster_feature_specificity_try(SEXP SSEXP, SEXP sample_assignmentsSEXP, SEXP thread_noSEXP) {
+// clusterFeatureSpecificitySparse
+Rcpp::List clusterFeatureSpecificitySparse(arma::sp_mat& S, arma::uvec& sample_assignments, int thread_no);
+static SEXP _actionet_clusterFeatureSpecificitySparse_try(SEXP SSEXP, SEXP sample_assignmentsSEXP, SEXP thread_noSEXP) {
 BEGIN_RCPP
     Rcpp::RObject rcpp_result_gen;
     Rcpp::traits::input_parameter< arma::sp_mat& >::type S(SSEXP);
-    Rcpp::traits::input_parameter< arma::uvec >::type sample_assignments(sample_assignmentsSEXP);
+    Rcpp::traits::input_parameter< arma::uvec& >::type sample_assignments(sample_assignmentsSEXP);
     Rcpp::traits::input_parameter< int >::type thread_no(thread_noSEXP);
-    rcpp_result_gen = Rcpp::wrap(compute_cluster_feature_specificity(S, sample_assignments, thread_no));
+    rcpp_result_gen = Rcpp::wrap(clusterFeatureSpecificitySparse(S, sample_assignments, thread_no));
     return rcpp_result_gen;
 END_RCPP_RETURN_ERROR
 }
-RcppExport SEXP _actionet_compute_cluster_feature_specificity(SEXP SSEXP, SEXP sample_assignmentsSEXP, SEXP thread_noSEXP) {
+RcppExport SEXP _actionet_clusterFeatureSpecificitySparse(SEXP SSEXP, SEXP sample_assignmentsSEXP, SEXP thread_noSEXP) {
     SEXP rcpp_result_gen;
     {
         Rcpp::RNGScope rcpp_rngScope_gen;
-        rcpp_result_gen = PROTECT(_actionet_compute_cluster_feature_specificity_try(SSEXP, sample_assignmentsSEXP, thread_noSEXP));
+        rcpp_result_gen = PROTECT(_actionet_clusterFeatureSpecificitySparse_try(SSEXP, sample_assignmentsSEXP, thread_noSEXP));
     }
     Rboolean rcpp_isInterrupt_gen = Rf_inherits(rcpp_result_gen, "interrupted-error");
     if (rcpp_isInterrupt_gen) {
@@ -504,23 +545,23 @@ RcppExport SEXP _actionet_compute_cluster_feature_specificity(SEXP SSEXP, SEXP s
     UNPROTECT(1);
     return rcpp_result_gen;
 }
-// compute_cluster_feature_specificity_full
-Rcpp::List compute_cluster_feature_specificity_full(arma::mat& S, arma::uvec sample_assignments, int thread_no);
-static SEXP _actionet_compute_cluster_feature_specificity_full_try(SEXP SSEXP, SEXP sample_assignmentsSEXP, SEXP thread_noSEXP) {
+// clusterFeatureSpecificityDense
+Rcpp::List clusterFeatureSpecificityDense(arma::mat& S, arma::uvec& sample_assignments, int thread_no);
+static SEXP _actionet_clusterFeatureSpecificityDense_try(SEXP SSEXP, SEXP sample_assignmentsSEXP, SEXP thread_noSEXP) {
 BEGIN_RCPP
     Rcpp::RObject rcpp_result_gen;
     Rcpp::traits::input_parameter< arma::mat& >::type S(SSEXP);
-    Rcpp::traits::input_parameter< arma::uvec >::type sample_assignments(sample_assignmentsSEXP);
+    Rcpp::traits::input_parameter< arma::uvec& >::type sample_assignments(sample_assignmentsSEXP);
     Rcpp::traits::input_parameter< int >::type thread_no(thread_noSEXP);
-    rcpp_result_gen = Rcpp::wrap(compute_cluster_feature_specificity_full(S, sample_assignments, thread_no));
+    rcpp_result_gen = Rcpp::wrap(clusterFeatureSpecificityDense(S, sample_assignments, thread_no));
     return rcpp_result_gen;
 END_RCPP_RETURN_ERROR
 }
-RcppExport SEXP _actionet_compute_cluster_feature_specificity_full(SEXP SSEXP, SEXP sample_assignmentsSEXP, SEXP thread_noSEXP) {
+RcppExport SEXP _actionet_clusterFeatureSpecificityDense(SEXP SSEXP, SEXP sample_assignmentsSEXP, SEXP thread_noSEXP) {
     SEXP rcpp_result_gen;
     {
         Rcpp::RNGScope rcpp_rngScope_gen;
-        rcpp_result_gen = PROTECT(_actionet_compute_cluster_feature_specificity_full_try(SSEXP, sample_assignmentsSEXP, thread_noSEXP));
+        rcpp_result_gen = PROTECT(_actionet_clusterFeatureSpecificityDense_try(SSEXP, sample_assignmentsSEXP, thread_noSEXP));
     }
     Rboolean rcpp_isInterrupt_gen = Rf_inherits(rcpp_result_gen, "interrupted-error");
     if (rcpp_isInterrupt_gen) {
@@ -540,9 +581,9 @@ RcppExport SEXP _actionet_compute_cluster_feature_specificity_full(SEXP SSEXP, S
     UNPROTECT(1);
     return rcpp_result_gen;
 }
-// orthogonalize_batch_effect
-Rcpp::List orthogonalize_batch_effect(arma::sp_mat& S, arma::mat& old_S_r, arma::mat& old_V, arma::mat& old_A, arma::mat& old_B, arma::vec& old_sigma, arma::mat& design);
-static SEXP _actionet_orthogonalize_batch_effect_try(SEXP SSEXP, SEXP old_S_rSEXP, SEXP old_VSEXP, SEXP old_ASEXP, SEXP old_BSEXP, SEXP old_sigmaSEXP, SEXP designSEXP) {
+// orthogonalizeBatchEffect
+Rcpp::List orthogonalizeBatchEffect(arma::sp_mat& S, arma::mat& old_S_r, arma::mat& old_V, arma::mat& old_A, arma::mat& old_B, arma::vec& old_sigma, arma::mat& design);
+static SEXP _actionet_orthogonalizeBatchEffect_try(SEXP SSEXP, SEXP old_S_rSEXP, SEXP old_VSEXP, SEXP old_ASEXP, SEXP old_BSEXP, SEXP old_sigmaSEXP, SEXP designSEXP) {
 BEGIN_RCPP
     Rcpp::RObject rcpp_result_gen;
     Rcpp::traits::input_parameter< arma::sp_mat& >::type S(SSEXP);
@@ -552,15 +593,15 @@ BEGIN_RCPP
     Rcpp::traits::input_parameter< arma::mat& >::type old_B(old_BSEXP);
     Rcpp::traits::input_parameter< arma::vec& >::type old_sigma(old_sigmaSEXP);
     Rcpp::traits::input_parameter< arma::mat& >::type design(designSEXP);
-    rcpp_result_gen = Rcpp::wrap(orthogonalize_batch_effect(S, old_S_r, old_V, old_A, old_B, old_sigma, design));
+    rcpp_result_gen = Rcpp::wrap(orthogonalizeBatchEffect(S, old_S_r, old_V, old_A, old_B, old_sigma, design));
     return rcpp_result_gen;
 END_RCPP_RETURN_ERROR
 }
-RcppExport SEXP _actionet_orthogonalize_batch_effect(SEXP SSEXP, SEXP old_S_rSEXP, SEXP old_VSEXP, SEXP old_ASEXP, SEXP old_BSEXP, SEXP old_sigmaSEXP, SEXP designSEXP) {
+RcppExport SEXP _actionet_orthogonalizeBatchEffect(SEXP SSEXP, SEXP old_S_rSEXP, SEXP old_VSEXP, SEXP old_ASEXP, SEXP old_BSEXP, SEXP old_sigmaSEXP, SEXP designSEXP) {
     SEXP rcpp_result_gen;
     {
         Rcpp::RNGScope rcpp_rngScope_gen;
-        rcpp_result_gen = PROTECT(_actionet_orthogonalize_batch_effect_try(SSEXP, old_S_rSEXP, old_VSEXP, old_ASEXP, old_BSEXP, old_sigmaSEXP, designSEXP));
+        rcpp_result_gen = PROTECT(_actionet_orthogonalizeBatchEffect_try(SSEXP, old_S_rSEXP, old_VSEXP, old_ASEXP, old_BSEXP, old_sigmaSEXP, designSEXP));
     }
     Rboolean rcpp_isInterrupt_gen = Rf_inherits(rcpp_result_gen, "interrupted-error");
     if (rcpp_isInterrupt_gen) {
@@ -580,9 +621,9 @@ RcppExport SEXP _actionet_orthogonalize_batch_effect(SEXP SSEXP, SEXP old_S_rSEX
     UNPROTECT(1);
     return rcpp_result_gen;
 }
-// orthogonalize_batch_effect_full
-Rcpp::List orthogonalize_batch_effect_full(arma::mat& S, arma::mat& old_S_r, arma::mat& old_V, arma::mat& old_A, arma::mat& old_B, arma::vec& old_sigma, arma::mat& design);
-static SEXP _actionet_orthogonalize_batch_effect_full_try(SEXP SSEXP, SEXP old_S_rSEXP, SEXP old_VSEXP, SEXP old_ASEXP, SEXP old_BSEXP, SEXP old_sigmaSEXP, SEXP designSEXP) {
+// orthogonalizeBatchEffect_full
+Rcpp::List orthogonalizeBatchEffect_full(arma::mat& S, arma::mat& old_S_r, arma::mat& old_V, arma::mat& old_A, arma::mat& old_B, arma::vec& old_sigma, arma::mat& design);
+static SEXP _actionet_orthogonalizeBatchEffect_full_try(SEXP SSEXP, SEXP old_S_rSEXP, SEXP old_VSEXP, SEXP old_ASEXP, SEXP old_BSEXP, SEXP old_sigmaSEXP, SEXP designSEXP) {
 BEGIN_RCPP
     Rcpp::RObject rcpp_result_gen;
     Rcpp::traits::input_parameter< arma::mat& >::type S(SSEXP);
@@ -592,15 +633,15 @@ BEGIN_RCPP
     Rcpp::traits::input_parameter< arma::mat& >::type old_B(old_BSEXP);
     Rcpp::traits::input_parameter< arma::vec& >::type old_sigma(old_sigmaSEXP);
     Rcpp::traits::input_parameter< arma::mat& >::type design(designSEXP);
-    rcpp_result_gen = Rcpp::wrap(orthogonalize_batch_effect_full(S, old_S_r, old_V, old_A, old_B, old_sigma, design));
+    rcpp_result_gen = Rcpp::wrap(orthogonalizeBatchEffect_full(S, old_S_r, old_V, old_A, old_B, old_sigma, design));
     return rcpp_result_gen;
 END_RCPP_RETURN_ERROR
 }
-RcppExport SEXP _actionet_orthogonalize_batch_effect_full(SEXP SSEXP, SEXP old_S_rSEXP, SEXP old_VSEXP, SEXP old_ASEXP, SEXP old_BSEXP, SEXP old_sigmaSEXP, SEXP designSEXP) {
+RcppExport SEXP _actionet_orthogonalizeBatchEffect_full(SEXP SSEXP, SEXP old_S_rSEXP, SEXP old_VSEXP, SEXP old_ASEXP, SEXP old_BSEXP, SEXP old_sigmaSEXP, SEXP designSEXP) {
     SEXP rcpp_result_gen;
     {
         Rcpp::RNGScope rcpp_rngScope_gen;
-        rcpp_result_gen = PROTECT(_actionet_orthogonalize_batch_effect_full_try(SSEXP, old_S_rSEXP, old_VSEXP, old_ASEXP, old_BSEXP, old_sigmaSEXP, designSEXP));
+        rcpp_result_gen = PROTECT(_actionet_orthogonalizeBatchEffect_full_try(SSEXP, old_S_rSEXP, old_VSEXP, old_ASEXP, old_BSEXP, old_sigmaSEXP, designSEXP));
     }
     Rboolean rcpp_isInterrupt_gen = Rf_inherits(rcpp_result_gen, "interrupted-error");
     if (rcpp_isInterrupt_gen) {
@@ -620,9 +661,9 @@ RcppExport SEXP _actionet_orthogonalize_batch_effect_full(SEXP SSEXP, SEXP old_S
     UNPROTECT(1);
     return rcpp_result_gen;
 }
-// orthogonalize_basal
-Rcpp::List orthogonalize_basal(arma::sp_mat& S, arma::mat& old_S_r, arma::mat& old_V, arma::mat& old_A, arma::mat& old_B, arma::vec& old_sigma, arma::mat& basal);
-static SEXP _actionet_orthogonalize_basal_try(SEXP SSEXP, SEXP old_S_rSEXP, SEXP old_VSEXP, SEXP old_ASEXP, SEXP old_BSEXP, SEXP old_sigmaSEXP, SEXP basalSEXP) {
+// orthogonalizeBasal
+Rcpp::List orthogonalizeBasal(arma::sp_mat& S, arma::mat& old_S_r, arma::mat& old_V, arma::mat& old_A, arma::mat& old_B, arma::vec& old_sigma, arma::mat& basal);
+static SEXP _actionet_orthogonalizeBasal_try(SEXP SSEXP, SEXP old_S_rSEXP, SEXP old_VSEXP, SEXP old_ASEXP, SEXP old_BSEXP, SEXP old_sigmaSEXP, SEXP basalSEXP) {
 BEGIN_RCPP
     Rcpp::RObject rcpp_result_gen;
     Rcpp::traits::input_parameter< arma::sp_mat& >::type S(SSEXP);
@@ -632,15 +673,15 @@ BEGIN_RCPP
     Rcpp::traits::input_parameter< arma::mat& >::type old_B(old_BSEXP);
     Rcpp::traits::input_parameter< arma::vec& >::type old_sigma(old_sigmaSEXP);
     Rcpp::traits::input_parameter< arma::mat& >::type basal(basalSEXP);
-    rcpp_result_gen = Rcpp::wrap(orthogonalize_basal(S, old_S_r, old_V, old_A, old_B, old_sigma, basal));
+    rcpp_result_gen = Rcpp::wrap(orthogonalizeBasal(S, old_S_r, old_V, old_A, old_B, old_sigma, basal));
     return rcpp_result_gen;
 END_RCPP_RETURN_ERROR
 }
-RcppExport SEXP _actionet_orthogonalize_basal(SEXP SSEXP, SEXP old_S_rSEXP, SEXP old_VSEXP, SEXP old_ASEXP, SEXP old_BSEXP, SEXP old_sigmaSEXP, SEXP basalSEXP) {
+RcppExport SEXP _actionet_orthogonalizeBasal(SEXP SSEXP, SEXP old_S_rSEXP, SEXP old_VSEXP, SEXP old_ASEXP, SEXP old_BSEXP, SEXP old_sigmaSEXP, SEXP basalSEXP) {
     SEXP rcpp_result_gen;
     {
         Rcpp::RNGScope rcpp_rngScope_gen;
-        rcpp_result_gen = PROTECT(_actionet_orthogonalize_basal_try(SSEXP, old_S_rSEXP, old_VSEXP, old_ASEXP, old_BSEXP, old_sigmaSEXP, basalSEXP));
+        rcpp_result_gen = PROTECT(_actionet_orthogonalizeBasal_try(SSEXP, old_S_rSEXP, old_VSEXP, old_ASEXP, old_BSEXP, old_sigmaSEXP, basalSEXP));
     }
     Rboolean rcpp_isInterrupt_gen = Rf_inherits(rcpp_result_gen, "interrupted-error");
     if (rcpp_isInterrupt_gen) {
@@ -660,9 +701,9 @@ RcppExport SEXP _actionet_orthogonalize_basal(SEXP SSEXP, SEXP old_S_rSEXP, SEXP
     UNPROTECT(1);
     return rcpp_result_gen;
 }
-// orthogonalize_basal_full
-Rcpp::List orthogonalize_basal_full(arma::mat& S, arma::mat& old_S_r, arma::mat& old_V, arma::mat& old_A, arma::mat& old_B, arma::vec& old_sigma, arma::mat& basal);
-static SEXP _actionet_orthogonalize_basal_full_try(SEXP SSEXP, SEXP old_S_rSEXP, SEXP old_VSEXP, SEXP old_ASEXP, SEXP old_BSEXP, SEXP old_sigmaSEXP, SEXP basalSEXP) {
+// orthogonalizeBasal_full
+Rcpp::List orthogonalizeBasal_full(arma::mat& S, arma::mat& old_S_r, arma::mat& old_V, arma::mat& old_A, arma::mat& old_B, arma::vec& old_sigma, arma::mat& basal);
+static SEXP _actionet_orthogonalizeBasal_full_try(SEXP SSEXP, SEXP old_S_rSEXP, SEXP old_VSEXP, SEXP old_ASEXP, SEXP old_BSEXP, SEXP old_sigmaSEXP, SEXP basalSEXP) {
 BEGIN_RCPP
     Rcpp::RObject rcpp_result_gen;
     Rcpp::traits::input_parameter< arma::mat& >::type S(SSEXP);
@@ -672,15 +713,15 @@ BEGIN_RCPP
     Rcpp::traits::input_parameter< arma::mat& >::type old_B(old_BSEXP);
     Rcpp::traits::input_parameter< arma::vec& >::type old_sigma(old_sigmaSEXP);
     Rcpp::traits::input_parameter< arma::mat& >::type basal(basalSEXP);
-    rcpp_result_gen = Rcpp::wrap(orthogonalize_basal_full(S, old_S_r, old_V, old_A, old_B, old_sigma, basal));
+    rcpp_result_gen = Rcpp::wrap(orthogonalizeBasal_full(S, old_S_r, old_V, old_A, old_B, old_sigma, basal));
     return rcpp_result_gen;
 END_RCPP_RETURN_ERROR
 }
-RcppExport SEXP _actionet_orthogonalize_basal_full(SEXP SSEXP, SEXP old_S_rSEXP, SEXP old_VSEXP, SEXP old_ASEXP, SEXP old_BSEXP, SEXP old_sigmaSEXP, SEXP basalSEXP) {
+RcppExport SEXP _actionet_orthogonalizeBasal_full(SEXP SSEXP, SEXP old_S_rSEXP, SEXP old_VSEXP, SEXP old_ASEXP, SEXP old_BSEXP, SEXP old_sigmaSEXP, SEXP basalSEXP) {
     SEXP rcpp_result_gen;
     {
         Rcpp::RNGScope rcpp_rngScope_gen;
-        rcpp_result_gen = PROTECT(_actionet_orthogonalize_basal_full_try(SSEXP, old_S_rSEXP, old_VSEXP, old_ASEXP, old_BSEXP, old_sigmaSEXP, basalSEXP));
+        rcpp_result_gen = PROTECT(_actionet_orthogonalizeBasal_full_try(SSEXP, old_S_rSEXP, old_VSEXP, old_ASEXP, old_BSEXP, old_sigmaSEXP, basalSEXP));
     }
     Rboolean rcpp_isInterrupt_gen = Rf_inherits(rcpp_result_gen, "interrupted-error");
     if (rcpp_isInterrupt_gen) {
@@ -700,9 +741,9 @@ RcppExport SEXP _actionet_orthogonalize_basal_full(SEXP SSEXP, SEXP old_S_rSEXP,
     UNPROTECT(1);
     return rcpp_result_gen;
 }
-// runSVD
-Rcpp::List runSVD(arma::sp_mat& A, int k, int max_it, int seed, int algorithm, int verbose);
-static SEXP _actionet_runSVD_try(SEXP ASEXP, SEXP kSEXP, SEXP max_itSEXP, SEXP seedSEXP, SEXP algorithmSEXP, SEXP verboseSEXP) {
+// runSVDSparse
+Rcpp::List runSVDSparse(arma::sp_mat& A, int k, int max_it, int seed, int algorithm, bool verbose);
+static SEXP _actionet_runSVDSparse_try(SEXP ASEXP, SEXP kSEXP, SEXP max_itSEXP, SEXP seedSEXP, SEXP algorithmSEXP, SEXP verboseSEXP) {
 BEGIN_RCPP
     Rcpp::RObject rcpp_result_gen;
     Rcpp::traits::input_parameter< arma::sp_mat& >::type A(ASEXP);
@@ -710,16 +751,16 @@ BEGIN_RCPP
     Rcpp::traits::input_parameter< int >::type max_it(max_itSEXP);
     Rcpp::traits::input_parameter< int >::type seed(seedSEXP);
     Rcpp::traits::input_parameter< int >::type algorithm(algorithmSEXP);
-    Rcpp::traits::input_parameter< int >::type verbose(verboseSEXP);
-    rcpp_result_gen = Rcpp::wrap(runSVD(A, k, max_it, seed, algorithm, verbose));
+    Rcpp::traits::input_parameter< bool >::type verbose(verboseSEXP);
+    rcpp_result_gen = Rcpp::wrap(runSVDSparse(A, k, max_it, seed, algorithm, verbose));
     return rcpp_result_gen;
 END_RCPP_RETURN_ERROR
 }
-RcppExport SEXP _actionet_runSVD(SEXP ASEXP, SEXP kSEXP, SEXP max_itSEXP, SEXP seedSEXP, SEXP algorithmSEXP, SEXP verboseSEXP) {
+RcppExport SEXP _actionet_runSVDSparse(SEXP ASEXP, SEXP kSEXP, SEXP max_itSEXP, SEXP seedSEXP, SEXP algorithmSEXP, SEXP verboseSEXP) {
     SEXP rcpp_result_gen;
     {
         Rcpp::RNGScope rcpp_rngScope_gen;
-        rcpp_result_gen = PROTECT(_actionet_runSVD_try(ASEXP, kSEXP, max_itSEXP, seedSEXP, algorithmSEXP, verboseSEXP));
+        rcpp_result_gen = PROTECT(_actionet_runSVDSparse_try(ASEXP, kSEXP, max_itSEXP, seedSEXP, algorithmSEXP, verboseSEXP));
     }
     Rboolean rcpp_isInterrupt_gen = Rf_inherits(rcpp_result_gen, "interrupted-error");
     if (rcpp_isInterrupt_gen) {
@@ -739,9 +780,9 @@ RcppExport SEXP _actionet_runSVD(SEXP ASEXP, SEXP kSEXP, SEXP max_itSEXP, SEXP s
     UNPROTECT(1);
     return rcpp_result_gen;
 }
-// runSVD_full
-Rcpp::List runSVD_full(arma::mat& A, int k, int max_it, int seed, int algorithm, int verbose);
-static SEXP _actionet_runSVD_full_try(SEXP ASEXP, SEXP kSEXP, SEXP max_itSEXP, SEXP seedSEXP, SEXP algorithmSEXP, SEXP verboseSEXP) {
+// runSVDDense
+Rcpp::List runSVDDense(arma::mat& A, int k, int max_it, int seed, int algorithm, bool verbose);
+static SEXP _actionet_runSVDDense_try(SEXP ASEXP, SEXP kSEXP, SEXP max_itSEXP, SEXP seedSEXP, SEXP algorithmSEXP, SEXP verboseSEXP) {
 BEGIN_RCPP
     Rcpp::RObject rcpp_result_gen;
     Rcpp::traits::input_parameter< arma::mat& >::type A(ASEXP);
@@ -749,16 +790,16 @@ BEGIN_RCPP
     Rcpp::traits::input_parameter< int >::type max_it(max_itSEXP);
     Rcpp::traits::input_parameter< int >::type seed(seedSEXP);
     Rcpp::traits::input_parameter< int >::type algorithm(algorithmSEXP);
-    Rcpp::traits::input_parameter< int >::type verbose(verboseSEXP);
-    rcpp_result_gen = Rcpp::wrap(runSVD_full(A, k, max_it, seed, algorithm, verbose));
+    Rcpp::traits::input_parameter< bool >::type verbose(verboseSEXP);
+    rcpp_result_gen = Rcpp::wrap(runSVDDense(A, k, max_it, seed, algorithm, verbose));
     return rcpp_result_gen;
 END_RCPP_RETURN_ERROR
 }
-RcppExport SEXP _actionet_runSVD_full(SEXP ASEXP, SEXP kSEXP, SEXP max_itSEXP, SEXP seedSEXP, SEXP algorithmSEXP, SEXP verboseSEXP) {
+RcppExport SEXP _actionet_runSVDDense(SEXP ASEXP, SEXP kSEXP, SEXP max_itSEXP, SEXP seedSEXP, SEXP algorithmSEXP, SEXP verboseSEXP) {
     SEXP rcpp_result_gen;
     {
         Rcpp::RNGScope rcpp_rngScope_gen;
-        rcpp_result_gen = PROTECT(_actionet_runSVD_full_try(ASEXP, kSEXP, max_itSEXP, seedSEXP, algorithmSEXP, verboseSEXP));
+        rcpp_result_gen = PROTECT(_actionet_runSVDDense_try(ASEXP, kSEXP, max_itSEXP, seedSEXP, algorithmSEXP, verboseSEXP));
     }
     Rboolean rcpp_isInterrupt_gen = Rf_inherits(rcpp_result_gen, "interrupted-error");
     if (rcpp_isInterrupt_gen) {
@@ -816,62 +857,30 @@ RcppExport SEXP _actionet_perturbedSVD(SEXP uSEXP, SEXP dSEXP, SEXP vSEXP, SEXP 
     UNPROTECT(1);
     return rcpp_result_gen;
 }
-// computeNodeColors
-arma::mat computeNodeColors(arma::mat& coordinates, int thread_no);
-static SEXP _actionet_computeNodeColors_try(SEXP coordinatesSEXP, SEXP thread_noSEXP) {
-BEGIN_RCPP
-    Rcpp::RObject rcpp_result_gen;
-    Rcpp::traits::input_parameter< arma::mat& >::type coordinates(coordinatesSEXP);
-    Rcpp::traits::input_parameter< int >::type thread_no(thread_noSEXP);
-    rcpp_result_gen = Rcpp::wrap(computeNodeColors(coordinates, thread_no));
-    return rcpp_result_gen;
-END_RCPP_RETURN_ERROR
-}
-RcppExport SEXP _actionet_computeNodeColors(SEXP coordinatesSEXP, SEXP thread_noSEXP) {
-    SEXP rcpp_result_gen;
-    {
-        Rcpp::RNGScope rcpp_rngScope_gen;
-        rcpp_result_gen = PROTECT(_actionet_computeNodeColors_try(coordinatesSEXP, thread_noSEXP));
-    }
-    Rboolean rcpp_isInterrupt_gen = Rf_inherits(rcpp_result_gen, "interrupted-error");
-    if (rcpp_isInterrupt_gen) {
-        UNPROTECT(1);
-        Rf_onintr();
-    }
-    bool rcpp_isLongjump_gen = Rcpp::internal::isLongjumpSentinel(rcpp_result_gen);
-    if (rcpp_isLongjump_gen) {
-        Rcpp::internal::resumeJump(rcpp_result_gen);
-    }
-    Rboolean rcpp_isError_gen = Rf_inherits(rcpp_result_gen, "try-error");
-    if (rcpp_isError_gen) {
-        SEXP rcpp_msgSEXP_gen = Rf_asChar(rcpp_result_gen);
-        UNPROTECT(1);
-        Rf_error("%s", CHAR(rcpp_msgSEXP_gen));
-    }
-    UNPROTECT(1);
-    return rcpp_result_gen;
-}
 // buildNetwork
-arma::sp_mat buildNetwork(arma::mat H, std::string algorithm, std::string distance_metric, double density, int thread_no, bool mutual_edges_only, int k);
-static SEXP _actionet_buildNetwork_try(SEXP HSEXP, SEXP algorithmSEXP, SEXP distance_metricSEXP, SEXP densitySEXP, SEXP thread_noSEXP, SEXP mutual_edges_onlySEXP, SEXP kSEXP) {
+arma::sp_mat buildNetwork(const arma::mat& H, std::string algorithm, std::string distance_metric, double density, int thread_no, double M, double ef_construction, double ef, bool mutual_edges_only, int k);
+static SEXP _actionet_buildNetwork_try(SEXP HSEXP, SEXP algorithmSEXP, SEXP distance_metricSEXP, SEXP densitySEXP, SEXP thread_noSEXP, SEXP MSEXP, SEXP ef_constructionSEXP, SEXP efSEXP, SEXP mutual_edges_onlySEXP, SEXP kSEXP) {
 BEGIN_RCPP
     Rcpp::RObject rcpp_result_gen;
-    Rcpp::traits::input_parameter< arma::mat >::type H(HSEXP);
+    Rcpp::traits::input_parameter< const arma::mat& >::type H(HSEXP);
     Rcpp::traits::input_parameter< std::string >::type algorithm(algorithmSEXP);
     Rcpp::traits::input_parameter< std::string >::type distance_metric(distance_metricSEXP);
     Rcpp::traits::input_parameter< double >::type density(densitySEXP);
     Rcpp::traits::input_parameter< int >::type thread_no(thread_noSEXP);
+    Rcpp::traits::input_parameter< double >::type M(MSEXP);
+    Rcpp::traits::input_parameter< double >::type ef_construction(ef_constructionSEXP);
+    Rcpp::traits::input_parameter< double >::type ef(efSEXP);
     Rcpp::traits::input_parameter< bool >::type mutual_edges_only(mutual_edges_onlySEXP);
     Rcpp::traits::input_parameter< int >::type k(kSEXP);
-    rcpp_result_gen = Rcpp::wrap(buildNetwork(H, algorithm, distance_metric, density, thread_no, mutual_edges_only, k));
+    rcpp_result_gen = Rcpp::wrap(buildNetwork(H, algorithm, distance_metric, density, thread_no, M, ef_construction, ef, mutual_edges_only, k));
     return rcpp_result_gen;
 END_RCPP_RETURN_ERROR
 }
-RcppExport SEXP _actionet_buildNetwork(SEXP HSEXP, SEXP algorithmSEXP, SEXP distance_metricSEXP, SEXP densitySEXP, SEXP thread_noSEXP, SEXP mutual_edges_onlySEXP, SEXP kSEXP) {
+RcppExport SEXP _actionet_buildNetwork(SEXP HSEXP, SEXP algorithmSEXP, SEXP distance_metricSEXP, SEXP densitySEXP, SEXP thread_noSEXP, SEXP MSEXP, SEXP ef_constructionSEXP, SEXP efSEXP, SEXP mutual_edges_onlySEXP, SEXP kSEXP) {
     SEXP rcpp_result_gen;
     {
         Rcpp::RNGScope rcpp_rngScope_gen;
-        rcpp_result_gen = PROTECT(_actionet_buildNetwork_try(HSEXP, algorithmSEXP, distance_metricSEXP, densitySEXP, thread_noSEXP, mutual_edges_onlySEXP, kSEXP));
+        rcpp_result_gen = PROTECT(_actionet_buildNetwork_try(HSEXP, algorithmSEXP, distance_metricSEXP, densitySEXP, thread_noSEXP, MSEXP, ef_constructionSEXP, efSEXP, mutual_edges_onlySEXP, kSEXP));
     }
     Rboolean rcpp_isInterrupt_gen = Rf_inherits(rcpp_result_gen, "interrupted-error");
     if (rcpp_isInterrupt_gen) {
@@ -891,27 +900,27 @@ RcppExport SEXP _actionet_buildNetwork(SEXP HSEXP, SEXP algorithmSEXP, SEXP dist
     UNPROTECT(1);
     return rcpp_result_gen;
 }
-// run_LPA
-arma::vec run_LPA(arma::sp_mat& G, arma::vec labels, double lambda, int iters, double sig_threshold, Rcpp::Nullable<Rcpp::IntegerVector> fixed_labels_, int thread_no);
-static SEXP _actionet_run_LPA_try(SEXP GSEXP, SEXP labelsSEXP, SEXP lambdaSEXP, SEXP itersSEXP, SEXP sig_thresholdSEXP, SEXP fixed_labels_SEXP, SEXP thread_noSEXP) {
+// runLPA
+arma::vec runLPA(arma::sp_mat& G, arma::vec& labels, double lambda, int iters, double sig_threshold, Rcpp::Nullable<Rcpp::IntegerVector> fixed_labels_, int thread_no);
+static SEXP _actionet_runLPA_try(SEXP GSEXP, SEXP labelsSEXP, SEXP lambdaSEXP, SEXP itersSEXP, SEXP sig_thresholdSEXP, SEXP fixed_labels_SEXP, SEXP thread_noSEXP) {
 BEGIN_RCPP
     Rcpp::RObject rcpp_result_gen;
     Rcpp::traits::input_parameter< arma::sp_mat& >::type G(GSEXP);
-    Rcpp::traits::input_parameter< arma::vec >::type labels(labelsSEXP);
+    Rcpp::traits::input_parameter< arma::vec& >::type labels(labelsSEXP);
     Rcpp::traits::input_parameter< double >::type lambda(lambdaSEXP);
     Rcpp::traits::input_parameter< int >::type iters(itersSEXP);
     Rcpp::traits::input_parameter< double >::type sig_threshold(sig_thresholdSEXP);
     Rcpp::traits::input_parameter< Rcpp::Nullable<Rcpp::IntegerVector> >::type fixed_labels_(fixed_labels_SEXP);
     Rcpp::traits::input_parameter< int >::type thread_no(thread_noSEXP);
-    rcpp_result_gen = Rcpp::wrap(run_LPA(G, labels, lambda, iters, sig_threshold, fixed_labels_, thread_no));
+    rcpp_result_gen = Rcpp::wrap(runLPA(G, labels, lambda, iters, sig_threshold, fixed_labels_, thread_no));
     return rcpp_result_gen;
 END_RCPP_RETURN_ERROR
 }
-RcppExport SEXP _actionet_run_LPA(SEXP GSEXP, SEXP labelsSEXP, SEXP lambdaSEXP, SEXP itersSEXP, SEXP sig_thresholdSEXP, SEXP fixed_labels_SEXP, SEXP thread_noSEXP) {
+RcppExport SEXP _actionet_runLPA(SEXP GSEXP, SEXP labelsSEXP, SEXP lambdaSEXP, SEXP itersSEXP, SEXP sig_thresholdSEXP, SEXP fixed_labels_SEXP, SEXP thread_noSEXP) {
     SEXP rcpp_result_gen;
     {
         Rcpp::RNGScope rcpp_rngScope_gen;
-        rcpp_result_gen = PROTECT(_actionet_run_LPA_try(GSEXP, labelsSEXP, lambdaSEXP, itersSEXP, sig_thresholdSEXP, fixed_labels_SEXP, thread_noSEXP));
+        rcpp_result_gen = PROTECT(_actionet_runLPA_try(GSEXP, labelsSEXP, lambdaSEXP, itersSEXP, sig_thresholdSEXP, fixed_labels_SEXP, thread_noSEXP));
     }
     Rboolean rcpp_isInterrupt_gen = Rf_inherits(rcpp_result_gen, "interrupted-error");
     if (rcpp_isInterrupt_gen) {
@@ -931,65 +940,28 @@ RcppExport SEXP _actionet_run_LPA(SEXP GSEXP, SEXP labelsSEXP, SEXP lambdaSEXP, 
     UNPROTECT(1);
     return rcpp_result_gen;
 }
-// compute_network_diffusion_fast
-arma::mat compute_network_diffusion_fast(arma::sp_mat& G, arma::sp_mat& X0, double alpha, int max_it, int thread_no);
-static SEXP _actionet_compute_network_diffusion_fast_try(SEXP GSEXP, SEXP X0SEXP, SEXP alphaSEXP, SEXP max_itSEXP, SEXP thread_noSEXP) {
-BEGIN_RCPP
-    Rcpp::RObject rcpp_result_gen;
-    Rcpp::traits::input_parameter< arma::sp_mat& >::type G(GSEXP);
-    Rcpp::traits::input_parameter< arma::sp_mat& >::type X0(X0SEXP);
-    Rcpp::traits::input_parameter< double >::type alpha(alphaSEXP);
-    Rcpp::traits::input_parameter< int >::type max_it(max_itSEXP);
-    Rcpp::traits::input_parameter< int >::type thread_no(thread_noSEXP);
-    rcpp_result_gen = Rcpp::wrap(compute_network_diffusion_fast(G, X0, alpha, max_it, thread_no));
-    return rcpp_result_gen;
-END_RCPP_RETURN_ERROR
-}
-RcppExport SEXP _actionet_compute_network_diffusion_fast(SEXP GSEXP, SEXP X0SEXP, SEXP alphaSEXP, SEXP max_itSEXP, SEXP thread_noSEXP) {
-    SEXP rcpp_result_gen;
-    {
-        Rcpp::RNGScope rcpp_rngScope_gen;
-        rcpp_result_gen = PROTECT(_actionet_compute_network_diffusion_fast_try(GSEXP, X0SEXP, alphaSEXP, max_itSEXP, thread_noSEXP));
-    }
-    Rboolean rcpp_isInterrupt_gen = Rf_inherits(rcpp_result_gen, "interrupted-error");
-    if (rcpp_isInterrupt_gen) {
-        UNPROTECT(1);
-        Rf_onintr();
-    }
-    bool rcpp_isLongjump_gen = Rcpp::internal::isLongjumpSentinel(rcpp_result_gen);
-    if (rcpp_isLongjump_gen) {
-        Rcpp::internal::resumeJump(rcpp_result_gen);
-    }
-    Rboolean rcpp_isError_gen = Rf_inherits(rcpp_result_gen, "try-error");
-    if (rcpp_isError_gen) {
-        SEXP rcpp_msgSEXP_gen = Rf_asChar(rcpp_result_gen);
-        UNPROTECT(1);
-        Rf_error("%s", CHAR(rcpp_msgSEXP_gen));
-    }
-    UNPROTECT(1);
-    return rcpp_result_gen;
-}
-// compute_network_diffusion_approx
-arma::mat compute_network_diffusion_approx(arma::sp_mat& G, arma::mat& X0, int norm_type, double alpha, int max_it, double tol, int thread_no);
-static SEXP _actionet_compute_network_diffusion_approx_try(SEXP GSEXP, SEXP X0SEXP, SEXP norm_typeSEXP, SEXP alphaSEXP, SEXP max_itSEXP, SEXP tolSEXP, SEXP thread_noSEXP) {
+// computeNetworkDiffusion
+arma::mat computeNetworkDiffusion(arma::sp_mat& G, arma::mat& X0, double alpha, int max_it, int thread_no, bool approx, int norm_method, double tol);
+static SEXP _actionet_computeNetworkDiffusion_try(SEXP GSEXP, SEXP X0SEXP, SEXP alphaSEXP, SEXP max_itSEXP, SEXP thread_noSEXP, SEXP approxSEXP, SEXP norm_methodSEXP, SEXP tolSEXP) {
 BEGIN_RCPP
     Rcpp::RObject rcpp_result_gen;
     Rcpp::traits::input_parameter< arma::sp_mat& >::type G(GSEXP);
     Rcpp::traits::input_parameter< arma::mat& >::type X0(X0SEXP);
-    Rcpp::traits::input_parameter< int >::type norm_type(norm_typeSEXP);
     Rcpp::traits::input_parameter< double >::type alpha(alphaSEXP);
     Rcpp::traits::input_parameter< int >::type max_it(max_itSEXP);
-    Rcpp::traits::input_parameter< double >::type tol(tolSEXP);
     Rcpp::traits::input_parameter< int >::type thread_no(thread_noSEXP);
-    rcpp_result_gen = Rcpp::wrap(compute_network_diffusion_approx(G, X0, norm_type, alpha, max_it, tol, thread_no));
+    Rcpp::traits::input_parameter< bool >::type approx(approxSEXP);
+    Rcpp::traits::input_parameter< int >::type norm_method(norm_methodSEXP);
+    Rcpp::traits::input_parameter< double >::type tol(tolSEXP);
+    rcpp_result_gen = Rcpp::wrap(computeNetworkDiffusion(G, X0, alpha, max_it, thread_no, approx, norm_method, tol));
     return rcpp_result_gen;
 END_RCPP_RETURN_ERROR
 }
-RcppExport SEXP _actionet_compute_network_diffusion_approx(SEXP GSEXP, SEXP X0SEXP, SEXP norm_typeSEXP, SEXP alphaSEXP, SEXP max_itSEXP, SEXP tolSEXP, SEXP thread_noSEXP) {
+RcppExport SEXP _actionet_computeNetworkDiffusion(SEXP GSEXP, SEXP X0SEXP, SEXP alphaSEXP, SEXP max_itSEXP, SEXP thread_noSEXP, SEXP approxSEXP, SEXP norm_methodSEXP, SEXP tolSEXP) {
     SEXP rcpp_result_gen;
     {
         Rcpp::RNGScope rcpp_rngScope_gen;
-        rcpp_result_gen = PROTECT(_actionet_compute_network_diffusion_approx_try(GSEXP, X0SEXP, norm_typeSEXP, alphaSEXP, max_itSEXP, tolSEXP, thread_noSEXP));
+        rcpp_result_gen = PROTECT(_actionet_computeNetworkDiffusion_try(GSEXP, X0SEXP, alphaSEXP, max_itSEXP, thread_noSEXP, approxSEXP, norm_methodSEXP, tolSEXP));
     }
     Rboolean rcpp_isInterrupt_gen = Rf_inherits(rcpp_result_gen, "interrupted-error");
     if (rcpp_isInterrupt_gen) {
@@ -1009,21 +981,21 @@ RcppExport SEXP _actionet_compute_network_diffusion_approx(SEXP GSEXP, SEXP X0SE
     UNPROTECT(1);
     return rcpp_result_gen;
 }
-// compute_core_number
-arma::uvec compute_core_number(arma::sp_mat& G);
-static SEXP _actionet_compute_core_number_try(SEXP GSEXP) {
+// computeCoreness
+arma::uvec computeCoreness(arma::sp_mat& G);
+static SEXP _actionet_computeCoreness_try(SEXP GSEXP) {
 BEGIN_RCPP
     Rcpp::RObject rcpp_result_gen;
     Rcpp::traits::input_parameter< arma::sp_mat& >::type G(GSEXP);
-    rcpp_result_gen = Rcpp::wrap(compute_core_number(G));
+    rcpp_result_gen = Rcpp::wrap(computeCoreness(G));
     return rcpp_result_gen;
 END_RCPP_RETURN_ERROR
 }
-RcppExport SEXP _actionet_compute_core_number(SEXP GSEXP) {
+RcppExport SEXP _actionet_computeCoreness(SEXP GSEXP) {
     SEXP rcpp_result_gen;
     {
         Rcpp::RNGScope rcpp_rngScope_gen;
-        rcpp_result_gen = PROTECT(_actionet_compute_core_number_try(GSEXP));
+        rcpp_result_gen = PROTECT(_actionet_computeCoreness_try(GSEXP));
     }
     Rboolean rcpp_isInterrupt_gen = Rf_inherits(rcpp_result_gen, "interrupted-error");
     if (rcpp_isInterrupt_gen) {
@@ -1043,22 +1015,22 @@ RcppExport SEXP _actionet_compute_core_number(SEXP GSEXP) {
     UNPROTECT(1);
     return rcpp_result_gen;
 }
-// compute_archetype_core_centrality
-arma::vec compute_archetype_core_centrality(arma::sp_mat& G, arma::uvec sample_assignments);
-static SEXP _actionet_compute_archetype_core_centrality_try(SEXP GSEXP, SEXP sample_assignmentsSEXP) {
+// computeArchetypeCentrality
+arma::vec computeArchetypeCentrality(arma::sp_mat& G, const arma::uvec& sample_assignments);
+static SEXP _actionet_computeArchetypeCentrality_try(SEXP GSEXP, SEXP sample_assignmentsSEXP) {
 BEGIN_RCPP
     Rcpp::RObject rcpp_result_gen;
     Rcpp::traits::input_parameter< arma::sp_mat& >::type G(GSEXP);
-    Rcpp::traits::input_parameter< arma::uvec >::type sample_assignments(sample_assignmentsSEXP);
-    rcpp_result_gen = Rcpp::wrap(compute_archetype_core_centrality(G, sample_assignments));
+    Rcpp::traits::input_parameter< const arma::uvec& >::type sample_assignments(sample_assignmentsSEXP);
+    rcpp_result_gen = Rcpp::wrap(computeArchetypeCentrality(G, sample_assignments));
     return rcpp_result_gen;
 END_RCPP_RETURN_ERROR
 }
-RcppExport SEXP _actionet_compute_archetype_core_centrality(SEXP GSEXP, SEXP sample_assignmentsSEXP) {
+RcppExport SEXP _actionet_computeArchetypeCentrality(SEXP GSEXP, SEXP sample_assignmentsSEXP) {
     SEXP rcpp_result_gen;
     {
         Rcpp::RNGScope rcpp_rngScope_gen;
-        rcpp_result_gen = PROTECT(_actionet_compute_archetype_core_centrality_try(GSEXP, sample_assignmentsSEXP));
+        rcpp_result_gen = PROTECT(_actionet_computeArchetypeCentrality_try(GSEXP, sample_assignmentsSEXP));
     }
     Rboolean rcpp_isInterrupt_gen = Rf_inherits(rcpp_result_gen, "interrupted-error");
     if (rcpp_isInterrupt_gen) {
@@ -1079,12 +1051,12 @@ RcppExport SEXP _actionet_compute_archetype_core_centrality(SEXP GSEXP, SEXP sam
     return rcpp_result_gen;
 }
 // autocorrelation_Moran_parametric
-Rcpp::List autocorrelation_Moran_parametric(arma::sp_mat G, arma::mat scores, int normalization_method, int thread_no);
+Rcpp::List autocorrelation_Moran_parametric(const arma::sp_mat& G, const arma::mat& scores, int normalization_method, int thread_no);
 static SEXP _actionet_autocorrelation_Moran_parametric_try(SEXP GSEXP, SEXP scoresSEXP, SEXP normalization_methodSEXP, SEXP thread_noSEXP) {
 BEGIN_RCPP
     Rcpp::RObject rcpp_result_gen;
-    Rcpp::traits::input_parameter< arma::sp_mat >::type G(GSEXP);
-    Rcpp::traits::input_parameter< arma::mat >::type scores(scoresSEXP);
+    Rcpp::traits::input_parameter< const arma::sp_mat& >::type G(GSEXP);
+    Rcpp::traits::input_parameter< const arma::mat& >::type scores(scoresSEXP);
     Rcpp::traits::input_parameter< int >::type normalization_method(normalization_methodSEXP);
     Rcpp::traits::input_parameter< int >::type thread_no(thread_noSEXP);
     rcpp_result_gen = Rcpp::wrap(autocorrelation_Moran_parametric(G, scores, normalization_method, thread_no));
@@ -1116,12 +1088,12 @@ RcppExport SEXP _actionet_autocorrelation_Moran_parametric(SEXP GSEXP, SEXP scor
     return rcpp_result_gen;
 }
 // autocorrelation_Moran
-Rcpp::List autocorrelation_Moran(arma::sp_mat G, arma::mat scores, int normalization_method, int perm_no, int thread_no);
+Rcpp::List autocorrelation_Moran(const arma::sp_mat& G, const arma::mat& scores, int normalization_method, int perm_no, int thread_no);
 static SEXP _actionet_autocorrelation_Moran_try(SEXP GSEXP, SEXP scoresSEXP, SEXP normalization_methodSEXP, SEXP perm_noSEXP, SEXP thread_noSEXP) {
 BEGIN_RCPP
     Rcpp::RObject rcpp_result_gen;
-    Rcpp::traits::input_parameter< arma::sp_mat >::type G(GSEXP);
-    Rcpp::traits::input_parameter< arma::mat >::type scores(scoresSEXP);
+    Rcpp::traits::input_parameter< const arma::sp_mat& >::type G(GSEXP);
+    Rcpp::traits::input_parameter< const arma::mat& >::type scores(scoresSEXP);
     Rcpp::traits::input_parameter< int >::type normalization_method(normalization_methodSEXP);
     Rcpp::traits::input_parameter< int >::type perm_no(perm_noSEXP);
     Rcpp::traits::input_parameter< int >::type thread_no(thread_noSEXP);
@@ -1154,12 +1126,12 @@ RcppExport SEXP _actionet_autocorrelation_Moran(SEXP GSEXP, SEXP scoresSEXP, SEX
     return rcpp_result_gen;
 }
 // autocorrelation_Geary
-Rcpp::List autocorrelation_Geary(arma::sp_mat G, arma::mat scores, int normalization_method, int perm_no, int thread_no);
+Rcpp::List autocorrelation_Geary(const arma::sp_mat& G, const arma::mat& scores, int normalization_method, int perm_no, int thread_no);
 static SEXP _actionet_autocorrelation_Geary_try(SEXP GSEXP, SEXP scoresSEXP, SEXP normalization_methodSEXP, SEXP perm_noSEXP, SEXP thread_noSEXP) {
 BEGIN_RCPP
     Rcpp::RObject rcpp_result_gen;
-    Rcpp::traits::input_parameter< arma::sp_mat >::type G(GSEXP);
-    Rcpp::traits::input_parameter< arma::mat >::type scores(scoresSEXP);
+    Rcpp::traits::input_parameter< const arma::sp_mat& >::type G(GSEXP);
+    Rcpp::traits::input_parameter< const arma::mat& >::type scores(scoresSEXP);
     Rcpp::traits::input_parameter< int >::type normalization_method(normalization_methodSEXP);
     Rcpp::traits::input_parameter< int >::type perm_no(perm_noSEXP);
     Rcpp::traits::input_parameter< int >::type thread_no(thread_noSEXP);
@@ -1192,11 +1164,11 @@ RcppExport SEXP _actionet_autocorrelation_Geary(SEXP GSEXP, SEXP scoresSEXP, SEX
     return rcpp_result_gen;
 }
 // assess_label_enrichment
-arma::mat assess_label_enrichment(arma::sp_mat& G, arma::mat& M, int thread_no);
+arma::mat assess_label_enrichment(const arma::sp_mat& G, arma::mat& M, int thread_no);
 static SEXP _actionet_assess_label_enrichment_try(SEXP GSEXP, SEXP MSEXP, SEXP thread_noSEXP) {
 BEGIN_RCPP
     Rcpp::RObject rcpp_result_gen;
-    Rcpp::traits::input_parameter< arma::sp_mat& >::type G(GSEXP);
+    Rcpp::traits::input_parameter< const arma::sp_mat& >::type G(GSEXP);
     Rcpp::traits::input_parameter< arma::mat& >::type M(MSEXP);
     Rcpp::traits::input_parameter< int >::type thread_no(thread_noSEXP);
     rcpp_result_gen = Rcpp::wrap(assess_label_enrichment(G, M, thread_no));
@@ -1263,22 +1235,22 @@ RcppExport SEXP _actionet_assess_enrichment(SEXP scoresSEXP, SEXP associationsSE
     UNPROTECT(1);
     return rcpp_result_gen;
 }
-// compute_grouped_rowsums
-arma::mat compute_grouped_rowsums(arma::sp_mat& S, arma::vec sample_assignments);
-static SEXP _actionet_compute_grouped_rowsums_try(SEXP SSEXP, SEXP sample_assignmentsSEXP) {
+// computeGroupedRowSumsSparse
+arma::mat computeGroupedRowSumsSparse(arma::sp_mat& S, arma::vec& sample_assignments);
+static SEXP _actionet_computeGroupedRowSumsSparse_try(SEXP SSEXP, SEXP sample_assignmentsSEXP) {
 BEGIN_RCPP
     Rcpp::RObject rcpp_result_gen;
     Rcpp::traits::input_parameter< arma::sp_mat& >::type S(SSEXP);
-    Rcpp::traits::input_parameter< arma::vec >::type sample_assignments(sample_assignmentsSEXP);
-    rcpp_result_gen = Rcpp::wrap(compute_grouped_rowsums(S, sample_assignments));
+    Rcpp::traits::input_parameter< arma::vec& >::type sample_assignments(sample_assignmentsSEXP);
+    rcpp_result_gen = Rcpp::wrap(computeGroupedRowSumsSparse(S, sample_assignments));
     return rcpp_result_gen;
 END_RCPP_RETURN_ERROR
 }
-RcppExport SEXP _actionet_compute_grouped_rowsums(SEXP SSEXP, SEXP sample_assignmentsSEXP) {
+RcppExport SEXP _actionet_computeGroupedRowSumsSparse(SEXP SSEXP, SEXP sample_assignmentsSEXP) {
     SEXP rcpp_result_gen;
     {
         Rcpp::RNGScope rcpp_rngScope_gen;
-        rcpp_result_gen = PROTECT(_actionet_compute_grouped_rowsums_try(SSEXP, sample_assignmentsSEXP));
+        rcpp_result_gen = PROTECT(_actionet_computeGroupedRowSumsSparse_try(SSEXP, sample_assignmentsSEXP));
     }
     Rboolean rcpp_isInterrupt_gen = Rf_inherits(rcpp_result_gen, "interrupted-error");
     if (rcpp_isInterrupt_gen) {
@@ -1298,22 +1270,22 @@ RcppExport SEXP _actionet_compute_grouped_rowsums(SEXP SSEXP, SEXP sample_assign
     UNPROTECT(1);
     return rcpp_result_gen;
 }
-// compute_grouped_rowsums_full
-arma::mat compute_grouped_rowsums_full(arma::mat& S, arma::vec sample_assignments);
-static SEXP _actionet_compute_grouped_rowsums_full_try(SEXP SSEXP, SEXP sample_assignmentsSEXP) {
+// computeGroupedRowSumsDense
+arma::mat computeGroupedRowSumsDense(arma::mat& S, arma::vec& sample_assignments);
+static SEXP _actionet_computeGroupedRowSumsDense_try(SEXP SSEXP, SEXP sample_assignmentsSEXP) {
 BEGIN_RCPP
     Rcpp::RObject rcpp_result_gen;
     Rcpp::traits::input_parameter< arma::mat& >::type S(SSEXP);
-    Rcpp::traits::input_parameter< arma::vec >::type sample_assignments(sample_assignmentsSEXP);
-    rcpp_result_gen = Rcpp::wrap(compute_grouped_rowsums_full(S, sample_assignments));
+    Rcpp::traits::input_parameter< arma::vec& >::type sample_assignments(sample_assignmentsSEXP);
+    rcpp_result_gen = Rcpp::wrap(computeGroupedRowSumsDense(S, sample_assignments));
     return rcpp_result_gen;
 END_RCPP_RETURN_ERROR
 }
-RcppExport SEXP _actionet_compute_grouped_rowsums_full(SEXP SSEXP, SEXP sample_assignmentsSEXP) {
+RcppExport SEXP _actionet_computeGroupedRowSumsDense(SEXP SSEXP, SEXP sample_assignmentsSEXP) {
     SEXP rcpp_result_gen;
     {
         Rcpp::RNGScope rcpp_rngScope_gen;
-        rcpp_result_gen = PROTECT(_actionet_compute_grouped_rowsums_full_try(SSEXP, sample_assignmentsSEXP));
+        rcpp_result_gen = PROTECT(_actionet_computeGroupedRowSumsDense_try(SSEXP, sample_assignmentsSEXP));
     }
     Rboolean rcpp_isInterrupt_gen = Rf_inherits(rcpp_result_gen, "interrupted-error");
     if (rcpp_isInterrupt_gen) {
@@ -1333,22 +1305,22 @@ RcppExport SEXP _actionet_compute_grouped_rowsums_full(SEXP SSEXP, SEXP sample_a
     UNPROTECT(1);
     return rcpp_result_gen;
 }
-// compute_grouped_rowmeans
-arma::mat compute_grouped_rowmeans(arma::sp_mat& S, arma::vec sample_assignments);
-static SEXP _actionet_compute_grouped_rowmeans_try(SEXP SSEXP, SEXP sample_assignmentsSEXP) {
+// computeGroupedRowMeansSparse
+arma::mat computeGroupedRowMeansSparse(arma::sp_mat& S, arma::vec& sample_assignments);
+static SEXP _actionet_computeGroupedRowMeansSparse_try(SEXP SSEXP, SEXP sample_assignmentsSEXP) {
 BEGIN_RCPP
     Rcpp::RObject rcpp_result_gen;
     Rcpp::traits::input_parameter< arma::sp_mat& >::type S(SSEXP);
-    Rcpp::traits::input_parameter< arma::vec >::type sample_assignments(sample_assignmentsSEXP);
-    rcpp_result_gen = Rcpp::wrap(compute_grouped_rowmeans(S, sample_assignments));
+    Rcpp::traits::input_parameter< arma::vec& >::type sample_assignments(sample_assignmentsSEXP);
+    rcpp_result_gen = Rcpp::wrap(computeGroupedRowMeansSparse(S, sample_assignments));
     return rcpp_result_gen;
 END_RCPP_RETURN_ERROR
 }
-RcppExport SEXP _actionet_compute_grouped_rowmeans(SEXP SSEXP, SEXP sample_assignmentsSEXP) {
+RcppExport SEXP _actionet_computeGroupedRowMeansSparse(SEXP SSEXP, SEXP sample_assignmentsSEXP) {
     SEXP rcpp_result_gen;
     {
         Rcpp::RNGScope rcpp_rngScope_gen;
-        rcpp_result_gen = PROTECT(_actionet_compute_grouped_rowmeans_try(SSEXP, sample_assignmentsSEXP));
+        rcpp_result_gen = PROTECT(_actionet_computeGroupedRowMeansSparse_try(SSEXP, sample_assignmentsSEXP));
     }
     Rboolean rcpp_isInterrupt_gen = Rf_inherits(rcpp_result_gen, "interrupted-error");
     if (rcpp_isInterrupt_gen) {
@@ -1368,22 +1340,22 @@ RcppExport SEXP _actionet_compute_grouped_rowmeans(SEXP SSEXP, SEXP sample_assig
     UNPROTECT(1);
     return rcpp_result_gen;
 }
-// compute_grouped_rowmeans_full
-arma::mat compute_grouped_rowmeans_full(arma::mat& S, arma::vec sample_assignments);
-static SEXP _actionet_compute_grouped_rowmeans_full_try(SEXP SSEXP, SEXP sample_assignmentsSEXP) {
+// computeGroupedRowMeansDense
+arma::mat computeGroupedRowMeansDense(arma::mat& S, arma::vec& sample_assignments);
+static SEXP _actionet_computeGroupedRowMeansDense_try(SEXP SSEXP, SEXP sample_assignmentsSEXP) {
 BEGIN_RCPP
     Rcpp::RObject rcpp_result_gen;
     Rcpp::traits::input_parameter< arma::mat& >::type S(SSEXP);
-    Rcpp::traits::input_parameter< arma::vec >::type sample_assignments(sample_assignmentsSEXP);
-    rcpp_result_gen = Rcpp::wrap(compute_grouped_rowmeans_full(S, sample_assignments));
+    Rcpp::traits::input_parameter< arma::vec& >::type sample_assignments(sample_assignmentsSEXP);
+    rcpp_result_gen = Rcpp::wrap(computeGroupedRowMeansDense(S, sample_assignments));
     return rcpp_result_gen;
 END_RCPP_RETURN_ERROR
 }
-RcppExport SEXP _actionet_compute_grouped_rowmeans_full(SEXP SSEXP, SEXP sample_assignmentsSEXP) {
+RcppExport SEXP _actionet_computeGroupedRowMeansDense(SEXP SSEXP, SEXP sample_assignmentsSEXP) {
     SEXP rcpp_result_gen;
     {
         Rcpp::RNGScope rcpp_rngScope_gen;
-        rcpp_result_gen = PROTECT(_actionet_compute_grouped_rowmeans_full_try(SSEXP, sample_assignmentsSEXP));
+        rcpp_result_gen = PROTECT(_actionet_computeGroupedRowMeansDense_try(SSEXP, sample_assignmentsSEXP));
     }
     Rboolean rcpp_isInterrupt_gen = Rf_inherits(rcpp_result_gen, "interrupted-error");
     if (rcpp_isInterrupt_gen) {
@@ -1403,22 +1375,22 @@ RcppExport SEXP _actionet_compute_grouped_rowmeans_full(SEXP SSEXP, SEXP sample_
     UNPROTECT(1);
     return rcpp_result_gen;
 }
-// compute_grouped_rowvars
-arma::mat compute_grouped_rowvars(arma::sp_mat& S, arma::vec sample_assignments);
-static SEXP _actionet_compute_grouped_rowvars_try(SEXP SSEXP, SEXP sample_assignmentsSEXP) {
+// computeGroupedRowVarsSparse
+arma::mat computeGroupedRowVarsSparse(arma::sp_mat& S, arma::vec& sample_assignments);
+static SEXP _actionet_computeGroupedRowVarsSparse_try(SEXP SSEXP, SEXP sample_assignmentsSEXP) {
 BEGIN_RCPP
     Rcpp::RObject rcpp_result_gen;
     Rcpp::traits::input_parameter< arma::sp_mat& >::type S(SSEXP);
-    Rcpp::traits::input_parameter< arma::vec >::type sample_assignments(sample_assignmentsSEXP);
-    rcpp_result_gen = Rcpp::wrap(compute_grouped_rowvars(S, sample_assignments));
+    Rcpp::traits::input_parameter< arma::vec& >::type sample_assignments(sample_assignmentsSEXP);
+    rcpp_result_gen = Rcpp::wrap(computeGroupedRowVarsSparse(S, sample_assignments));
     return rcpp_result_gen;
 END_RCPP_RETURN_ERROR
 }
-RcppExport SEXP _actionet_compute_grouped_rowvars(SEXP SSEXP, SEXP sample_assignmentsSEXP) {
+RcppExport SEXP _actionet_computeGroupedRowVarsSparse(SEXP SSEXP, SEXP sample_assignmentsSEXP) {
     SEXP rcpp_result_gen;
     {
         Rcpp::RNGScope rcpp_rngScope_gen;
-        rcpp_result_gen = PROTECT(_actionet_compute_grouped_rowvars_try(SSEXP, sample_assignmentsSEXP));
+        rcpp_result_gen = PROTECT(_actionet_computeGroupedRowVarsSparse_try(SSEXP, sample_assignmentsSEXP));
     }
     Rboolean rcpp_isInterrupt_gen = Rf_inherits(rcpp_result_gen, "interrupted-error");
     if (rcpp_isInterrupt_gen) {
@@ -1438,22 +1410,201 @@ RcppExport SEXP _actionet_compute_grouped_rowvars(SEXP SSEXP, SEXP sample_assign
     UNPROTECT(1);
     return rcpp_result_gen;
 }
-// compute_grouped_rowvars_full
-arma::mat compute_grouped_rowvars_full(arma::mat& S, arma::vec sample_assignments);
-static SEXP _actionet_compute_grouped_rowvars_full_try(SEXP SSEXP, SEXP sample_assignmentsSEXP) {
+// computeGroupedRowVarsDense
+arma::mat computeGroupedRowVarsDense(arma::mat& S, arma::vec& sample_assignments);
+static SEXP _actionet_computeGroupedRowVarsDense_try(SEXP SSEXP, SEXP sample_assignmentsSEXP) {
 BEGIN_RCPP
     Rcpp::RObject rcpp_result_gen;
     Rcpp::traits::input_parameter< arma::mat& >::type S(SSEXP);
-    Rcpp::traits::input_parameter< arma::vec >::type sample_assignments(sample_assignmentsSEXP);
-    rcpp_result_gen = Rcpp::wrap(compute_grouped_rowvars_full(S, sample_assignments));
+    Rcpp::traits::input_parameter< arma::vec& >::type sample_assignments(sample_assignmentsSEXP);
+    rcpp_result_gen = Rcpp::wrap(computeGroupedRowVarsDense(S, sample_assignments));
     return rcpp_result_gen;
 END_RCPP_RETURN_ERROR
 }
-RcppExport SEXP _actionet_compute_grouped_rowvars_full(SEXP SSEXP, SEXP sample_assignmentsSEXP) {
+RcppExport SEXP _actionet_computeGroupedRowVarsDense(SEXP SSEXP, SEXP sample_assignmentsSEXP) {
     SEXP rcpp_result_gen;
     {
         Rcpp::RNGScope rcpp_rngScope_gen;
-        rcpp_result_gen = PROTECT(_actionet_compute_grouped_rowvars_full_try(SSEXP, sample_assignmentsSEXP));
+        rcpp_result_gen = PROTECT(_actionet_computeGroupedRowVarsDense_try(SSEXP, sample_assignmentsSEXP));
+    }
+    Rboolean rcpp_isInterrupt_gen = Rf_inherits(rcpp_result_gen, "interrupted-error");
+    if (rcpp_isInterrupt_gen) {
+        UNPROTECT(1);
+        Rf_onintr();
+    }
+    bool rcpp_isLongjump_gen = Rcpp::internal::isLongjumpSentinel(rcpp_result_gen);
+    if (rcpp_isLongjump_gen) {
+        Rcpp::internal::resumeJump(rcpp_result_gen);
+    }
+    Rboolean rcpp_isError_gen = Rf_inherits(rcpp_result_gen, "try-error");
+    if (rcpp_isError_gen) {
+        SEXP rcpp_msgSEXP_gen = Rf_asChar(rcpp_result_gen);
+        UNPROTECT(1);
+        Rf_error("%s", CHAR(rcpp_msgSEXP_gen));
+    }
+    UNPROTECT(1);
+    return rcpp_result_gen;
+}
+// normalizeMatrixSparse
+arma::sp_mat normalizeMatrixSparse(arma::sp_mat& X, unsigned int p, unsigned int dim);
+static SEXP _actionet_normalizeMatrixSparse_try(SEXP XSEXP, SEXP pSEXP, SEXP dimSEXP) {
+BEGIN_RCPP
+    Rcpp::RObject rcpp_result_gen;
+    Rcpp::traits::input_parameter< arma::sp_mat& >::type X(XSEXP);
+    Rcpp::traits::input_parameter< unsigned int >::type p(pSEXP);
+    Rcpp::traits::input_parameter< unsigned int >::type dim(dimSEXP);
+    rcpp_result_gen = Rcpp::wrap(normalizeMatrixSparse(X, p, dim));
+    return rcpp_result_gen;
+END_RCPP_RETURN_ERROR
+}
+RcppExport SEXP _actionet_normalizeMatrixSparse(SEXP XSEXP, SEXP pSEXP, SEXP dimSEXP) {
+    SEXP rcpp_result_gen;
+    {
+        Rcpp::RNGScope rcpp_rngScope_gen;
+        rcpp_result_gen = PROTECT(_actionet_normalizeMatrixSparse_try(XSEXP, pSEXP, dimSEXP));
+    }
+    Rboolean rcpp_isInterrupt_gen = Rf_inherits(rcpp_result_gen, "interrupted-error");
+    if (rcpp_isInterrupt_gen) {
+        UNPROTECT(1);
+        Rf_onintr();
+    }
+    bool rcpp_isLongjump_gen = Rcpp::internal::isLongjumpSentinel(rcpp_result_gen);
+    if (rcpp_isLongjump_gen) {
+        Rcpp::internal::resumeJump(rcpp_result_gen);
+    }
+    Rboolean rcpp_isError_gen = Rf_inherits(rcpp_result_gen, "try-error");
+    if (rcpp_isError_gen) {
+        SEXP rcpp_msgSEXP_gen = Rf_asChar(rcpp_result_gen);
+        UNPROTECT(1);
+        Rf_error("%s", CHAR(rcpp_msgSEXP_gen));
+    }
+    UNPROTECT(1);
+    return rcpp_result_gen;
+}
+// normalizeMatrixDense
+arma::mat normalizeMatrixDense(arma::mat& X, unsigned int p, unsigned int dim);
+static SEXP _actionet_normalizeMatrixDense_try(SEXP XSEXP, SEXP pSEXP, SEXP dimSEXP) {
+BEGIN_RCPP
+    Rcpp::RObject rcpp_result_gen;
+    Rcpp::traits::input_parameter< arma::mat& >::type X(XSEXP);
+    Rcpp::traits::input_parameter< unsigned int >::type p(pSEXP);
+    Rcpp::traits::input_parameter< unsigned int >::type dim(dimSEXP);
+    rcpp_result_gen = Rcpp::wrap(normalizeMatrixDense(X, p, dim));
+    return rcpp_result_gen;
+END_RCPP_RETURN_ERROR
+}
+RcppExport SEXP _actionet_normalizeMatrixDense(SEXP XSEXP, SEXP pSEXP, SEXP dimSEXP) {
+    SEXP rcpp_result_gen;
+    {
+        Rcpp::RNGScope rcpp_rngScope_gen;
+        rcpp_result_gen = PROTECT(_actionet_normalizeMatrixDense_try(XSEXP, pSEXP, dimSEXP));
+    }
+    Rboolean rcpp_isInterrupt_gen = Rf_inherits(rcpp_result_gen, "interrupted-error");
+    if (rcpp_isInterrupt_gen) {
+        UNPROTECT(1);
+        Rf_onintr();
+    }
+    bool rcpp_isLongjump_gen = Rcpp::internal::isLongjumpSentinel(rcpp_result_gen);
+    if (rcpp_isLongjump_gen) {
+        Rcpp::internal::resumeJump(rcpp_result_gen);
+    }
+    Rboolean rcpp_isError_gen = Rf_inherits(rcpp_result_gen, "try-error");
+    if (rcpp_isError_gen) {
+        SEXP rcpp_msgSEXP_gen = Rf_asChar(rcpp_result_gen);
+        UNPROTECT(1);
+        Rf_error("%s", CHAR(rcpp_msgSEXP_gen));
+    }
+    UNPROTECT(1);
+    return rcpp_result_gen;
+}
+// scaleMatrixDense
+arma::mat scaleMatrixDense(arma::mat& X, arma::vec& v, unsigned int dim);
+static SEXP _actionet_scaleMatrixDense_try(SEXP XSEXP, SEXP vSEXP, SEXP dimSEXP) {
+BEGIN_RCPP
+    Rcpp::RObject rcpp_result_gen;
+    Rcpp::traits::input_parameter< arma::mat& >::type X(XSEXP);
+    Rcpp::traits::input_parameter< arma::vec& >::type v(vSEXP);
+    Rcpp::traits::input_parameter< unsigned int >::type dim(dimSEXP);
+    rcpp_result_gen = Rcpp::wrap(scaleMatrixDense(X, v, dim));
+    return rcpp_result_gen;
+END_RCPP_RETURN_ERROR
+}
+RcppExport SEXP _actionet_scaleMatrixDense(SEXP XSEXP, SEXP vSEXP, SEXP dimSEXP) {
+    SEXP rcpp_result_gen;
+    {
+        Rcpp::RNGScope rcpp_rngScope_gen;
+        rcpp_result_gen = PROTECT(_actionet_scaleMatrixDense_try(XSEXP, vSEXP, dimSEXP));
+    }
+    Rboolean rcpp_isInterrupt_gen = Rf_inherits(rcpp_result_gen, "interrupted-error");
+    if (rcpp_isInterrupt_gen) {
+        UNPROTECT(1);
+        Rf_onintr();
+    }
+    bool rcpp_isLongjump_gen = Rcpp::internal::isLongjumpSentinel(rcpp_result_gen);
+    if (rcpp_isLongjump_gen) {
+        Rcpp::internal::resumeJump(rcpp_result_gen);
+    }
+    Rboolean rcpp_isError_gen = Rf_inherits(rcpp_result_gen, "try-error");
+    if (rcpp_isError_gen) {
+        SEXP rcpp_msgSEXP_gen = Rf_asChar(rcpp_result_gen);
+        UNPROTECT(1);
+        Rf_error("%s", CHAR(rcpp_msgSEXP_gen));
+    }
+    UNPROTECT(1);
+    return rcpp_result_gen;
+}
+// scaleMatrixSparse
+arma::sp_mat scaleMatrixSparse(arma::sp_mat& X, arma::vec& v, unsigned int dim);
+static SEXP _actionet_scaleMatrixSparse_try(SEXP XSEXP, SEXP vSEXP, SEXP dimSEXP) {
+BEGIN_RCPP
+    Rcpp::RObject rcpp_result_gen;
+    Rcpp::traits::input_parameter< arma::sp_mat& >::type X(XSEXP);
+    Rcpp::traits::input_parameter< arma::vec& >::type v(vSEXP);
+    Rcpp::traits::input_parameter< unsigned int >::type dim(dimSEXP);
+    rcpp_result_gen = Rcpp::wrap(scaleMatrixSparse(X, v, dim));
+    return rcpp_result_gen;
+END_RCPP_RETURN_ERROR
+}
+RcppExport SEXP _actionet_scaleMatrixSparse(SEXP XSEXP, SEXP vSEXP, SEXP dimSEXP) {
+    SEXP rcpp_result_gen;
+    {
+        Rcpp::RNGScope rcpp_rngScope_gen;
+        rcpp_result_gen = PROTECT(_actionet_scaleMatrixSparse_try(XSEXP, vSEXP, dimSEXP));
+    }
+    Rboolean rcpp_isInterrupt_gen = Rf_inherits(rcpp_result_gen, "interrupted-error");
+    if (rcpp_isInterrupt_gen) {
+        UNPROTECT(1);
+        Rf_onintr();
+    }
+    bool rcpp_isLongjump_gen = Rcpp::internal::isLongjumpSentinel(rcpp_result_gen);
+    if (rcpp_isLongjump_gen) {
+        Rcpp::internal::resumeJump(rcpp_result_gen);
+    }
+    Rboolean rcpp_isError_gen = Rf_inherits(rcpp_result_gen, "try-error");
+    if (rcpp_isError_gen) {
+        SEXP rcpp_msgSEXP_gen = Rf_asChar(rcpp_result_gen);
+        UNPROTECT(1);
+        Rf_error("%s", CHAR(rcpp_msgSEXP_gen));
+    }
+    UNPROTECT(1);
+    return rcpp_result_gen;
+}
+// normalizeGraph
+arma::sp_mat normalizeGraph(arma::sp_mat& G, int norm_type);
+static SEXP _actionet_normalizeGraph_try(SEXP GSEXP, SEXP norm_typeSEXP) {
+BEGIN_RCPP
+    Rcpp::RObject rcpp_result_gen;
+    Rcpp::traits::input_parameter< arma::sp_mat& >::type G(GSEXP);
+    Rcpp::traits::input_parameter< int >::type norm_type(norm_typeSEXP);
+    rcpp_result_gen = Rcpp::wrap(normalizeGraph(G, norm_type));
+    return rcpp_result_gen;
+END_RCPP_RETURN_ERROR
+}
+RcppExport SEXP _actionet_normalizeGraph(SEXP GSEXP, SEXP norm_typeSEXP) {
+    SEXP rcpp_result_gen;
+    {
+        Rcpp::RNGScope rcpp_rngScope_gen;
+        rcpp_result_gen = PROTECT(_actionet_normalizeGraph_try(GSEXP, norm_typeSEXP));
     }
     Rboolean rcpp_isInterrupt_gen = Rf_inherits(rcpp_result_gen, "interrupted-error");
     if (rcpp_isInterrupt_gen) {
@@ -1508,12 +1659,12 @@ RcppExport SEXP _actionet_MWM_hungarian(SEXP GSEXP) {
     return rcpp_result_gen;
 }
 // MWM_rank1
-arma::umat MWM_rank1(arma::vec u, arma::vec v, double u_threshold, double v_threshold);
+arma::umat MWM_rank1(const arma::vec& u, const arma::vec& v, double u_threshold, double v_threshold);
 static SEXP _actionet_MWM_rank1_try(SEXP uSEXP, SEXP vSEXP, SEXP u_thresholdSEXP, SEXP v_thresholdSEXP) {
 BEGIN_RCPP
     Rcpp::RObject rcpp_result_gen;
-    Rcpp::traits::input_parameter< arma::vec >::type u(uSEXP);
-    Rcpp::traits::input_parameter< arma::vec >::type v(vSEXP);
+    Rcpp::traits::input_parameter< const arma::vec& >::type u(uSEXP);
+    Rcpp::traits::input_parameter< const arma::vec& >::type v(vSEXP);
     Rcpp::traits::input_parameter< double >::type u_threshold(u_thresholdSEXP);
     Rcpp::traits::input_parameter< double >::type v_threshold(v_thresholdSEXP);
     rcpp_result_gen = Rcpp::wrap(MWM_rank1(u, v, u_threshold, v_threshold));
@@ -1525,78 +1676,6 @@ RcppExport SEXP _actionet_MWM_rank1(SEXP uSEXP, SEXP vSEXP, SEXP u_thresholdSEXP
     {
         Rcpp::RNGScope rcpp_rngScope_gen;
         rcpp_result_gen = PROTECT(_actionet_MWM_rank1_try(uSEXP, vSEXP, u_thresholdSEXP, v_thresholdSEXP));
-    }
-    Rboolean rcpp_isInterrupt_gen = Rf_inherits(rcpp_result_gen, "interrupted-error");
-    if (rcpp_isInterrupt_gen) {
-        UNPROTECT(1);
-        Rf_onintr();
-    }
-    bool rcpp_isLongjump_gen = Rcpp::internal::isLongjumpSentinel(rcpp_result_gen);
-    if (rcpp_isLongjump_gen) {
-        Rcpp::internal::resumeJump(rcpp_result_gen);
-    }
-    Rboolean rcpp_isError_gen = Rf_inherits(rcpp_result_gen, "try-error");
-    if (rcpp_isError_gen) {
-        SEXP rcpp_msgSEXP_gen = Rf_asChar(rcpp_result_gen);
-        UNPROTECT(1);
-        Rf_error("%s", CHAR(rcpp_msgSEXP_gen));
-    }
-    UNPROTECT(1);
-    return rcpp_result_gen;
-}
-// normalize_mat
-arma::mat normalize_mat(arma::mat& X, int p, int dim);
-static SEXP _actionet_normalize_mat_try(SEXP XSEXP, SEXP pSEXP, SEXP dimSEXP) {
-BEGIN_RCPP
-    Rcpp::RObject rcpp_result_gen;
-    Rcpp::traits::input_parameter< arma::mat& >::type X(XSEXP);
-    Rcpp::traits::input_parameter< int >::type p(pSEXP);
-    Rcpp::traits::input_parameter< int >::type dim(dimSEXP);
-    rcpp_result_gen = Rcpp::wrap(normalize_mat(X, p, dim));
-    return rcpp_result_gen;
-END_RCPP_RETURN_ERROR
-}
-RcppExport SEXP _actionet_normalize_mat(SEXP XSEXP, SEXP pSEXP, SEXP dimSEXP) {
-    SEXP rcpp_result_gen;
-    {
-        Rcpp::RNGScope rcpp_rngScope_gen;
-        rcpp_result_gen = PROTECT(_actionet_normalize_mat_try(XSEXP, pSEXP, dimSEXP));
-    }
-    Rboolean rcpp_isInterrupt_gen = Rf_inherits(rcpp_result_gen, "interrupted-error");
-    if (rcpp_isInterrupt_gen) {
-        UNPROTECT(1);
-        Rf_onintr();
-    }
-    bool rcpp_isLongjump_gen = Rcpp::internal::isLongjumpSentinel(rcpp_result_gen);
-    if (rcpp_isLongjump_gen) {
-        Rcpp::internal::resumeJump(rcpp_result_gen);
-    }
-    Rboolean rcpp_isError_gen = Rf_inherits(rcpp_result_gen, "try-error");
-    if (rcpp_isError_gen) {
-        SEXP rcpp_msgSEXP_gen = Rf_asChar(rcpp_result_gen);
-        UNPROTECT(1);
-        Rf_error("%s", CHAR(rcpp_msgSEXP_gen));
-    }
-    UNPROTECT(1);
-    return rcpp_result_gen;
-}
-// normalize_spmat
-arma::sp_mat normalize_spmat(arma::sp_mat& X, int p, int dim);
-static SEXP _actionet_normalize_spmat_try(SEXP XSEXP, SEXP pSEXP, SEXP dimSEXP) {
-BEGIN_RCPP
-    Rcpp::RObject rcpp_result_gen;
-    Rcpp::traits::input_parameter< arma::sp_mat& >::type X(XSEXP);
-    Rcpp::traits::input_parameter< int >::type p(pSEXP);
-    Rcpp::traits::input_parameter< int >::type dim(dimSEXP);
-    rcpp_result_gen = Rcpp::wrap(normalize_spmat(X, p, dim));
-    return rcpp_result_gen;
-END_RCPP_RETURN_ERROR
-}
-RcppExport SEXP _actionet_normalize_spmat(SEXP XSEXP, SEXP pSEXP, SEXP dimSEXP) {
-    SEXP rcpp_result_gen;
-    {
-        Rcpp::RNGScope rcpp_rngScope_gen;
-        rcpp_result_gen = PROTECT(_actionet_normalize_spmat_try(XSEXP, pSEXP, dimSEXP));
     }
     Rboolean rcpp_isInterrupt_gen = Rf_inherits(rcpp_result_gen, "interrupted-error");
     if (rcpp_isInterrupt_gen) {
@@ -1753,49 +1832,51 @@ RcppExport SEXP _actionet_layoutNetwork(SEXP GSEXP, SEXP initial_coordinatesSEXP
 static int _actionet_RcppExport_validate(const char* sig) { 
     static std::set<std::string> signatures;
     if (signatures.empty()) {
-        signatures.insert("Rcpp::List(*run_AA)(arma::mat&,arma::mat&,int,double)");
-        signatures.insert("Rcpp::List(*run_ACTION)(arma::mat&,int,int,int,int,double,int)");
-        signatures.insert("Rcpp::List(*collect_archetypes)(const Rcpp::List&,const Rcpp::List&,double,int)");
-        signatures.insert("Rcpp::List(*merge_archetypes)(arma::mat&,arma::mat,arma::mat,int,int)");
-        signatures.insert("Rcpp::List(*reduce_kernel)(arma::sp_mat&,int,int,int,int,int)");
-        signatures.insert("Rcpp::List(*reduce_kernel_full)(arma::mat&,int,int,int,int,int)");
-        signatures.insert("arma::mat(*run_simplex_regression)(arma::mat&,arma::mat&,bool)");
-        signatures.insert("Rcpp::List(*run_SPA)(arma::mat&,int)");
+        signatures.insert("Rcpp::List(*runAA)(arma::mat&,arma::mat&,int,double)");
+        signatures.insert("Rcpp::List(*decompACTION)(arma::mat&,int,int,int,double,int)");
+        signatures.insert("Rcpp::List(*runACTION)(arma::mat&,int,int,int,double,double,int,int,int)");
+        signatures.insert("Rcpp::List(*collectArchetypes)(const Rcpp::List&,const Rcpp::List&,double,int)");
+        signatures.insert("Rcpp::List(*mergeArchetypes)(arma::mat&,arma::mat&,arma::mat&,int,int)");
+        signatures.insert("Rcpp::List(*reduceKernelSparse)(arma::sp_mat&,int,int,int,int,bool)");
+        signatures.insert("Rcpp::List(*reduceKernelDense)(arma::mat&,int,int,int,int,bool)");
+        signatures.insert("arma::mat(*runSimplexRegression)(arma::mat&,arma::mat&,bool)");
+        signatures.insert("Rcpp::List(*runSPA)(arma::mat&,int)");
         signatures.insert("arma::mat(*compute_marker_aggregate_stats)(arma::sp_mat&,arma::sp_mat&,arma::sp_mat&,double,int,int,bool)");
         signatures.insert("Rcpp::List(*aggregate_genesets_vision)(arma::sp_mat&,arma::sp_mat&,arma::mat&,int,double,int,double,int)");
-        signatures.insert("Rcpp::List(*compute_archetype_feature_specificity)(arma::sp_mat&,arma::mat&,int)");
-        signatures.insert("Rcpp::List(*compute_archetype_feature_specificity_full)(arma::mat&,arma::mat&,int)");
-        signatures.insert("Rcpp::List(*compute_cluster_feature_specificity)(arma::sp_mat&,arma::uvec,int)");
-        signatures.insert("Rcpp::List(*compute_cluster_feature_specificity_full)(arma::mat&,arma::uvec,int)");
-        signatures.insert("Rcpp::List(*orthogonalize_batch_effect)(arma::sp_mat&,arma::mat&,arma::mat&,arma::mat&,arma::mat&,arma::vec&,arma::mat&)");
-        signatures.insert("Rcpp::List(*orthogonalize_batch_effect_full)(arma::mat&,arma::mat&,arma::mat&,arma::mat&,arma::mat&,arma::vec&,arma::mat&)");
-        signatures.insert("Rcpp::List(*orthogonalize_basal)(arma::sp_mat&,arma::mat&,arma::mat&,arma::mat&,arma::mat&,arma::vec&,arma::mat&)");
-        signatures.insert("Rcpp::List(*orthogonalize_basal_full)(arma::mat&,arma::mat&,arma::mat&,arma::mat&,arma::mat&,arma::vec&,arma::mat&)");
-        signatures.insert("Rcpp::List(*runSVD)(arma::sp_mat&,int,int,int,int,int)");
-        signatures.insert("Rcpp::List(*runSVD_full)(arma::mat&,int,int,int,int,int)");
+        signatures.insert("Rcpp::List(*archetypeFeatureSpecificitySparse)(arma::sp_mat&,arma::mat&,int)");
+        signatures.insert("Rcpp::List(*archetypeFeatureSpecificityDense)(arma::mat&,arma::mat&,int)");
+        signatures.insert("Rcpp::List(*clusterFeatureSpecificitySparse)(arma::sp_mat&,arma::uvec&,int)");
+        signatures.insert("Rcpp::List(*clusterFeatureSpecificityDense)(arma::mat&,arma::uvec&,int)");
+        signatures.insert("Rcpp::List(*orthogonalizeBatchEffect)(arma::sp_mat&,arma::mat&,arma::mat&,arma::mat&,arma::mat&,arma::vec&,arma::mat&)");
+        signatures.insert("Rcpp::List(*orthogonalizeBatchEffect_full)(arma::mat&,arma::mat&,arma::mat&,arma::mat&,arma::mat&,arma::vec&,arma::mat&)");
+        signatures.insert("Rcpp::List(*orthogonalizeBasal)(arma::sp_mat&,arma::mat&,arma::mat&,arma::mat&,arma::mat&,arma::vec&,arma::mat&)");
+        signatures.insert("Rcpp::List(*orthogonalizeBasal_full)(arma::mat&,arma::mat&,arma::mat&,arma::mat&,arma::mat&,arma::vec&,arma::mat&)");
+        signatures.insert("Rcpp::List(*runSVDSparse)(arma::sp_mat&,int,int,int,int,bool)");
+        signatures.insert("Rcpp::List(*runSVDDense)(arma::mat&,int,int,int,int,bool)");
         signatures.insert("Rcpp::List(*perturbedSVD)(arma::mat,arma::vec,arma::mat,arma::mat,arma::mat)");
-        signatures.insert("arma::mat(*computeNodeColors)(arma::mat&,int)");
-        signatures.insert("arma::sp_mat(*buildNetwork)(arma::mat,std::string,std::string,double,int,bool,int)");
-        signatures.insert("arma::vec(*run_LPA)(arma::sp_mat&,arma::vec,double,int,double,Rcpp::Nullable<Rcpp::IntegerVector>,int)");
-        signatures.insert("arma::mat(*compute_network_diffusion_fast)(arma::sp_mat&,arma::sp_mat&,double,int,int)");
-        signatures.insert("arma::mat(*compute_network_diffusion_approx)(arma::sp_mat&,arma::mat&,int,double,int,double,int)");
-        signatures.insert("arma::uvec(*compute_core_number)(arma::sp_mat&)");
-        signatures.insert("arma::vec(*compute_archetype_core_centrality)(arma::sp_mat&,arma::uvec)");
-        signatures.insert("Rcpp::List(*autocorrelation_Moran_parametric)(arma::sp_mat,arma::mat,int,int)");
-        signatures.insert("Rcpp::List(*autocorrelation_Moran)(arma::sp_mat,arma::mat,int,int,int)");
-        signatures.insert("Rcpp::List(*autocorrelation_Geary)(arma::sp_mat,arma::mat,int,int,int)");
-        signatures.insert("arma::mat(*assess_label_enrichment)(arma::sp_mat&,arma::mat&,int)");
+        signatures.insert("arma::sp_mat(*buildNetwork)(const arma::mat&,std::string,std::string,double,int,double,double,double,bool,int)");
+        signatures.insert("arma::vec(*runLPA)(arma::sp_mat&,arma::vec&,double,int,double,Rcpp::Nullable<Rcpp::IntegerVector>,int)");
+        signatures.insert("arma::mat(*computeNetworkDiffusion)(arma::sp_mat&,arma::mat&,double,int,int,bool,int,double)");
+        signatures.insert("arma::uvec(*computeCoreness)(arma::sp_mat&)");
+        signatures.insert("arma::vec(*computeArchetypeCentrality)(arma::sp_mat&,const arma::uvec&)");
+        signatures.insert("Rcpp::List(*autocorrelation_Moran_parametric)(const arma::sp_mat&,const arma::mat&,int,int)");
+        signatures.insert("Rcpp::List(*autocorrelation_Moran)(const arma::sp_mat&,const arma::mat&,int,int,int)");
+        signatures.insert("Rcpp::List(*autocorrelation_Geary)(const arma::sp_mat&,const arma::mat&,int,int,int)");
+        signatures.insert("arma::mat(*assess_label_enrichment)(const arma::sp_mat&,arma::mat&,int)");
         signatures.insert("Rcpp::List(*assess_enrichment)(arma::mat&,arma::sp_mat&,int)");
-        signatures.insert("arma::mat(*compute_grouped_rowsums)(arma::sp_mat&,arma::vec)");
-        signatures.insert("arma::mat(*compute_grouped_rowsums_full)(arma::mat&,arma::vec)");
-        signatures.insert("arma::mat(*compute_grouped_rowmeans)(arma::sp_mat&,arma::vec)");
-        signatures.insert("arma::mat(*compute_grouped_rowmeans_full)(arma::mat&,arma::vec)");
-        signatures.insert("arma::mat(*compute_grouped_rowvars)(arma::sp_mat&,arma::vec)");
-        signatures.insert("arma::mat(*compute_grouped_rowvars_full)(arma::mat&,arma::vec)");
+        signatures.insert("arma::mat(*computeGroupedRowSumsSparse)(arma::sp_mat&,arma::vec&)");
+        signatures.insert("arma::mat(*computeGroupedRowSumsDense)(arma::mat&,arma::vec&)");
+        signatures.insert("arma::mat(*computeGroupedRowMeansSparse)(arma::sp_mat&,arma::vec&)");
+        signatures.insert("arma::mat(*computeGroupedRowMeansDense)(arma::mat&,arma::vec&)");
+        signatures.insert("arma::mat(*computeGroupedRowVarsSparse)(arma::sp_mat&,arma::vec&)");
+        signatures.insert("arma::mat(*computeGroupedRowVarsDense)(arma::mat&,arma::vec&)");
+        signatures.insert("arma::sp_mat(*normalizeMatrixSparse)(arma::sp_mat&,unsigned int,unsigned int)");
+        signatures.insert("arma::mat(*normalizeMatrixDense)(arma::mat&,unsigned int,unsigned int)");
+        signatures.insert("arma::mat(*scaleMatrixDense)(arma::mat&,arma::vec&,unsigned int)");
+        signatures.insert("arma::sp_mat(*scaleMatrixSparse)(arma::sp_mat&,arma::vec&,unsigned int)");
+        signatures.insert("arma::sp_mat(*normalizeGraph)(arma::sp_mat&,int)");
         signatures.insert("arma::mat(*MWM_hungarian)(arma::mat&)");
-        signatures.insert("arma::umat(*MWM_rank1)(arma::vec,arma::vec,double,double)");
-        signatures.insert("arma::mat(*normalize_mat)(arma::mat&,int,int)");
-        signatures.insert("arma::sp_mat(*normalize_spmat)(arma::sp_mat&,int,int)");
+        signatures.insert("arma::umat(*MWM_rank1)(const arma::vec&,const arma::vec&,double,double)");
         signatures.insert("arma::vec(*xicor)(arma::vec,arma::vec,bool,int)");
         signatures.insert("Rcpp::List(*XICOR)(arma::mat&,arma::mat&,bool,int,int)");
         signatures.insert("arma::mat(*layoutNetwork)(arma::sp_mat&,arma::mat&,std::string,unsigned int,float,float,unsigned int,float,float,float,bool,bool,bool,unsigned int,int,int,bool,float,float,std::string,float,float,float,float)");
@@ -1805,49 +1886,51 @@ static int _actionet_RcppExport_validate(const char* sig) {
 
 // registerCCallable (register entry points for exported C++ functions)
 RcppExport SEXP _actionet_RcppExport_registerCCallable() { 
-    R_RegisterCCallable("actionet", "_actionet_run_AA", (DL_FUNC)_actionet_run_AA_try);
-    R_RegisterCCallable("actionet", "_actionet_run_ACTION", (DL_FUNC)_actionet_run_ACTION_try);
-    R_RegisterCCallable("actionet", "_actionet_collect_archetypes", (DL_FUNC)_actionet_collect_archetypes_try);
-    R_RegisterCCallable("actionet", "_actionet_merge_archetypes", (DL_FUNC)_actionet_merge_archetypes_try);
-    R_RegisterCCallable("actionet", "_actionet_reduce_kernel", (DL_FUNC)_actionet_reduce_kernel_try);
-    R_RegisterCCallable("actionet", "_actionet_reduce_kernel_full", (DL_FUNC)_actionet_reduce_kernel_full_try);
-    R_RegisterCCallable("actionet", "_actionet_run_simplex_regression", (DL_FUNC)_actionet_run_simplex_regression_try);
-    R_RegisterCCallable("actionet", "_actionet_run_SPA", (DL_FUNC)_actionet_run_SPA_try);
+    R_RegisterCCallable("actionet", "_actionet_runAA", (DL_FUNC)_actionet_runAA_try);
+    R_RegisterCCallable("actionet", "_actionet_decompACTION", (DL_FUNC)_actionet_decompACTION_try);
+    R_RegisterCCallable("actionet", "_actionet_runACTION", (DL_FUNC)_actionet_runACTION_try);
+    R_RegisterCCallable("actionet", "_actionet_collectArchetypes", (DL_FUNC)_actionet_collectArchetypes_try);
+    R_RegisterCCallable("actionet", "_actionet_mergeArchetypes", (DL_FUNC)_actionet_mergeArchetypes_try);
+    R_RegisterCCallable("actionet", "_actionet_reduceKernelSparse", (DL_FUNC)_actionet_reduceKernelSparse_try);
+    R_RegisterCCallable("actionet", "_actionet_reduceKernelDense", (DL_FUNC)_actionet_reduceKernelDense_try);
+    R_RegisterCCallable("actionet", "_actionet_runSimplexRegression", (DL_FUNC)_actionet_runSimplexRegression_try);
+    R_RegisterCCallable("actionet", "_actionet_runSPA", (DL_FUNC)_actionet_runSPA_try);
     R_RegisterCCallable("actionet", "_actionet_compute_marker_aggregate_stats", (DL_FUNC)_actionet_compute_marker_aggregate_stats_try);
     R_RegisterCCallable("actionet", "_actionet_aggregate_genesets_vision", (DL_FUNC)_actionet_aggregate_genesets_vision_try);
-    R_RegisterCCallable("actionet", "_actionet_compute_archetype_feature_specificity", (DL_FUNC)_actionet_compute_archetype_feature_specificity_try);
-    R_RegisterCCallable("actionet", "_actionet_compute_archetype_feature_specificity_full", (DL_FUNC)_actionet_compute_archetype_feature_specificity_full_try);
-    R_RegisterCCallable("actionet", "_actionet_compute_cluster_feature_specificity", (DL_FUNC)_actionet_compute_cluster_feature_specificity_try);
-    R_RegisterCCallable("actionet", "_actionet_compute_cluster_feature_specificity_full", (DL_FUNC)_actionet_compute_cluster_feature_specificity_full_try);
-    R_RegisterCCallable("actionet", "_actionet_orthogonalize_batch_effect", (DL_FUNC)_actionet_orthogonalize_batch_effect_try);
-    R_RegisterCCallable("actionet", "_actionet_orthogonalize_batch_effect_full", (DL_FUNC)_actionet_orthogonalize_batch_effect_full_try);
-    R_RegisterCCallable("actionet", "_actionet_orthogonalize_basal", (DL_FUNC)_actionet_orthogonalize_basal_try);
-    R_RegisterCCallable("actionet", "_actionet_orthogonalize_basal_full", (DL_FUNC)_actionet_orthogonalize_basal_full_try);
-    R_RegisterCCallable("actionet", "_actionet_runSVD", (DL_FUNC)_actionet_runSVD_try);
-    R_RegisterCCallable("actionet", "_actionet_runSVD_full", (DL_FUNC)_actionet_runSVD_full_try);
+    R_RegisterCCallable("actionet", "_actionet_archetypeFeatureSpecificitySparse", (DL_FUNC)_actionet_archetypeFeatureSpecificitySparse_try);
+    R_RegisterCCallable("actionet", "_actionet_archetypeFeatureSpecificityDense", (DL_FUNC)_actionet_archetypeFeatureSpecificityDense_try);
+    R_RegisterCCallable("actionet", "_actionet_clusterFeatureSpecificitySparse", (DL_FUNC)_actionet_clusterFeatureSpecificitySparse_try);
+    R_RegisterCCallable("actionet", "_actionet_clusterFeatureSpecificityDense", (DL_FUNC)_actionet_clusterFeatureSpecificityDense_try);
+    R_RegisterCCallable("actionet", "_actionet_orthogonalizeBatchEffect", (DL_FUNC)_actionet_orthogonalizeBatchEffect_try);
+    R_RegisterCCallable("actionet", "_actionet_orthogonalizeBatchEffect_full", (DL_FUNC)_actionet_orthogonalizeBatchEffect_full_try);
+    R_RegisterCCallable("actionet", "_actionet_orthogonalizeBasal", (DL_FUNC)_actionet_orthogonalizeBasal_try);
+    R_RegisterCCallable("actionet", "_actionet_orthogonalizeBasal_full", (DL_FUNC)_actionet_orthogonalizeBasal_full_try);
+    R_RegisterCCallable("actionet", "_actionet_runSVDSparse", (DL_FUNC)_actionet_runSVDSparse_try);
+    R_RegisterCCallable("actionet", "_actionet_runSVDDense", (DL_FUNC)_actionet_runSVDDense_try);
     R_RegisterCCallable("actionet", "_actionet_perturbedSVD", (DL_FUNC)_actionet_perturbedSVD_try);
-    R_RegisterCCallable("actionet", "_actionet_computeNodeColors", (DL_FUNC)_actionet_computeNodeColors_try);
     R_RegisterCCallable("actionet", "_actionet_buildNetwork", (DL_FUNC)_actionet_buildNetwork_try);
-    R_RegisterCCallable("actionet", "_actionet_run_LPA", (DL_FUNC)_actionet_run_LPA_try);
-    R_RegisterCCallable("actionet", "_actionet_compute_network_diffusion_fast", (DL_FUNC)_actionet_compute_network_diffusion_fast_try);
-    R_RegisterCCallable("actionet", "_actionet_compute_network_diffusion_approx", (DL_FUNC)_actionet_compute_network_diffusion_approx_try);
-    R_RegisterCCallable("actionet", "_actionet_compute_core_number", (DL_FUNC)_actionet_compute_core_number_try);
-    R_RegisterCCallable("actionet", "_actionet_compute_archetype_core_centrality", (DL_FUNC)_actionet_compute_archetype_core_centrality_try);
+    R_RegisterCCallable("actionet", "_actionet_runLPA", (DL_FUNC)_actionet_runLPA_try);
+    R_RegisterCCallable("actionet", "_actionet_computeNetworkDiffusion", (DL_FUNC)_actionet_computeNetworkDiffusion_try);
+    R_RegisterCCallable("actionet", "_actionet_computeCoreness", (DL_FUNC)_actionet_computeCoreness_try);
+    R_RegisterCCallable("actionet", "_actionet_computeArchetypeCentrality", (DL_FUNC)_actionet_computeArchetypeCentrality_try);
     R_RegisterCCallable("actionet", "_actionet_autocorrelation_Moran_parametric", (DL_FUNC)_actionet_autocorrelation_Moran_parametric_try);
     R_RegisterCCallable("actionet", "_actionet_autocorrelation_Moran", (DL_FUNC)_actionet_autocorrelation_Moran_try);
     R_RegisterCCallable("actionet", "_actionet_autocorrelation_Geary", (DL_FUNC)_actionet_autocorrelation_Geary_try);
     R_RegisterCCallable("actionet", "_actionet_assess_label_enrichment", (DL_FUNC)_actionet_assess_label_enrichment_try);
     R_RegisterCCallable("actionet", "_actionet_assess_enrichment", (DL_FUNC)_actionet_assess_enrichment_try);
-    R_RegisterCCallable("actionet", "_actionet_compute_grouped_rowsums", (DL_FUNC)_actionet_compute_grouped_rowsums_try);
-    R_RegisterCCallable("actionet", "_actionet_compute_grouped_rowsums_full", (DL_FUNC)_actionet_compute_grouped_rowsums_full_try);
-    R_RegisterCCallable("actionet", "_actionet_compute_grouped_rowmeans", (DL_FUNC)_actionet_compute_grouped_rowmeans_try);
-    R_RegisterCCallable("actionet", "_actionet_compute_grouped_rowmeans_full", (DL_FUNC)_actionet_compute_grouped_rowmeans_full_try);
-    R_RegisterCCallable("actionet", "_actionet_compute_grouped_rowvars", (DL_FUNC)_actionet_compute_grouped_rowvars_try);
-    R_RegisterCCallable("actionet", "_actionet_compute_grouped_rowvars_full", (DL_FUNC)_actionet_compute_grouped_rowvars_full_try);
+    R_RegisterCCallable("actionet", "_actionet_computeGroupedRowSumsSparse", (DL_FUNC)_actionet_computeGroupedRowSumsSparse_try);
+    R_RegisterCCallable("actionet", "_actionet_computeGroupedRowSumsDense", (DL_FUNC)_actionet_computeGroupedRowSumsDense_try);
+    R_RegisterCCallable("actionet", "_actionet_computeGroupedRowMeansSparse", (DL_FUNC)_actionet_computeGroupedRowMeansSparse_try);
+    R_RegisterCCallable("actionet", "_actionet_computeGroupedRowMeansDense", (DL_FUNC)_actionet_computeGroupedRowMeansDense_try);
+    R_RegisterCCallable("actionet", "_actionet_computeGroupedRowVarsSparse", (DL_FUNC)_actionet_computeGroupedRowVarsSparse_try);
+    R_RegisterCCallable("actionet", "_actionet_computeGroupedRowVarsDense", (DL_FUNC)_actionet_computeGroupedRowVarsDense_try);
+    R_RegisterCCallable("actionet", "_actionet_normalizeMatrixSparse", (DL_FUNC)_actionet_normalizeMatrixSparse_try);
+    R_RegisterCCallable("actionet", "_actionet_normalizeMatrixDense", (DL_FUNC)_actionet_normalizeMatrixDense_try);
+    R_RegisterCCallable("actionet", "_actionet_scaleMatrixDense", (DL_FUNC)_actionet_scaleMatrixDense_try);
+    R_RegisterCCallable("actionet", "_actionet_scaleMatrixSparse", (DL_FUNC)_actionet_scaleMatrixSparse_try);
+    R_RegisterCCallable("actionet", "_actionet_normalizeGraph", (DL_FUNC)_actionet_normalizeGraph_try);
     R_RegisterCCallable("actionet", "_actionet_MWM_hungarian", (DL_FUNC)_actionet_MWM_hungarian_try);
     R_RegisterCCallable("actionet", "_actionet_MWM_rank1", (DL_FUNC)_actionet_MWM_rank1_try);
-    R_RegisterCCallable("actionet", "_actionet_normalize_mat", (DL_FUNC)_actionet_normalize_mat_try);
-    R_RegisterCCallable("actionet", "_actionet_normalize_spmat", (DL_FUNC)_actionet_normalize_spmat_try);
     R_RegisterCCallable("actionet", "_actionet_xicor", (DL_FUNC)_actionet_xicor_try);
     R_RegisterCCallable("actionet", "_actionet_XICOR", (DL_FUNC)_actionet_XICOR_try);
     R_RegisterCCallable("actionet", "_actionet_layoutNetwork", (DL_FUNC)_actionet_layoutNetwork_try);
@@ -1856,49 +1939,51 @@ RcppExport SEXP _actionet_RcppExport_registerCCallable() {
 }
 
 static const R_CallMethodDef CallEntries[] = {
-    {"_actionet_run_AA", (DL_FUNC) &_actionet_run_AA, 4},
-    {"_actionet_run_ACTION", (DL_FUNC) &_actionet_run_ACTION, 7},
-    {"_actionet_collect_archetypes", (DL_FUNC) &_actionet_collect_archetypes, 4},
-    {"_actionet_merge_archetypes", (DL_FUNC) &_actionet_merge_archetypes, 5},
-    {"_actionet_reduce_kernel", (DL_FUNC) &_actionet_reduce_kernel, 6},
-    {"_actionet_reduce_kernel_full", (DL_FUNC) &_actionet_reduce_kernel_full, 6},
-    {"_actionet_run_simplex_regression", (DL_FUNC) &_actionet_run_simplex_regression, 3},
-    {"_actionet_run_SPA", (DL_FUNC) &_actionet_run_SPA, 2},
+    {"_actionet_runAA", (DL_FUNC) &_actionet_runAA, 4},
+    {"_actionet_decompACTION", (DL_FUNC) &_actionet_decompACTION, 6},
+    {"_actionet_runACTION", (DL_FUNC) &_actionet_runACTION, 9},
+    {"_actionet_collectArchetypes", (DL_FUNC) &_actionet_collectArchetypes, 4},
+    {"_actionet_mergeArchetypes", (DL_FUNC) &_actionet_mergeArchetypes, 5},
+    {"_actionet_reduceKernelSparse", (DL_FUNC) &_actionet_reduceKernelSparse, 6},
+    {"_actionet_reduceKernelDense", (DL_FUNC) &_actionet_reduceKernelDense, 6},
+    {"_actionet_runSimplexRegression", (DL_FUNC) &_actionet_runSimplexRegression, 3},
+    {"_actionet_runSPA", (DL_FUNC) &_actionet_runSPA, 2},
     {"_actionet_compute_marker_aggregate_stats", (DL_FUNC) &_actionet_compute_marker_aggregate_stats, 7},
     {"_actionet_aggregate_genesets_vision", (DL_FUNC) &_actionet_aggregate_genesets_vision, 8},
-    {"_actionet_compute_archetype_feature_specificity", (DL_FUNC) &_actionet_compute_archetype_feature_specificity, 3},
-    {"_actionet_compute_archetype_feature_specificity_full", (DL_FUNC) &_actionet_compute_archetype_feature_specificity_full, 3},
-    {"_actionet_compute_cluster_feature_specificity", (DL_FUNC) &_actionet_compute_cluster_feature_specificity, 3},
-    {"_actionet_compute_cluster_feature_specificity_full", (DL_FUNC) &_actionet_compute_cluster_feature_specificity_full, 3},
-    {"_actionet_orthogonalize_batch_effect", (DL_FUNC) &_actionet_orthogonalize_batch_effect, 7},
-    {"_actionet_orthogonalize_batch_effect_full", (DL_FUNC) &_actionet_orthogonalize_batch_effect_full, 7},
-    {"_actionet_orthogonalize_basal", (DL_FUNC) &_actionet_orthogonalize_basal, 7},
-    {"_actionet_orthogonalize_basal_full", (DL_FUNC) &_actionet_orthogonalize_basal_full, 7},
-    {"_actionet_runSVD", (DL_FUNC) &_actionet_runSVD, 6},
-    {"_actionet_runSVD_full", (DL_FUNC) &_actionet_runSVD_full, 6},
+    {"_actionet_archetypeFeatureSpecificitySparse", (DL_FUNC) &_actionet_archetypeFeatureSpecificitySparse, 3},
+    {"_actionet_archetypeFeatureSpecificityDense", (DL_FUNC) &_actionet_archetypeFeatureSpecificityDense, 3},
+    {"_actionet_clusterFeatureSpecificitySparse", (DL_FUNC) &_actionet_clusterFeatureSpecificitySparse, 3},
+    {"_actionet_clusterFeatureSpecificityDense", (DL_FUNC) &_actionet_clusterFeatureSpecificityDense, 3},
+    {"_actionet_orthogonalizeBatchEffect", (DL_FUNC) &_actionet_orthogonalizeBatchEffect, 7},
+    {"_actionet_orthogonalizeBatchEffect_full", (DL_FUNC) &_actionet_orthogonalizeBatchEffect_full, 7},
+    {"_actionet_orthogonalizeBasal", (DL_FUNC) &_actionet_orthogonalizeBasal, 7},
+    {"_actionet_orthogonalizeBasal_full", (DL_FUNC) &_actionet_orthogonalizeBasal_full, 7},
+    {"_actionet_runSVDSparse", (DL_FUNC) &_actionet_runSVDSparse, 6},
+    {"_actionet_runSVDDense", (DL_FUNC) &_actionet_runSVDDense, 6},
     {"_actionet_perturbedSVD", (DL_FUNC) &_actionet_perturbedSVD, 5},
-    {"_actionet_computeNodeColors", (DL_FUNC) &_actionet_computeNodeColors, 2},
-    {"_actionet_buildNetwork", (DL_FUNC) &_actionet_buildNetwork, 7},
-    {"_actionet_run_LPA", (DL_FUNC) &_actionet_run_LPA, 7},
-    {"_actionet_compute_network_diffusion_fast", (DL_FUNC) &_actionet_compute_network_diffusion_fast, 5},
-    {"_actionet_compute_network_diffusion_approx", (DL_FUNC) &_actionet_compute_network_diffusion_approx, 7},
-    {"_actionet_compute_core_number", (DL_FUNC) &_actionet_compute_core_number, 1},
-    {"_actionet_compute_archetype_core_centrality", (DL_FUNC) &_actionet_compute_archetype_core_centrality, 2},
+    {"_actionet_buildNetwork", (DL_FUNC) &_actionet_buildNetwork, 10},
+    {"_actionet_runLPA", (DL_FUNC) &_actionet_runLPA, 7},
+    {"_actionet_computeNetworkDiffusion", (DL_FUNC) &_actionet_computeNetworkDiffusion, 8},
+    {"_actionet_computeCoreness", (DL_FUNC) &_actionet_computeCoreness, 1},
+    {"_actionet_computeArchetypeCentrality", (DL_FUNC) &_actionet_computeArchetypeCentrality, 2},
     {"_actionet_autocorrelation_Moran_parametric", (DL_FUNC) &_actionet_autocorrelation_Moran_parametric, 4},
     {"_actionet_autocorrelation_Moran", (DL_FUNC) &_actionet_autocorrelation_Moran, 5},
     {"_actionet_autocorrelation_Geary", (DL_FUNC) &_actionet_autocorrelation_Geary, 5},
     {"_actionet_assess_label_enrichment", (DL_FUNC) &_actionet_assess_label_enrichment, 3},
     {"_actionet_assess_enrichment", (DL_FUNC) &_actionet_assess_enrichment, 3},
-    {"_actionet_compute_grouped_rowsums", (DL_FUNC) &_actionet_compute_grouped_rowsums, 2},
-    {"_actionet_compute_grouped_rowsums_full", (DL_FUNC) &_actionet_compute_grouped_rowsums_full, 2},
-    {"_actionet_compute_grouped_rowmeans", (DL_FUNC) &_actionet_compute_grouped_rowmeans, 2},
-    {"_actionet_compute_grouped_rowmeans_full", (DL_FUNC) &_actionet_compute_grouped_rowmeans_full, 2},
-    {"_actionet_compute_grouped_rowvars", (DL_FUNC) &_actionet_compute_grouped_rowvars, 2},
-    {"_actionet_compute_grouped_rowvars_full", (DL_FUNC) &_actionet_compute_grouped_rowvars_full, 2},
+    {"_actionet_computeGroupedRowSumsSparse", (DL_FUNC) &_actionet_computeGroupedRowSumsSparse, 2},
+    {"_actionet_computeGroupedRowSumsDense", (DL_FUNC) &_actionet_computeGroupedRowSumsDense, 2},
+    {"_actionet_computeGroupedRowMeansSparse", (DL_FUNC) &_actionet_computeGroupedRowMeansSparse, 2},
+    {"_actionet_computeGroupedRowMeansDense", (DL_FUNC) &_actionet_computeGroupedRowMeansDense, 2},
+    {"_actionet_computeGroupedRowVarsSparse", (DL_FUNC) &_actionet_computeGroupedRowVarsSparse, 2},
+    {"_actionet_computeGroupedRowVarsDense", (DL_FUNC) &_actionet_computeGroupedRowVarsDense, 2},
+    {"_actionet_normalizeMatrixSparse", (DL_FUNC) &_actionet_normalizeMatrixSparse, 3},
+    {"_actionet_normalizeMatrixDense", (DL_FUNC) &_actionet_normalizeMatrixDense, 3},
+    {"_actionet_scaleMatrixDense", (DL_FUNC) &_actionet_scaleMatrixDense, 3},
+    {"_actionet_scaleMatrixSparse", (DL_FUNC) &_actionet_scaleMatrixSparse, 3},
+    {"_actionet_normalizeGraph", (DL_FUNC) &_actionet_normalizeGraph, 2},
     {"_actionet_MWM_hungarian", (DL_FUNC) &_actionet_MWM_hungarian, 1},
     {"_actionet_MWM_rank1", (DL_FUNC) &_actionet_MWM_rank1, 4},
-    {"_actionet_normalize_mat", (DL_FUNC) &_actionet_normalize_mat, 3},
-    {"_actionet_normalize_spmat", (DL_FUNC) &_actionet_normalize_spmat, 3},
     {"_actionet_xicor", (DL_FUNC) &_actionet_xicor, 4},
     {"_actionet_XICOR", (DL_FUNC) &_actionet_XICOR, 5},
     {"_actionet_layoutNetwork", (DL_FUNC) &_actionet_layoutNetwork, 24},

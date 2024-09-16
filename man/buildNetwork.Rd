@@ -10,6 +10,9 @@ buildNetwork(
   distance_metric = "jsd",
   density = 1,
   thread_no = 0L,
+  M = 16,
+  ef_construction = 200,
+  ef = 50,
   mutual_edges_only = TRUE,
   k = 10L
 )
@@ -23,7 +26,7 @@ the more edges are retained (default = 1.0).}
 \item{mutual_edges_only}{Symmetrization strategy for nearest-neighbor edges.
 If it is true, only mutual nearest-neighbors are returned (default=TRUE).}
 
-\item{H_stacked}{Output of the collect_archetypes() function.}
+\item{H_stacked}{Output of the collectArchetypes() function.}
 }
 \value{
 G Adjacency matrix of the ACTIONet graph.
@@ -32,6 +35,6 @@ G Adjacency matrix of the ACTIONet graph.
 Builds an interaction network from the multi-level archetypal decompositions
 }
 \examples{
-prune.out = collect_archetypes(ACTION.out$C, ACTION.out$H)
+prune.out = collectArchetypes(ACTION.out$C, ACTION.out$H)
 G = buildNetwork(prune.out$H_stacked)
 }

@@ -8,7 +8,7 @@
                               unification_resolution = 1.0,
                               unification_min_cluster_size = 3,
                               max_iter = 50,
-                              min_delta = 1e-300,
+                              min_delta = 1e-16,
                               thread_no = 0,
                               merged_suffix = "merged",
                               footprint_slot_name = "assigned_archetype",
@@ -17,7 +17,7 @@
 
   S_r <- Matrix::t(.validate_map(ace, map_slot = reduction_slot, ace_name = "ace"))
 
-  out <- decomp.ACTIONMR(
+  out <- decomp.ACTION(
     X = S_r,
     k_min = k_min,
     k_max = k_max,

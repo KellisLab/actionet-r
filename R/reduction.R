@@ -1,10 +1,12 @@
 #' Takes a `ACTIONetExperiment` object and adds the reduced kernel matrix
 #'
 #' @param ace ACTIONetExperiment object.
-#' @param reduced_dim Dimension of SVD used for reducing kernel matrix
-#' @param max_iter Number of SVD iterations
+#' @param reduced_dim Dimension of reduced kernel matrix. Number of singular vectors to estimate. Passed to <code>runSVD()</code>.
 #' @param assay_name Name of assay to reduce.
-#' @param reduction_out Name of slot to store reduction.
+#' @param reduction_out Name of slot to store reduced output.
+#' @param algorithm Singular value decomposition algorithm. Passed to <code>runSVD()</code>.
+#' @param max_it Number of SVD iterations. If `NULL`: 1000 for "ilrb", 5 otherwise.
+#' @param seed Random seed.
 #'
 #' @return ACTIONetExperiment object with reduction in colMaps(ace).
 #'
@@ -14,151 +16,74 @@
 #' @export
 reduce.ace <- function(ace,
                        reduced_dim = 50,
-                       max_iter = 1000,
-                       assay_name = NULL,
-                       reduction_out = "ACTION",
-                       SVD_algorithm = 0,
-                       seed = 0) {
-    ace <- as(ace, "ACTIONetExperiment")
-    if (is.null(assay_name)) {
-        if ("default_assay" %in% names(metadata(ace))) {
-            message(sprintf("Input assay_name is NULL. Setting assay_name to the metadata(ace)[['default_assay']]"))
-            assay_name <- metadata(ace)[["default_assay"]]
-        } else {
-            message(sprintf("Input assay_name is NULL. Setting assay_name to logcounts"))
-            assay_name <- "logcounts"
-        }
-    }
-    .validate_assay(ace, assay_name = assay_name, return_elem = FALSE)
+                       assay_name = "logcounts",
+                       reduction_out = "action",
+                       algorithm = c("irlb", "halko", "feng"),
+                       max_it = NULL,
+                       seed = 0, verbose = TRUE) {
 
-    if (is.null(rownames(ace))) {
-        rownames(ace) <- ACTIONetExperiment:::.default_rownames(NROW(ace))
+  ace = .validate_ace(ace, as_ace = TRUE, allow_se_like = TRUE)
+  if (is.null(rownames(ace))) {
+    rownames(ace) <- ACTIONetExperiment:::.default_rownames(NROW(ace))
+  } else {
+    rownames(ace) <- make.unique(rownames(ace), sep = "_")
+  }
+
+  if (is.null(colnames(ace))) {
+    colnames(ace) <- ACTIONetExperiment:::.default_colnames(NCOL(ace))
+  } else {
+    colnames(ace) <- make.unique(colnames(ace), sep = "_")
+  }
+
+  if (is.null(assay_name)) {
+    if ("default_assay" %in% names(metadata(ace))) {
+      message(sprintf("Input assay_name is NULL. Setting assay_name to the metadata(ace)[['default_assay']]"))
+      assay_name <- metadata(ace)[["default_assay"]]
     } else {
-        rownames(ace) <- make.unique(rownames(ace), sep = "_")
+      message(sprintf("Input assay_name is NULL. Setting assay_name to logcounts"))
+      assay_name <- "logcounts"
     }
+  }
+  S <- .validate_assay(ace, assay_name = assay_name, sparse_type = "CsparseMatrix", return_elem = TRUE)
 
-    if (is.null(colnames(ace))) {
-        colnames(ace) <- ACTIONetExperiment:::.default_colnames(NCOL(ace))
-    } else {
-        colnames(ace) <- make.unique(colnames(ace), sep = "_")
-    }
+  algorithm = match.arg(algorithm)
+  algorithm = switch(algorithm, "irlb" = 0, "halko" = 1, "feng" = 2)
 
-    if (SVD_algorithm != 0) {
-          max_iter <- 5
-      }
+  if(is.null(max_it)) {
+    max_it = ifelse(algorithm == 0, 1000, 5)
+  }
 
-    S <- assays(ace)[[assay_name]]
-    if (is.matrix(S)) {
-        reduction.out <- reduce_kernel_full(
-            S = S,
-            reduced_dim = reduced_dim,
-            iter = max_iter,
-            seed = seed,
-            SVD_algorithm = SVD_algorithm
-        )
-    } else {
-        reduction.out <- reduce_kernel(
-            S = S,
-            reduced_dim = reduced_dim,
-            iter = max_iter,
-            seed = seed,
-            SVD_algorithm = SVD_algorithm
-        )
-    }
+  if (is.matrix(S)) {
+    reduction.out <- reduceKernelDense(S, k = reduced_dim, svd_alg = algorithm, max_it = max_it, seed = seed, verbose = verbose)
+  } else {
+    reduction.out <- reduceKernelSparse(S, k = reduced_dim, svd_alg = algorithm, max_it = max_it, seed = seed, verbose = verbose)
+  }
 
-    S_r <- reduction.out$S_r
-    colnames(S_r) <- colnames(ace)
-    rownames(S_r) <- paste0("dim_", 1:NROW(S_r))
-    colMaps(ace)[[reduction_out]] <- Matrix::t(S_r)
-    colMapTypes(ace)[[reduction_out]] <- "reduction"
+  S_r <- reduction.out$S_r
+  colnames(S_r) <- colnames(ace)
+  rownames(S_r) <- paste0("dim_", 1:NROW(S_r))
+  colMaps(ace)[[reduction_out]] <- Matrix::t(S_r)
+  colMapTypes(ace)[[reduction_out]] <- "reduction"
 
-    metadata(ace)[["default_reduction"]] <- reduction_out
-    metadata(ace)[["default_assay"]] <- assay_name
+  metadata(ace)[["default_reduction"]] <- reduction_out
+  metadata(ace)[["default_assay"]] <- assay_name
 
-    V <- reduction.out$V
-    colnames(V) <- paste0("V", 1:NCOL(V))
-    rowMaps(ace)[[sprintf("%s_V", reduction_out)]] <- V
-    rowMapTypes(ace)[[sprintf("%s_V", reduction_out)]] <- "internal"
+  V <- reduction.out$V
+  colnames(V) <- paste0("V", 1:NCOL(V))
+  rowMaps(ace)[[sprintf("%s_V", reduction_out)]] <- V
+  rowMapTypes(ace)[[sprintf("%s_V", reduction_out)]] <- "internal"
 
-    A <- reduction.out$A
-    colnames(A) <- paste0("A", 1:NCOL(A))
-    rowMaps(ace)[[sprintf("%s_A", reduction_out)]] <- A
-    rowMapTypes(ace)[[sprintf("%s_A", reduction_out)]] <- "internal"
+  A <- reduction.out$A
+  colnames(A) <- paste0("A", 1:NCOL(A))
+  rowMaps(ace)[[sprintf("%s_A", reduction_out)]] <- A
+  rowMapTypes(ace)[[sprintf("%s_A", reduction_out)]] <- "internal"
 
-    B <- reduction.out$B
-    colnames(B) <- paste0("B", 1:NCOL(B))
-    colMaps(ace)[[sprintf("%s_B", reduction_out)]] <- B
-    colMapTypes(ace)[[sprintf("%s_B", reduction_out)]] <- "internal"
+  B <- reduction.out$B
+  colnames(B) <- paste0("B", 1:NCOL(B))
+  colMaps(ace)[[sprintf("%s_B", reduction_out)]] <- B
+  colMapTypes(ace)[[sprintf("%s_B", reduction_out)]] <- "internal"
 
-    metadata(ace)[[sprintf("%s_sigma", reduction_out)]] <- reduction.out$sigma
+  metadata(ace)[[sprintf("%s_sigma", reduction_out)]] <- reduction.out$sigma
 
-    return(ace)
-}
-
-
-#' @export
-reduce.perturbed.ace <- function(ace, ace.basal, reduction_slot = "ACTION", assay_name = "logcounts") {
-    common.genes <- intersect(rownames(ace), rownames(ace.basal))
-    ace <- ace[common.genes, ]
-    ace.basal <- ace.basal[common.genes, ]
-    basal <- ace.basal$merged_feature_specificity
-
-    S <- SummarizedExperiment::assays(ace)[[assay_name]]
-    S_r <- colMaps(ace)[[sprintf("%s", reduction_slot)]]
-    V <- rowMaps(ace)[[sprintf("%s_V", reduction_slot)]]
-    A <- rowMaps(ace)[[sprintf("%s_A", reduction_slot)]]
-    B <- colMaps(ace)[[sprintf("%s_B", reduction_slot)]]
-    sigma <- S4Vectors::metadata(ace)[[sprintf("%s_sigma", reduction_slot)]]
-
-
-    if (is.matrix(S)) {
-        reduction.out <- orthogonalize_basal_full(
-            S = S, old_S_r = S_r,
-            old_V = V, old_A = A, old_B = B, old_sigma = sigma, basal = basal
-        )
-    } else {
-        reduction.out <- orthogonalize_basal(
-            S = S, old_S_r = S_r,
-            old_V = V, old_A = A, old_B = B, old_sigma = sigma, basal = basal
-        )
-    }
-    S_r <- reduction.out$S_r
-    colnames(S_r) <- colnames(ace)
-    rownames(S_r) <- sapply(1:nrow(S_r), function(i) {
-        sprintf(
-            "Dim%d",
-            i
-        )
-    })
-    colMaps(ace)[[sprintf("%s", reduction_slot)]] <- Matrix::t(S_r)
-    colMapTypes(ace)[[sprintf("%s", reduction_slot)]] <- "reduction"
-    V <- reduction.out$V
-    colnames(V) <- sapply(1:dim(V)[2], function(i) {
-        sprintf(
-            "V%d",
-            i
-        )
-    })
-    rowMaps(ace)[[sprintf("%s_V", reduction_slot)]] <- V
-    rowMapTypes(ace)[[sprintf("%s_V", reduction_slot)]] <- "internal"
-    A <- reduction.out$A
-    colnames(A) <- sapply(1:dim(A)[2], function(i) {
-        sprintf(
-            "A%d",
-            i
-        )
-    })
-    rowMaps(ace)[[sprintf("%s_A", reduction_slot)]] <- A
-    rowMapTypes(ace)[[sprintf("%s_A", reduction_slot)]] <- "internal"
-    B <- reduction.out$B
-    colnames(B) <- sapply(1:dim(B)[2], function(i) {
-        sprintf(
-            "B%d",
-            i
-        )
-    })
-    colMaps(ace)[[sprintf("%s_B", reduction_slot)]] <- B
-    colMapTypes(ace)[[sprintf("%s_B", reduction_slot)]] <- "internal"
-    S4Vectors::metadata(ace)[[sprintf("%s_sigma", reduction_slot)]] <- reduction.out$sigma
-    return(ace)
+  return(ace)
 }

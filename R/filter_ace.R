@@ -2,7 +2,7 @@
 #' @export
 filter.ace <- function(
   ace,
-  assay_name = NULL,
+  assay_name = "counts",
   min_cells_per_feat = NULL,
   min_feats_per_cell = NULL,
   min_umis_per_cell = NULL,
@@ -16,14 +16,7 @@ filter.ace <- function(
     init_dim = dim(ace)
     init_dnames = dimnames(ace)
 
-    ace <- as(ace, "ACTIONetExperiment")
-
-    if(is.null(assay_name)){
-      assay_name = names(SummarizedExperiment::assays(ace))[1]
-    }
-    X <- SummarizedExperiment::assays(ace)[[assay_name]]
-
-    # X = .validate_assay(ace = ace, assay_name = assay_name)
+    X = .validate_assay(ace, assay_name = assay_name, sparse_type = "CsparseMatrix", return_elem = TRUE)
 
     dimnames(X) = list(1:NROW(X), 1:NCOL(X))
 
@@ -44,7 +37,6 @@ filter.ace <- function(
 
         if (!is.null(min_feats_per_cell)) {
             feature_mask = Matrix::colSums(.validate_matrix(X > 0)) >= min_feats_per_cell
-            # feature_mask = Matrix::colSums(as(X > 0, "dMatrix")) >= min_feats_per_cell
             cols_mask = cols_mask & feature_mask
         }
 
@@ -54,8 +46,7 @@ filter.ace <- function(
             } else {
                 min_fc = min_cells_per_feat
             }
-            cell_count_mask = ACTIONetExperiment:::fastRowSums(.validate_matrix(X > 0)) >= min_fc
-            # cell_count_mask = ACTIONetExperiment:::fastRowSums(as(X > 0, "dMatrix")) >= min_fc
+            cell_count_mask = Matrix::rowSums(.validate_matrix(X > 0)) >= min_fc
             rows_mask = rows_mask & cell_count_mask
         }
 

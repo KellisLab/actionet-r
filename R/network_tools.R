@@ -5,6 +5,7 @@ networkDiffusion <- function(
   algorithm = c("pagerank", "pagerank_sym"),
   alpha = 0.9,
   thread_no = 0,
+  approx = TRUE,
   max_it = 5,
   tol = 1e-8,
   net_slot = "ACTIONet"
@@ -32,16 +33,16 @@ networkDiffusion <- function(
   } else if (alpha < 0) {
     stop("`alpha` < 0")
   }
-
-  x <- compute_network_diffusion_approx(
+  x <- computeNetworkDiffusion(
     G = G,
     X0 = scores,
-    norm_type = ifelse (algorithm == "pagerank_sym", 2, 0),
     alpha = alpha,
     max_it = max_it,
-    tol = tol,
-    thread_no = thread_no
-  )
+    thread_no = thread_no,
+    approx = approx,
+    norm_method = ifelse (algorithm == "pagerank_sym", 2, 0),
+    tol = tol
+    )
 
   return(x)
 }
