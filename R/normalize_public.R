@@ -101,9 +101,10 @@ normalize.matrix <- function(S,
     stop(err)
   }
 
+  # library sizes are ABSOLUTE sums!!!
   lib_sizes = switch (dim,
-                      "1" = Matrix::rowSums(S),
-                      "2" = Matrix::colSums(S))
+                      "1" = Matrix::rowSums(abs(S)),
+                      "2" = Matrix::colSums(abs(S)))
   norm_factor = lib_sizes # Require untransformed lib_sizes later
   norm_factor[norm_factor == 0] = 1
   norm_factor = 1.0 / norm_factor
