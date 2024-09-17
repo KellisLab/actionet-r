@@ -241,54 +241,54 @@ cluster.graph <- function(G,
                           seed = 0) {
   
   stop("Not implemented")
-  # if (is.matrix(G)) {
-  #   G <- as(G, "sparseMatrix")
-  # }
+  if (is.matrix(G)) {
+    G <- as(G, "sparseMatrix")
+  }
 
-  # is.signed <- FALSE
-  # if (min(G) < 0) {
-  #   is.signed <- TRUE
-  #   print("Graph is signed. Switching to signed graph clustering mode.")
-  # }
+  is.signed <- FALSE
+  if (min(G) < 0) {
+    is.signed <- TRUE
+    print("Graph is signed. Switching to signed graph clustering mode.")
+  }
 
-  # if (!is.null(initial_clusters)) {
-  #   print("Perform graph clustering with *prior* initialization")
+  if (!is.null(initial_clusters)) {
+    print("Perform graph clustering with *prior* initialization")
 
-  #   if (is.signed) {
-  #     clusters <- as.numeric(signed_cluster(
-  #       A = G,
-  #       resolution_parameter = resolution_parameter,
-  #       initial_clusters_ = initial_clusters,
-  #       seed = seed
-  #     ))
-  #   } else {
-  #     clusters <- as.numeric(unsigned_cluster(
-  #       A = G,
-  #       resolution_parameter = resolution_parameter,
-  #       initial_clusters_ = initial_clusters,
-  #       seed = seed
-  #     ))
-  #   }
-  # } else {
-  #   print("Perform graph clustering with *uniform* initialization")
+    if (is.signed) {
+      clusters <- as.numeric(signed_cluster(
+        A = G,
+        resolution_parameter = resolution_parameter,
+        initial_clusters_ = initial_clusters,
+        seed = seed
+      ))
+    } else {
+      clusters <- as.numeric(unsigned_cluster(
+        A = G,
+        resolution_parameter = resolution_parameter,
+        initial_clusters_ = initial_clusters,
+        seed = seed
+      ))
+    }
+  } else {
+    print("Perform graph clustering with *uniform* initialization")
 
-  #   if (is.signed) {
-  #     clusters <- as.numeric(signed_cluster(
-  #       A = G,
-  #       resolution_parameter = resolution_parameter,
-  #       initial_clusters_ = NULL,
-  #       seed = seed
-  #     ))
-  #   } else {
-  #     clusters <- as.numeric(unsigned_cluster(
-  #       A = G,
-  #       resolution_parameter = resolution_parameter,
-  #       initial_clusters_ = NULL,
-  #       seed = seed
-  #     ))
-  #   }
-  # }
-  # return(clusters)
+    if (is.signed) {
+      clusters <- as.numeric(signed_cluster(
+        A = G,
+        resolution_parameter = resolution_parameter,
+        initial_clusters_ = NULL,
+        seed = seed
+      ))
+    } else {
+      clusters <- as.numeric(unsigned_cluster(
+        A = G,
+        resolution_parameter = resolution_parameter,
+        initial_clusters_ = NULL,
+        seed = seed
+      ))
+    }
+  }
+  return(clusters)
 }
 
 #' @export
