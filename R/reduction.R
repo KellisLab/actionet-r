@@ -22,7 +22,7 @@ reduce.ace <- function(ace,
                        max_it = NULL,
                        seed = 0, verbose = TRUE) {
 
-  ace = .validate_ace(ace, as_ace = TRUE, allow_se_like = TRUE)
+  ace = .validate_ace(ace, as_ace = TRUE, allow_se_like = TRUE, return_elem = TRUE)
   if (is.null(rownames(ace))) {
     rownames(ace) <- ACTIONetExperiment:::.default_rownames(NROW(ace))
   } else {
@@ -54,9 +54,9 @@ reduce.ace <- function(ace,
   }
 
   if (is.matrix(S)) {
-    reduction.out <- reduceKernelDense(S, k = reduced_dim, svd_alg = algorithm, max_it = max_it, seed = seed, verbose = verbose)
+    reduction.out <- C_reduceKernelDense(S, k = reduced_dim, svd_alg = algorithm, max_it = max_it, seed = seed, verbose = verbose)
   } else {
-    reduction.out <- reduceKernelSparse(S, k = reduced_dim, svd_alg = algorithm, max_it = max_it, seed = seed, verbose = verbose)
+    reduction.out <- C_reduceKernelSparse(S, k = reduced_dim, svd_alg = algorithm, max_it = max_it, seed = seed, verbose = verbose)
   }
 
   S_r <- reduction.out$S_r

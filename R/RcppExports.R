@@ -17,8 +17,8 @@
 #' AA.out = runAA(S_r, W0)
 #' H = AA.out$H
 #' cell.assignments = apply(H, 2, which.max)
-runAA <- function(A, W0, max_it = 100L, tol = 1e-6) {
-    .Call(`_actionet_runAA`, A, W0, max_it, tol)
+C_runAA <- function(A, W0, max_it = 100L, tol = 1e-6) {
+    .Call(`_actionet_C_runAA`, A, W0, max_it, tol)
 }
 
 #' Run ACTION decomposition algorithm
@@ -37,12 +37,12 @@ runAA <- function(A, W0, max_it = 100L, tol = 1e-6) {
 #' ACTION.out = runACTION(S_r, k_max = 10)
 #' H8 = ACTION.out$H[[8]]
 #' cell.assignments = apply(H8, 2, which.max)
-decompACTION <- function(S_r, k_min = 2L, k_max = 30L, max_it = 100L, tol = 1e-16, thread_no = 0L) {
-    .Call(`_actionet_decompACTION`, S_r, k_min, k_max, max_it, tol, thread_no)
+C_decompACTION <- function(S_r, k_min = 2L, k_max = 30L, max_it = 100L, tol = 1e-16, thread_no = 0L) {
+    .Call(`_actionet_C_decompACTION`, S_r, k_min, k_max, max_it, tol, thread_no)
 }
 
-runACTION <- function(S_r, k_min = 2L, k_max = 30L, max_it = 100L, tol = 1e-16, spec_th = -3, min_obs = 3L, norm = 0L, thread_no = 0L) {
-    .Call(`_actionet_runACTION`, S_r, k_min, k_max, max_it, tol, spec_th, min_obs, norm, thread_no)
+C_runACTION <- function(S_r, k_min = 2L, k_max = 30L, max_it = 100L, tol = 1e-16, spec_th = -3, min_obs = 3L, thread_no = 0L) {
+    .Call(`_actionet_C_runACTION`, S_r, k_min, k_max, max_it, tol, spec_th, min_obs, thread_no)
 }
 
 #' Filter and aggregate multi-level archetypes
@@ -65,8 +65,8 @@ runACTION <- function(S_r, k_min = 2L, k_max = 30L, max_it = 100L, tol = 1e-16, 
 #' S_r = reduction.out$S_r
 #' ACTION.out = runACTION(S_r, k_max = 10)
 #' reconstruction.out = reconstruct_archetypes(S, ACTION.out$C, ACTION.out$H)
-collectArchetypes <- function(C_trace, H_trace, spec_th = -3, min_obs = 3L) {
-    .Call(`_actionet_collectArchetypes`, C_trace, H_trace, spec_th, min_obs)
+C_collectArchetypes <- function(C_trace, H_trace, spec_th = -3, min_obs = 3L) {
+    .Call(`_actionet_C_collectArchetypes`, C_trace, H_trace, spec_th, min_obs)
 }
 
 #' Identify and merge redundant archetypes into a representative subset
@@ -89,8 +89,8 @@ collectArchetypes <- function(C_trace, H_trace, spec_th = -3, min_obs = 3L) {
 #'	G = buildNetwork(prune.out$H_stacked)
 #' unification.out = mergeArchetypes(G, S_r, prune.out$C_stacked, prune.out$H_stacked)
 #' cell.clusters = unification.out$sample_assignments
-mergeArchetypes <- function(S_r, C_stacked, H_stacked, norm = 0L, thread_no = 0L) {
-    .Call(`_actionet_mergeArchetypes`, S_r, C_stacked, H_stacked, norm, thread_no)
+C_mergeArchetypes <- function(S_r, C_stacked, H_stacked, thread_no = 0L) {
+    .Call(`_actionet_C_mergeArchetypes`, S_r, C_stacked, H_stacked, thread_no)
 }
 
 #' Compute reduced kernel matrix
@@ -114,12 +114,12 @@ mergeArchetypes <- function(S_r, C_stacked, H_stacked, norm = 0L, thread_no = 0L
 #' S = logcounts(sce)
 #' reduction.out = reduce(S, reduced_dim = 50)
 #' S_r = reduction.out$S_r
-reduceKernelSparse <- function(S, k = 50L, svd_alg = 0L, max_it = 0L, seed = 0L, verbose = TRUE) {
-    .Call(`_actionet_reduceKernelSparse`, S, k, svd_alg, max_it, seed, verbose)
+C_reduceKernelSparse <- function(S, k = 50L, svd_alg = 0L, max_it = 0L, seed = 0L, verbose = TRUE) {
+    .Call(`_actionet_C_reduceKernelSparse`, S, k, svd_alg, max_it, seed, verbose)
 }
 
-reduceKernelDense <- function(S, k = 50L, svd_alg = 0L, max_it = 0L, seed = 0L, verbose = TRUE) {
-    .Call(`_actionet_reduceKernelDense`, S, k, svd_alg, max_it, seed, verbose)
+C_reduceKernelDense <- function(S, k = 50L, svd_alg = 0L, max_it = 0L, seed = 0L, verbose = TRUE) {
+    .Call(`_actionet_C_reduceKernelDense`, S, k, svd_alg, max_it, seed, verbose)
 }
 
 #' Solves min_{X} (|| AX - B ||) s.t. simplex constraint
@@ -135,8 +135,8 @@ reduceKernelDense <- function(S, k = 50L, svd_alg = 0L, max_it = 0L, seed = 0L, 
 #' A = S_r %*% C
 #' B = S_r
 #' H = runSimplexRegression(A, B)
-runSimplexRegression <- function(A, B, computeXtX = FALSE) {
-    .Call(`_actionet_runSimplexRegression`, A, B, computeXtX)
+C_runSimplexRegression <- function(A, B, computeXtX = FALSE) {
+    .Call(`_actionet_C_runSimplexRegression`, A, B, computeXtX)
 }
 
 #' Run successive projections algorithm (SPA) to solve separable NMF
@@ -147,16 +147,16 @@ runSimplexRegression <- function(A, B, computeXtX = FALSE) {
 #' @return A named list with entries 'selected_cols' and 'norms'
 #' @examples
 #' H = runSPA(S_r, 10)
-runSPA <- function(A, k) {
-    .Call(`_actionet_runSPA`, A, k)
+C_runSPA <- function(A, k) {
+    .Call(`_actionet_C_runSPA`, A, k)
 }
 
-compute_marker_aggregate_stats <- function(G, S, marker_mat, alpha = 0.85, max_it = 5L, thread_no = 0L, ignore_baseline_expression = FALSE) {
-    .Call(`_actionet_compute_marker_aggregate_stats`, G, S, marker_mat, alpha, max_it, thread_no, ignore_baseline_expression)
+C_compute_marker_aggregate_stats <- function(G, S, marker_mat, alpha = 0.85, max_it = 5L, thread_no = 0L, ignore_baseline_expression = FALSE) {
+    .Call(`_actionet_C_compute_marker_aggregate_stats`, G, S, marker_mat, alpha, max_it, thread_no, ignore_baseline_expression)
 }
 
-aggregate_genesets_vision <- function(G, S, marker_mat, norm_type = 2L, alpha = 0.85, max_it = 5L, tol = 1E-8, thread_no = 0L) {
-    .Call(`_actionet_aggregate_genesets_vision`, G, S, marker_mat, norm_type, alpha, max_it, tol, thread_no)
+C_aggregate_genesets_vision <- function(G, S, marker_mat, norm_type = 2L, alpha = 0.85, max_it = 5L, tol = 1E-8, thread_no = 0L) {
+    .Call(`_actionet_C_aggregate_genesets_vision`, G, S, marker_mat, norm_type, alpha, max_it, tol, thread_no)
 }
 
 #' Compute feature specificity (from archetype footprints)
@@ -174,12 +174,12 @@ aggregate_genesets_vision <- function(G, S, marker_mat, norm_type = 2L, alpha = 
 #' S.norm = renormalize_input_matrix(S, cell.clusters)
 #' logPvals.list = compute_archetype_feature_specificity(S.norm, unification.out$H_merged)
 #' specificity.scores = logPvals.list$upper_significance
-archetypeFeatureSpecificitySparse <- function(S, H, thread_no = 0L) {
-    .Call(`_actionet_archetypeFeatureSpecificitySparse`, S, H, thread_no)
+C_archetypeFeatureSpecificitySparse <- function(S, H, thread_no = 0L) {
+    .Call(`_actionet_C_archetypeFeatureSpecificitySparse`, S, H, thread_no)
 }
 
-archetypeFeatureSpecificityDense <- function(S, H, thread_no = 0L) {
-    .Call(`_actionet_archetypeFeatureSpecificityDense`, S, H, thread_no)
+C_archetypeFeatureSpecificityDense <- function(S, H, thread_no = 0L) {
+    .Call(`_actionet_C_archetypeFeatureSpecificityDense`, S, H, thread_no)
 }
 
 #' Compute feature specificity (from cluster assignments)
@@ -197,28 +197,28 @@ archetypeFeatureSpecificityDense <- function(S, H, thread_no = 0L) {
 #' S.norm = renormalize_input_matrix(S, cell.clusters)
 #' logPvals.list = compute_cluster_feature_specificity(S.norm, cell.clusters)
 #' specificity.scores = logPvals.list$upper_significance
-clusterFeatureSpecificitySparse <- function(S, sample_assignments, thread_no = 0L) {
-    .Call(`_actionet_clusterFeatureSpecificitySparse`, S, sample_assignments, thread_no)
+C_clusterFeatureSpecificitySparse <- function(S, sample_assignments, thread_no = 0L) {
+    .Call(`_actionet_C_clusterFeatureSpecificitySparse`, S, sample_assignments, thread_no)
 }
 
-clusterFeatureSpecificityDense <- function(S, sample_assignments, thread_no = 0L) {
-    .Call(`_actionet_clusterFeatureSpecificityDense`, S, sample_assignments, thread_no)
+C_clusterFeatureSpecificityDense <- function(S, sample_assignments, thread_no = 0L) {
+    .Call(`_actionet_C_clusterFeatureSpecificityDense`, S, sample_assignments, thread_no)
 }
 
-orthogonalizeBatchEffect <- function(S, old_S_r, old_V, old_A, old_B, old_sigma, design) {
-    .Call(`_actionet_orthogonalizeBatchEffect`, S, old_S_r, old_V, old_A, old_B, old_sigma, design)
+C_orthogonalizeBatchEffect <- function(S, old_S_r, old_V, old_A, old_B, old_sigma, design) {
+    .Call(`_actionet_C_orthogonalizeBatchEffect`, S, old_S_r, old_V, old_A, old_B, old_sigma, design)
 }
 
-orthogonalizeBatchEffect_full <- function(S, old_S_r, old_V, old_A, old_B, old_sigma, design) {
-    .Call(`_actionet_orthogonalizeBatchEffect_full`, S, old_S_r, old_V, old_A, old_B, old_sigma, design)
+C_orthogonalizeBatchEffect_full <- function(S, old_S_r, old_V, old_A, old_B, old_sigma, design) {
+    .Call(`_actionet_C_orthogonalizeBatchEffect_full`, S, old_S_r, old_V, old_A, old_B, old_sigma, design)
 }
 
-orthogonalizeBasal <- function(S, old_S_r, old_V, old_A, old_B, old_sigma, basal) {
-    .Call(`_actionet_orthogonalizeBasal`, S, old_S_r, old_V, old_A, old_B, old_sigma, basal)
+C_orthogonalizeBasal <- function(S, old_S_r, old_V, old_A, old_B, old_sigma, basal) {
+    .Call(`_actionet_C_orthogonalizeBasal`, S, old_S_r, old_V, old_A, old_B, old_sigma, basal)
 }
 
-orthogonalizeBasal_full <- function(S, old_S_r, old_V, old_A, old_B, old_sigma, basal) {
-    .Call(`_actionet_orthogonalizeBasal_full`, S, old_S_r, old_V, old_A, old_B, old_sigma, basal)
+C_orthogonalizeBasal_full <- function(S, old_S_r, old_V, old_A, old_B, old_sigma, basal) {
+    .Call(`_actionet_C_orthogonalizeBasal_full`, S, old_S_r, old_V, old_A, old_B, old_sigma, basal)
 }
 
 #' Computes SVD decomposition
@@ -238,16 +238,16 @@ orthogonalizeBasal_full <- function(S, old_S_r, old_V, old_A, old_B, old_sigma, 
 #' A = randn(100, 20)
 #' svd.out = runSVD(A, dim = 3)
 #' U = svd.out$u
-runSVDSparse <- function(A, k = 30L, max_it = 0L, seed = 0L, algorithm = 0L, verbose = TRUE) {
-    .Call(`_actionet_runSVDSparse`, A, k, max_it, seed, algorithm, verbose)
+C_runSVDSparse <- function(A, k = 30L, max_it = 0L, seed = 0L, algorithm = 0L, verbose = TRUE) {
+    .Call(`_actionet_C_runSVDSparse`, A, k, max_it, seed, algorithm, verbose)
 }
 
-runSVDDense <- function(A, k = 30L, max_it = 0L, seed = 0L, algorithm = 0L, verbose = TRUE) {
-    .Call(`_actionet_runSVDDense`, A, k, max_it, seed, algorithm, verbose)
+C_runSVDDense <- function(A, k = 30L, max_it = 0L, seed = 0L, algorithm = 0L, verbose = TRUE) {
+    .Call(`_actionet_C_runSVDDense`, A, k, max_it, seed, algorithm, verbose)
 }
 
-perturbedSVD <- function(u, d, v, A, B) {
-    .Call(`_actionet_perturbedSVD`, u, d, v, A, B)
+C_perturbedSVD <- function(u, d, v, A, B) {
+    .Call(`_actionet_C_perturbedSVD`, u, d, v, A, B)
 }
 
 #' Builds an interaction network from the multi-level archetypal decompositions
@@ -264,12 +264,12 @@ perturbedSVD <- function(u, d, v, A, B) {
 #' @examples
 #' prune.out = collectArchetypes(ACTION.out$C, ACTION.out$H)
 #'	G = buildNetwork(prune.out$H_stacked)
-buildNetwork <- function(H, algorithm = "k*nn", distance_metric = "jsd", density = 1.0, thread_no = 0L, M = 16, ef_construction = 200, ef = 50, mutual_edges_only = TRUE, k = 10L) {
-    .Call(`_actionet_buildNetwork`, H, algorithm, distance_metric, density, thread_no, M, ef_construction, ef, mutual_edges_only, k)
+C_buildNetwork <- function(H, algorithm = "k*nn", distance_metric = "jsd", density = 1.0, thread_no = 0L, M = 16, ef_construction = 200, ef = 50, mutual_edges_only = TRUE, k = 10L) {
+    .Call(`_actionet_C_buildNetwork`, H, algorithm, distance_metric, density, thread_no, M, ef_construction, ef, mutual_edges_only, k)
 }
 
-runLPA <- function(G, labels, lambda = 1, iters = 3L, sig_threshold = 3, fixed_labels_ = NULL, thread_no = 0L) {
-    .Call(`_actionet_runLPA`, G, labels, lambda, iters, sig_threshold, fixed_labels_, thread_no)
+C_runLPA <- function(G, labels, lambda = 1, iters = 3L, sig_threshold = 3, fixed_labels_ = NULL, thread_no = 0L) {
+    .Call(`_actionet_C_runLPA`, G, labels, lambda, iters, sig_threshold, fixed_labels_, thread_no)
 }
 
 #' Computes network diffusion over a given network, starting with an arbitrarty
@@ -286,8 +286,8 @@ runLPA <- function(G, labels, lambda = 1, iters = 3L, sig_threshold = 3, fixed_l
 #' G = colNets(ace)$ACTIONet
 #' gene.expression = Matrix::t(logcounts(ace))[c("CD19", "CD14", "CD16"), ]
 #' smoothed.expression = computeNetworkDiffusionApprox(G, gene.expression)
-computeNetworkDiffusion <- function(G, X0, alpha = 0.85, max_it = 5L, thread_no = 0L, approx = FALSE, norm_method = 0L, tol = 1e-8) {
-    .Call(`_actionet_computeNetworkDiffusion`, G, X0, alpha, max_it, thread_no, approx, norm_method, tol)
+C_computeNetworkDiffusion <- function(G, X0, alpha = 0.85, max_it = 5L, thread_no = 0L, approx = FALSE, norm_method = 0L, tol = 1e-8) {
+    .Call(`_actionet_C_computeNetworkDiffusion`, G, X0, alpha, max_it, thread_no, approx, norm_method, tol)
 }
 
 #' Compute coreness of graph vertices
@@ -299,8 +299,8 @@ computeNetworkDiffusion <- function(G, X0, alpha = 0.85, max_it = 5L, thread_no 
 #' @examples
 #' G = colNets(ace)$ACTIONet
 #' cn = computeCoreness(G)
-computeCoreness <- function(G) {
-    .Call(`_actionet_computeCoreness`, G)
+C_computeCoreness <- function(G) {
+    .Call(`_actionet_C_computeCoreness`, G)
 }
 
 #' Compute coreness of subgraph vertices induced by each archetype
@@ -314,24 +314,24 @@ computeCoreness <- function(G) {
 #' G = colNets(ace)$ACTIONet
 #' assignments = ace$archetype.assignment
 #' connectivity = computeCoreness(G, assignments)
-computeArchetypeCentrality <- function(G, sample_assignments) {
-    .Call(`_actionet_computeArchetypeCentrality`, G, sample_assignments)
+C_computeArchetypeCentrality <- function(G, sample_assignments) {
+    .Call(`_actionet_C_computeArchetypeCentrality`, G, sample_assignments)
 }
 
-autocorrelation_Moran_parametric <- function(G, scores, normalization_method = 4L, thread_no = 0L) {
-    .Call(`_actionet_autocorrelation_Moran_parametric`, G, scores, normalization_method, thread_no)
+C_autocorrelation_Moran_parametric <- function(G, scores, normalization_method = 4L, thread_no = 0L) {
+    .Call(`_actionet_C_autocorrelation_Moran_parametric`, G, scores, normalization_method, thread_no)
 }
 
-autocorrelation_Moran <- function(G, scores, normalization_method = 1L, perm_no = 30L, thread_no = 0L) {
-    .Call(`_actionet_autocorrelation_Moran`, G, scores, normalization_method, perm_no, thread_no)
+C_autocorrelation_Moran <- function(G, scores, normalization_method = 1L, perm_no = 30L, thread_no = 0L) {
+    .Call(`_actionet_C_autocorrelation_Moran`, G, scores, normalization_method, perm_no, thread_no)
 }
 
-autocorrelation_Geary <- function(G, scores, normalization_method = 1L, perm_no = 30L, thread_no = 0L) {
-    .Call(`_actionet_autocorrelation_Geary`, G, scores, normalization_method, perm_no, thread_no)
+C_autocorrelation_Geary <- function(G, scores, normalization_method = 1L, perm_no = 30L, thread_no = 0L) {
+    .Call(`_actionet_C_autocorrelation_Geary`, G, scores, normalization_method, perm_no, thread_no)
 }
 
-assess_label_enrichment <- function(G, M, thread_no = 0L) {
-    .Call(`_actionet_assess_label_enrichment`, G, M, thread_no)
+C_assess_label_enrichment <- function(G, M, thread_no = 0L) {
+    .Call(`_actionet_C_assess_label_enrichment`, G, M, thread_no)
 }
 
 #' Computes feature enrichment wrt a given annotation
@@ -353,8 +353,8 @@ assess_label_enrichment <- function(G, M, thread_no = 0L) {
 #' )
 #' rownames(logPvals) = colnames(specificity_scores)
 #' colnames(logPvals) = colnames(annotations)
-assess_enrichment <- function(scores, associations, thread_no = 0L) {
-    .Call(`_actionet_assess_enrichment`, scores, associations, thread_no)
+C_assess_enrichment <- function(scores, associations, thread_no = 0L) {
+    .Call(`_actionet_C_assess_enrichment`, scores, associations, thread_no)
 }
 
 #' Aggregate matrix within groups
@@ -364,12 +364,12 @@ assess_enrichment <- function(scores, associations, thread_no = 0L) {
 #'
 #' @return S matrix with columns of values aggregated within each group of sample_assignments
 #'
-computeGroupedRowSumsSparse <- function(S, sample_assignments) {
-    .Call(`_actionet_computeGroupedRowSumsSparse`, S, sample_assignments)
+C_computeGroupedRowSumsSparse <- function(S, sample_assignments) {
+    .Call(`_actionet_C_computeGroupedRowSumsSparse`, S, sample_assignments)
 }
 
-computeGroupedRowSumsDense <- function(S, sample_assignments) {
-    .Call(`_actionet_computeGroupedRowSumsDense`, S, sample_assignments)
+C_computeGroupedRowSumsDense <- function(S, sample_assignments) {
+    .Call(`_actionet_C_computeGroupedRowSumsDense`, S, sample_assignments)
 }
 
 #' Average matrix within groups
@@ -379,40 +379,40 @@ computeGroupedRowSumsDense <- function(S, sample_assignments) {
 #'
 #' @return S matrix with columns of values average within each group of sample_assignments
 #'
-computeGroupedRowMeansSparse <- function(S, sample_assignments) {
-    .Call(`_actionet_computeGroupedRowMeansSparse`, S, sample_assignments)
+C_computeGroupedRowMeansSparse <- function(S, sample_assignments) {
+    .Call(`_actionet_C_computeGroupedRowMeansSparse`, S, sample_assignments)
 }
 
-computeGroupedRowMeansDense <- function(S, sample_assignments) {
-    .Call(`_actionet_computeGroupedRowMeansDense`, S, sample_assignments)
+C_computeGroupedRowMeansDense <- function(S, sample_assignments) {
+    .Call(`_actionet_C_computeGroupedRowMeansDense`, S, sample_assignments)
 }
 
-computeGroupedRowVarsSparse <- function(S, sample_assignments) {
-    .Call(`_actionet_computeGroupedRowVarsSparse`, S, sample_assignments)
+C_computeGroupedRowVarsSparse <- function(S, sample_assignments) {
+    .Call(`_actionet_C_computeGroupedRowVarsSparse`, S, sample_assignments)
 }
 
-computeGroupedRowVarsDense <- function(S, sample_assignments) {
-    .Call(`_actionet_computeGroupedRowVarsDense`, S, sample_assignments)
+C_computeGroupedRowVarsDense <- function(S, sample_assignments) {
+    .Call(`_actionet_C_computeGroupedRowVarsDense`, S, sample_assignments)
 }
 
-normalizeMatrixSparse <- function(X, p = 1L, dim = 0L) {
-    .Call(`_actionet_normalizeMatrixSparse`, X, p, dim)
+C_normalizeMatrixSparse <- function(X, p = 1L, dim = 0L) {
+    .Call(`_actionet_C_normalizeMatrixSparse`, X, p, dim)
 }
 
-normalizeMatrixDense <- function(X, p = 1L, dim = 0L) {
-    .Call(`_actionet_normalizeMatrixDense`, X, p, dim)
+C_normalizeMatrixDense <- function(X, p = 1L, dim = 0L) {
+    .Call(`_actionet_C_normalizeMatrixDense`, X, p, dim)
 }
 
-scaleMatrixDense <- function(X, v, dim = 0L) {
-    .Call(`_actionet_scaleMatrixDense`, X, v, dim)
+C_scaleMatrixDense <- function(X, v, dim = 0L) {
+    .Call(`_actionet_C_scaleMatrixDense`, X, v, dim)
 }
 
-scaleMatrixSparse <- function(X, v, dim = 0L) {
-    .Call(`_actionet_scaleMatrixSparse`, X, v, dim)
+C_scaleMatrixSparse <- function(X, v, dim = 0L) {
+    .Call(`_actionet_C_scaleMatrixSparse`, X, v, dim)
 }
 
-normalizeGraph <- function(G, norm_type = 0L) {
-    .Call(`_actionet_normalizeGraph`, G, norm_type)
+C_normalizeGraph <- function(G, norm_type = 0L) {
+    .Call(`_actionet_C_normalizeGraph`, G, norm_type)
 }
 
 #' Computes the maximum-weight bipartite graph matching
@@ -424,24 +424,28 @@ normalizeGraph <- function(G, norm_type = 0L) {
 #'
 #' @examples
 #' G_matched = MWM_hungarian(G)
-MWM_hungarian <- function(G) {
-    .Call(`_actionet_MWM_hungarian`, G)
+C_MWM_hungarian <- function(G) {
+    .Call(`_actionet_C_MWM_hungarian`, G)
 }
 
-MWM_rank1 <- function(u, v, u_threshold = 0, v_threshold = 0) {
-    .Call(`_actionet_MWM_rank1`, u, v, u_threshold, v_threshold)
+C_MWM_rank1 <- function(u, v, u_threshold = 0, v_threshold = 0) {
+    .Call(`_actionet_C_MWM_rank1`, u, v, u_threshold, v_threshold)
 }
 
-xicor <- function(xvec, yvec, compute_pval = TRUE, seed = 0L) {
-    .Call(`_actionet_xicor`, xvec, yvec, compute_pval, seed)
+C_xicor <- function(xvec, yvec, compute_pval = TRUE, seed = 0L) {
+    .Call(`_actionet_C_xicor`, xvec, yvec, compute_pval, seed)
 }
 
-XICOR <- function(X, Y, compute_pval = TRUE, seed = 0L, thread_no = 0L) {
-    .Call(`_actionet_XICOR`, X, Y, compute_pval, seed, thread_no)
+C_XICOR <- function(X, Y, compute_pval = TRUE, seed = 0L, thread_no = 0L) {
+    .Call(`_actionet_C_XICOR`, X, Y, compute_pval, seed, thread_no)
 }
 
-layoutNetwork <- function(G, initial_coordinates, method = "umap", n_components = 2L, spread = 1, min_dist = 1, n_epochs = 0L, learning_rate = 1, repulsion_strength = 1, negative_sample_rate = 5, approx_pow = FALSE, pcg_rand = TRUE, batch = TRUE, grain_size = 1L, seed = 0L, thread_no = 0L, verbose = TRUE, a = 0, b = 0, opt_method = "adam", alpha = -1, beta1 = 0.5, beta2 = 0.9, eps = 1e-7) {
-    .Call(`_actionet_layoutNetwork`, G, initial_coordinates, method, n_components, spread, min_dist, n_epochs, learning_rate, repulsion_strength, negative_sample_rate, approx_pow, pcg_rand, batch, grain_size, seed, thread_no, verbose, a, b, opt_method, alpha, beta1, beta2, eps)
+C_layoutNetwork <- function(G, initial_coordinates, method = "umap", n_components = 2L, spread = 1, min_dist = 1, n_epochs = 0L, learning_rate = 1, repulsion_strength = 1, negative_sample_rate = 5, approx_pow = FALSE, pcg_rand = TRUE, batch = TRUE, grain_size = 1L, seed = 0L, thread_no = 0L, verbose = TRUE, a = 0, b = 0, opt_method = "adam", alpha = -1, beta1 = 0.5, beta2 = 0.9, eps = 1e-7) {
+    .Call(`_actionet_C_layoutNetwork`, G, initial_coordinates, method, n_components, spread, min_dist, n_epochs, learning_rate, repulsion_strength, negative_sample_rate, approx_pow, pcg_rand, batch, grain_size, seed, thread_no, verbose, a, b, opt_method, alpha, beta1, beta2, eps)
+}
+
+C_computeNodeColors <- function(coordinates, thread_no = 1L) {
+    .Call(`_actionet_C_computeNodeColors`, coordinates, thread_no)
 }
 
 # Register entry points for exported C++ functions

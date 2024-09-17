@@ -6,23 +6,18 @@
 #' @param assay_name Name of assay to be used. (default='logcounts')
 #' @param reduction_slot Slot in colMaps(ace) containing reduced kernel. (default='ACTION')
 #' @param net_slot_out  Name of slot in colMaps(ace) to store ACTIONet adjacency matrix. (default='ACTIONet')
-#' @param min_cells_per_arch Minimum number of observations required to construct an archetype. (default=2)
-#' @param max_iter_ACTION Maximum number of iterations for ACTION algorithm. (default=50)
-#' @param specificity_th Defines the stringency of pruning nonspecific archetypes.
+#' @param min_obs Minimum number of observations required to construct an archetype. (default=2)
+#' @param max_it Maximum number of iterations for ACTION algorithm. (default=50)
+#' @param spec_th Defines the stringency of pruning nonspecific archetypes.
 #' The larger the value, the more archetypes will be filtered out. (default=-3)
 #' @param network_metric Distance metric with which to compute cell-to-cell similarity during network construction. Options are 'jsd' (Jensen-Shannon divergence), L2-norm ('l2'), and inner product ('ip'). (default='jsd')
 #' @param network_algorithm Algorithm to use for network construction. Options are k-nearest neighbors ('knn') and k*-nearest neighbors ('k*nn'). (default='k*nn')
 #' @param network_density Density factor of ACTIONet graph. (default=1)
 #' @param mutual_edges_only Whether to enforce edges to be mutually-nearest-neighbors. (default=TRUE)
-#' @param imputation_alpha Network diffusion parameter to smooth PCs (S_r). (default=0.9)
-#' @param layout_compactness A value between 0-100, indicating the compactness of ACTIONet layout. (default=50)
+#' @param layout_method Algorithm for computing plot layout. Options are UMAP ("umap") or t-UMAP ("tumap"). (default="umap")
 #' @param layout_epochs Number of epochs for SGD algorithm. (default=250)
-#' @param layout_algorithm Algorithm for computing plot layout. Options are UMAP ("umap") or t-UMAP ("tumap"). (default="umap")
 #' @param layout_parallel Run layout construction using multiple cores. May result in marginally different outputs across runs due to parallelization-induced randomization. (default=TRUE)
-#' @param unification_th Archetype unification resolution parameter. (default=0)
-#' @param footprint_alpha Archetype smoothing parameter. (default=0.85)
 #' @param compute_specificity_parallel Run feature specificity enrichment using multiple cores. Setting this to `TRUE` on large datasets may cause an out of memory crash. (default=FALSE)
-#' @param smoothPC Whether to smooth output of 'reduce.ace()'. Performs diffusion smoothing on the components of the reduction. Skipped if 'TRUE' and output of 'reduce.ace()' is missing from object. (default=TRUE)
 #' @param thread_no Number of parallel threads. (default=0)
 #' @param seed Seed for random initialization. (default=0)
 #'
@@ -36,36 +31,27 @@ runACTIONet <- function(ace,
                         k_max = 30,
                         assay_name = NULL,
                         reduction_slot = "action",
-                        reduction_normalization = 1,
-                        net_slot_out = "ACTIONet",
-                        min_cells_per_arch = 2,
-                        max_iter_ACTION = 50,
-                        specificity_th = -3,
+                        net_slot_out = "actionet",
+                        min_obs = 2,
+                        max_it = 50,
+                        spec_th = -3,
                         network_metric = "jsd",
                         network_algorithm = "k*nn",
                         network_density = 1,
                         mutual_edges_only = TRUE,
-                        imputation_alpha = 0.9,
+                        layout_method = c("umap", "tumap", "largevis"),
+                        layout_epochs = 100,
                         layout_spread = 1.0,
                         layout_min_dist = 1.0,
-                        layout_gamma = 1.0,
-                        layout_epochs = 100,
-                        layout_algorithm = c("umap", "tumap"),
+                        layout_3d = TRUE,
                         layout_parallel = TRUE,
-                        unification_backbone_density = 0.5,
-                        unification_resolution = 1.0,
-                        unification_min_cluster_size = 3,
-                        footprint_alpha = 0.85,
                         compute_specificity_parallel = FALSE,
-                        smoothPC = TRUE,
                         thread_no = 0,
-                        backbone_density = 0.5,
                         seed = 0) {
-
   ace <- .validate_ace(ace, as_ace = TRUE, allow_se_like = TRUE, return_elem = TRUE)
 
-  layout_algorithm <- tolower(layout_algorithm)
-  layout_algorithm <- match.arg(layout_algorithm, several.ok = FALSE)
+  layout_method <- tolower(layout_method)
+  layout_method <- match.arg(layout_method, several.ok = FALSE)
 
   if (is.null(assay_name)) {
     if ("default_assay" %in% names(metadata(ace))) {
@@ -89,74 +75,112 @@ runACTIONet <- function(ace,
   }
   .validate_map(ace = ace, map_slot = reduction_slot, return_elem = FALSE)
 
-  ace <- normalize.reduction(ace, reduction_slot = reduction_slot, reduction_normalization = reduction_normalization)
-
-  reduction_slot <- sprintf("%s_normalized", reduction_slot)
-
-  # Calls "decomp.ACTION" and fills in the appropriate slots in the ace object
-  ace <- .run.ACTIONMR.ace(
-    ace = ace,
+  ace <- runACTION(
+    ace,
     k_min = k_min,
     k_max = k_max,
-    specificity_th = specificity_th,
-    min_cells_per_arch = min_cells_per_arch,
-    unification_backbone_density = unification_backbone_density,
-    unification_resolution = unification_resolution,
-    unification_min_cluster_size = unification_min_cluster_size,
-    max_iter = max_iter_ACTION,
-    thread_no = thread_no,
-    merged_suffix = "merged",
-    footprint_slot_name = "assigned_archetype",
     reduction_slot = reduction_slot,
+    prenormalize = TRUE,
+    min_obs = min_obs,
+    max_it = max_it,
+    spec_th = spec_th,
+    thread_no = thread_no
   )
 
   # Build ACTIONet
-  G <- buildNetwork(
-    H = as.matrix(Matrix::t(colMaps(ace)[["H_stacked"]])),
+  ace <- buildNetwork(
+    ace,
     algorithm = network_algorithm,
     distance_metric = network_metric,
     density = network_density,
     thread_no = thread_no,
-    mutual_edges_only = mutual_edges_only
+    mutual_edges_only = mutual_edges_only,
+    map_slot = "H_stacked",
+    net_slot_out = net_slot_out
   )
-  colNets(ace)[[net_slot_out]] <- G
 
-  colData(ace)[["node_centrality"]] <- networkCentrality(
-    obj = G,
-    label_attr = colData(ace)[["assigned_archetype"]],
-    algorithm = "local_coreness"
+  ace <- networkCentrality(
+    ace,
+    label_attr = "assigned_archetype",
+    algorithm = "local_coreness",
+    thread_no = thread_no,
+    net_slot = net_slot_out,
+    attr_out = "node_centrality"
   )
 
   # Smooth archetype footprints
-  archetype_footprint <- networkDiffusion(
-    obj = G,
+  ace <- networkDiffusion(
+    ace,
     scores = colMaps(ace)[["H_merged"]],
     algorithm = "pagerank",
-    alpha = footprint_alpha,
     thread_no = thread_no,
-    max_it = 5,
-    tol = 1e-8,
-    net_slot = NULL
+    net_slot = net_slot_out,
+    map_slot_out = "archetype_footprint"
   )
-  colMaps(ace)$archetype_footprint <- archetype_footprint
 
-  # Uses "layoutNetwork" to layout the network and fill in the appropriate slots in the ace object
-  red.out <- runSVD_full(scale(ace$archetype_footprint), k = 3, algorithm = 0, max_it = 1000, verbose = 0, seed = 0)
-  initial_coordinates <- scale(red.out$u[, 1:3])
+  # Use archetypal reduction as initial coordinates for uwot
+  # Need to reduce it to 3D coordinate space.
+  red.out <- run.SVD(
+    X = scale(colMaps(ace)[["archetype_footprint"]]),
+    k = 3,
+    seed = seed,
+    verbose = FALSE
+  )
+  initial_coordinates <- scale(red.out$u)
 
-  ace <- .run.layoutNetwork(
-    ace = ace,
-    initial_coordinates = initial_coordinates,
-    algorithm = layout_algorithm,
+  slot_layout <- sprintf("%s_%s", net_slot_out, layout_method)
+  layout_args <- list(
+    method = layout_method,
+    n_components = 2,
     min_dist = layout_min_dist,
     spread = layout_spread,
-    gamma = layout_gamma,
     n_epochs = layout_epochs,
-    # learning_rate = learning_rate // TODO: implement?
     net_slot = net_slot_out,
     seed = seed,
-    thread_no = ifelse(layout_parallel, thread_no, 1)
+    thread_no = ifelse(layout_parallel, thread_no, 1),
+    map_slot_out = sprintf("%s_2d", slot_layout)
   )
+
+  ace <- do.call(
+    layoutNetwork,
+    c(
+      list(
+        obj = ace,
+        initial_coordinates = initial_coordinates
+      ),
+      layout_args
+    )
+  )
+
+  if (layout_3d) {
+    # Warm-start 3D layout using 2D embedding
+    initial_coordinates = cbind(
+      colMaps(ace)[[layout_args$map_slot_out]],
+      initial_coordinates[, 3]
+      )
+
+    layout_args$n_components <- 3
+    layout_args$n_epochs <- layout_epochs / 2
+    layout_args$map_slot_out <- sprintf("%s_3d", slot_layout)
+
+    ace <- do.call(
+      layoutNetwork,
+      c(
+        list(
+          obj = ace,
+          initial_coordinates = scale(initial_coordinates)
+        ),
+        layout_args
+      )
+    )
+
+    ace <- computeNodeColors(
+      ace,
+      embedding_slot = layout_args$map_slot_out,
+      color_slot_out = sprintf("%s_colors", slot_layout),
+      thread_no = thread_no
+    )
+  }
 
   # Compute gene specificity for each archetype
   ace <- archetypeFeatureSpecificity(
@@ -167,7 +191,6 @@ runACTIONet <- function(ace,
     return_raw = FALSE
   )
 
-  ace <- constructBackbone(ace, backbone_density = backbone_density)
   return(ace)
 }
 
@@ -215,8 +238,8 @@ rebuildACTIONet <- function(ace,
   layout_algorithm <- tolower(layout_algorithm)
   layout_algorithm <- match.arg(layout_algorithm, several.ok = FALSE)
 
-  .validate_ace(ace = ace, return_elem = FALSE)
-  .validate_map(ace = ace, map_slot = reduction_slot, return_elem = FALSE)
+  .validate_ace(ace, return_elem = FALSE)
+  .validate_map(ace, map_slot = reduction_slot, return_elem = FALSE)
 
   if (!(sprintf("%s_normalized", reduction_slot) %in% names(colMaps(ace)))) {
     ace <- normalize.reduction(ace, reduction_slot = reduction_slot, reduction_normalization = reduction_normalization)
@@ -289,8 +312,7 @@ rerunLayout <- function(ace,
                         learning_rate = 1.0,
                         net_slot = "ACTIONet",
                         seed = 0,
-                        thread_no = 0
-                        ) {
+                        thread_no = 0) {
   algorithm <- tolower(algorithm)
   algorithm <- match.arg(algorithm, several.ok = FALSE)
 
@@ -332,7 +354,7 @@ rerun.archetype.unification <- function(ace,
                                         merged_suffix = "merged",
                                         reduction_normalization = 1,
                                         thread_no = 0) {
-  .validate_ace(ace = ace, return_elem = FALSE)
+  .validate_ace(ace, return_elem = FALSE)
 
   G <- .validate_net(
     ace = ace,
@@ -388,30 +410,67 @@ rerun.archetype.unification <- function(ace,
   return(ace)
 }
 
-constructBackbone <- function(ace,
-                              backbone_density = 0.5) {
-  footprint <- ace$archetype_footprint
-  footprint <- normalize_mat(footprint, 1)
-  arch.graph <- buildNetwork(footprint, density = backbone_density)
-  arch.coors <- as.matrix(Matrix::t(colMaps(ace)$C_merged) %*% ace$ACTIONet2D)
-  arch.coors_3D <- as.matrix(Matrix::t(colMaps(ace)$C_merged) %*% ace$ACTIONet3D)
-  arch.colors <- as.matrix(Matrix::t(colMaps(ace)$C_merged) %*% ace$denovo_color)
-  arch.colors[arch.colors > 1] <- 1
-  backbone <- list(graph = arch.graph, coordinates = arch.coors, coordinates_3D = arch.coors_3D, colors = arch.colors)
+#' @export
+runACTION <- function(
+    ace,
+    k_min = 2,
+    k_max = 30,
+    reduction_slot = "action",
+    prenormalize = TRUE,
+    min_obs = 2,
+    max_it = 50,
+    tol = 1e-100,
+    spec_th = -3,
+    thread_no = 0,
+    merged_suffix = "merged",
+    archetype_slot_out = "assigned_archetype") {
+  ace <- .validate_ace(
+    ace,
+    as_ace = TRUE,
+    allow_se_like = TRUE,
+    return_elem = TRUE
+  )
 
-  metadata(ace)$backbone <- backbone
+  S_r <- .validate_map(
+    ace = ace,
+    map_slot = reduction_slot,
+    matrix_type = "dense",
+    force_type = TRUE,
+    return_elem = TRUE
+  )
 
-  return(ace)
-}
+  if (prenormalize) {
+    S_r <- normalize.matrix(
+      S_r,
+      dim = 1, # obs are stored rows in colMaps()
+      scale_param = NULL,
+      trans_func = NULL
+    )
+  }
 
+  out <- C_runACTION(
+    S_r = Matrix::t(S_r),
+    k_min = k_min,
+    k_max = k_max,
+    max_it = max_it,
+    tol = tol,
+    spec_th = spec_th,
+    min_obs = min_obs,
+    thread_no = thread_no
+  )
 
-normalize.reduction <- function(ace, reduction_slot = "ACTION", reduction_normalization = 1) {
-  X <- Matrix::t(colMaps(ace)[[sprintf("%s", reduction_slot)]])
+  colMaps(ace)[["H_stacked"]] <- Matrix::t(as(out$H_stacked, "sparseMatrix"))
+  colMapTypes(ace)[["H_stacked"]] <- "internal"
 
-  X_norm <- normalize_mat(X, reduction_normalization)
+  colMaps(ace)[["C_stacked"]] <- as(out$C_stacked, "sparseMatrix")
+  colMapTypes(ace)[["C_stacked"]] <- "internal"
 
-  colMaps(ace)[[sprintf("%s_normalized", reduction_slot)]] <- Matrix::t(X_norm)
-  metadata(ace)[["reduction_normalization"]] <- reduction_normalization
+  colMaps(ace)[[sprintf("H_%s", merged_suffix)]] <- as(Matrix::t(out$H_merged), "sparseMatrix")
+  colMapTypes(ace)[[sprintf("H_%s", merged_suffix)]] <- "internal"
 
+  colMaps(ace)[[sprintf("C_%s", merged_suffix)]] <- as(out$C_merged, "sparseMatrix")
+  colMapTypes(ace)[[sprintf("C_%s", merged_suffix)]] <- "internal"
+
+  colData(ace)[[archetype_slot_out]] <- c(out$assigned_archetype)
   return(ace)
 }

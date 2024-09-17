@@ -9,31 +9,23 @@ runACTIONet(
   k_min = 2,
   k_max = 30,
   assay_name = NULL,
-  reduction_slot = NULL,
-  reduction_normalization = 1,
-  net_slot_out = "ACTIONet",
-  min_cells_per_arch = 2,
-  max_iter_ACTION = 50,
-  specificity_th = -3,
+  reduction_slot = "action",
+  net_slot_out = "actionet",
+  min_obs = 2,
+  max_it = 50,
+  spec_th = -3,
   network_metric = "jsd",
   network_algorithm = "k*nn",
   network_density = 1,
   mutual_edges_only = TRUE,
-  imputation_alpha = 0.9,
+  layout_method = c("umap", "tumap", "largevis"),
+  layout_epochs = 100,
   layout_spread = 1,
   layout_min_dist = 1,
-  layout_gamma = 1,
-  layout_epochs = 100,
-  layout_algorithm = c("umap", "tumap"),
+  layout_3d = TRUE,
   layout_parallel = TRUE,
-  unification_backbone_density = 0.5,
-  unification_resolution = 1,
-  unification_min_cluster_size = 3,
-  footprint_alpha = 0.85,
   compute_specificity_parallel = FALSE,
-  smoothPC = TRUE,
   thread_no = 0,
-  backbone_density = 0.5,
   seed = 0
 )
 }
@@ -50,11 +42,11 @@ runACTIONet(
 
 \item{net_slot_out}{Name of slot in colMaps(ace) to store ACTIONet adjacency matrix. (default='ACTIONet')}
 
-\item{min_cells_per_arch}{Minimum number of observations required to construct an archetype. (default=2)}
+\item{min_obs}{Minimum number of observations required to construct an archetype. (default=2)}
 
-\item{max_iter_ACTION}{Maximum number of iterations for ACTION algorithm. (default=50)}
+\item{max_it}{Maximum number of iterations for ACTION algorithm. (default=50)}
 
-\item{specificity_th}{Defines the stringency of pruning nonspecific archetypes.
+\item{spec_th}{Defines the stringency of pruning nonspecific archetypes.
 The larger the value, the more archetypes will be filtered out. (default=-3)}
 
 \item{network_metric}{Distance metric with which to compute cell-to-cell similarity during network construction. Options are 'jsd' (Jensen-Shannon divergence), L2-norm ('l2'), and inner product ('ip'). (default='jsd')}
@@ -65,27 +57,17 @@ The larger the value, the more archetypes will be filtered out. (default=-3)}
 
 \item{mutual_edges_only}{Whether to enforce edges to be mutually-nearest-neighbors. (default=TRUE)}
 
-\item{imputation_alpha}{Network diffusion parameter to smooth PCs (S_r). (default=0.9)}
+\item{layout_method}{Algorithm for computing plot layout. Options are UMAP ("umap") or t-UMAP ("tumap"). (default="umap")}
 
 \item{layout_epochs}{Number of epochs for SGD algorithm. (default=250)}
 
-\item{layout_algorithm}{Algorithm for computing plot layout. Options are UMAP ("umap") or t-UMAP ("tumap"). (default="umap")}
-
 \item{layout_parallel}{Run layout construction using multiple cores. May result in marginally different outputs across runs due to parallelization-induced randomization. (default=TRUE)}
 
-\item{footprint_alpha}{Archetype smoothing parameter. (default=0.85)}
-
 \item{compute_specificity_parallel}{Run feature specificity enrichment using multiple cores. Setting this to `TRUE` on large datasets may cause an out of memory crash. (default=FALSE)}
-
-\item{smoothPC}{Whether to smooth output of 'reduce.ace()'. Performs diffusion smoothing on the components of the reduction. Skipped if 'TRUE' and output of 'reduce.ace()' is missing from object. (default=TRUE)}
 
 \item{thread_no}{Number of parallel threads. (default=0)}
 
 \item{seed}{Seed for random initialization. (default=0)}
-
-\item{layout_compactness}{A value between 0-100, indicating the compactness of ACTIONet layout. (default=50)}
-
-\item{unification_th}{Archetype unification resolution parameter. (default=0)}
 }
 \value{
 An ACTIONetExperiment object

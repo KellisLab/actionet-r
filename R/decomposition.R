@@ -1,4 +1,32 @@
-.decomp_methods <- c("simplex_regression", "spa", "svd", "pca", "action_reduce", "aa", "action", "action_batchcorr")
+#' @export
+run.SVD <- function(
+    X,
+    k = 30,
+    algorithm = c("irlb", "halko", "feng"),
+    max_it = NULL,
+    seed = 0,
+    verbose = TRUE) {
+      
+  algorithm <- match.arg(algorithm)
+  algorithm <- switch(algorithm,
+    "irlb" = 0,
+    "halko" = 1,
+    "feng" = 2
+  )
+
+  if (is.null(max_it)) {
+    max_it <- ifelse(algorithm == 0, 1000, 5)
+  }
+
+  X <- .validate_matrix(X)
+  if (is.matrix(X)) {
+    out <- C_runSVDDense(A = X, k = k, max_it = max_it, seed = seed, algorithm = algorithm, verbose = verbose)
+  } else {
+    out <- C_runSVDSparse(A = X, k = k, max_it = max_it, seed = seed, algorithm = algorithm, verbose = verbose)
+  }
+
+  return(out)
+}
 
 
 decomp.simplex <- function(X,
@@ -42,98 +70,6 @@ decomp.SPA <- function(X,
   }
   return(out)
 }
-
-
-decomp.SVD <- function(X,
-                       k = 30,
-                       max_iter = 10,
-                       seed = 0,
-                       return_raw = FALSE) {
-  SVD.out <- .runFastIRLB(
-    X = X,
-    k = k,
-    max_iter = max_iter,
-    seed = seed
-  )
-
-  if (return_raw == TRUE) {
-    out <- SVD.out
-  } else {
-    W <- SVD.out$u
-    H <- as.matrix(Matrix::Diagonal(length(SVD.out$d), SVD.out$d) %*% Matrix::t(SVD.out$v))
-    misc <- list(d = SVD.out$d)
-
-    out <- list(W = W, H = H, misc = misc)
-  }
-  return(out)
-}
-
-
-decomp.PCA <- function(X,
-                       k = 30,
-                       max_iter = 10,
-                       seed = 0,
-                       return_raw = FALSE) {
-  X <- .validate_matrix(X)
-
-  SVD.out <- .runFastIRLB(
-    X = X,
-    k = k,
-    max_iter = max_iter,
-    seed = seed
-  )
-
-  if (is.matrix(X)) {
-    reduction.out <- SVD2PCA_full(S = X, u = SVD.out$u, d = SVD.out$d, v = SVD.out$v)
-  } else {
-    reduction.out <- SVD2PCA(S = X, u = SVD.out$u, d = SVD.out$d, v = SVD.out$v)
-  }
-
-  if (return_raw == TRUE) {
-    out <- reduction.out
-  } else {
-    W <- reduction.out$x
-    H <- reduction.out$rotation
-    misc <- list(sdev = reduction.out$sdev)
-    misc$d <- misc$sdev * sqrt(nrow(W) - 1)
-
-    out <- list(W = W, H = H, misc = misc)
-  }
-  return(out)
-}
-
-
-decomp.ACTION_red <- function(X,
-                              k = 30,
-                              max_iter = 10,
-                              seed = 0,
-                              return_raw = FALSE) {
-  X <- .validate_matrix(X)
-
-  if (is.matrix(X)) {
-    reduction.out <- reduce_kernel_full(
-      S = X, reduced_dim = k,
-      iter = max_iter, seed = seed, SVD_algorithm = 0
-    )
-  } else {
-    reduction.out <- reduce_kernel(
-      S = X, reduced_dim = k,
-      iter = max_iter, seed = seed, SVD_algorithm = 0
-    )
-  }
-
-  if (return_raw == TRUE) {
-    out <- reduction.out
-  } else {
-    W <- reduction.out$V
-    H <- reduction.out$S_r
-    misc <- list(A = reduction.out$A, B = reduction.out$B, reduction.out$sigma)
-
-    out <- list(W = W, H = H, misc = misc)
-  }
-  return(out)
-}
-
 
 decomp.AA <- function(X,
                       k = NULL,
@@ -184,8 +120,7 @@ decomp.ACTION <- function(X,
                           max_it = 100,
                           tol = 1e-16,
                           thread_no = 0,
-                          norm = 1
-                          ) {
+                          norm = 1) {
   if (!is.matrix(X)) {
     err <- sprintf("'X' must be of type 'matrix'.\n")
     warning(err)
@@ -199,7 +134,7 @@ decomp.ACTION <- function(X,
     max_it = max_it,
     tol = tol,
     thread_no = thread_no
-    )
+  )
 
   # Prune nonspecific and/or unreliable archetypes
   pruning.out <- .collectArchetypes(
@@ -236,30 +171,6 @@ decomp.ACTION <- function(X,
   return(out)
 }
 
-.runFastIRLB <- function(X,
-                         k = 30,
-                         max_iter = 10,
-                         seed = 0) {
-  X <- .validate_matrix(X)
-  max_iter <- max_iter * 100
-  if (is.matrix(X)) {
-    out <- IRLB_SVD_full(
-      A = X,
-      dim = k,
-      iter = max_iter,
-      seed = seed
-    )
-  } else {
-    out <- IRLB_SVD(
-      A = X,
-      dim = k,
-      iter = max_iter,
-      seed = seed
-    )
-  }
-  return(out)
-}
-
 
 .collectArchetypes <- function(C_trace,
                                H_trace,
@@ -270,8 +181,8 @@ decomp.ACTION <- function(X,
     H_trace = H_trace,
     spec_th = specificity_th,
     min_obs = min_cells_per_arch
-    )
-  
+  )
+
   return(out)
 }
 

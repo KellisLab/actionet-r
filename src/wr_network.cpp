@@ -22,9 +22,9 @@
 //' prune.out = collectArchetypes(ACTION.out$C, ACTION.out$H)
 //'	G = buildNetwork(prune.out$H_stacked)
 // [[Rcpp::export]]
-arma::sp_mat buildNetwork(const arma::mat& H, std::string algorithm = "k*nn", std::string distance_metric = "jsd",
-                          double density = 1.0, int thread_no = 0, double M = 16, double ef_construction = 200,
-                          double ef = 50, bool mutual_edges_only = true, int k = 10) {
+arma::sp_mat C_buildNetwork(const arma::mat& H, std::string algorithm = "k*nn", std::string distance_metric = "jsd",
+                            double density = 1.0, int thread_no = 0, double M = 16, double ef_construction = 200,
+                            double ef = 50, bool mutual_edges_only = true, int k = 10) {
     arma::sp_mat G = actionet::buildNetwork(H, std::move(algorithm), std::move(distance_metric), density, thread_no, M,
                                             ef_construction, ef, mutual_edges_only, k);
 
@@ -34,9 +34,9 @@ arma::sp_mat buildNetwork(const arma::mat& H, std::string algorithm = "k*nn", st
 // label_propagation ===================================================================================================
 
 // [[Rcpp::export]]
-arma::vec runLPA(arma::sp_mat& G, arma::vec& labels, double lambda = 1, int iters = 3,
-                 double sig_threshold = 3, Rcpp::Nullable<Rcpp::IntegerVector> fixed_labels_ = R_NilValue,
-                 int thread_no = 0) {
+arma::vec C_runLPA(arma::sp_mat& G, arma::vec& labels, double lambda = 1, int iters = 3,
+                   double sig_threshold = 3, Rcpp::Nullable<Rcpp::IntegerVector> fixed_labels_ = R_NilValue,
+                   int thread_no = 0) {
     // TODO: This is ugly. Find a better way to fix labels.
     arma::uvec fixed_labels_vec;
     if (fixed_labels_.isNotNull()) {
@@ -70,8 +70,8 @@ arma::vec runLPA(arma::sp_mat& G, arma::vec& labels, double lambda = 1, int iter
 //' gene.expression = Matrix::t(logcounts(ace))[c("CD19", "CD14", "CD16"), ]
 //' smoothed.expression = computeNetworkDiffusionApprox(G, gene.expression)
 // [[Rcpp::export]]
-arma::mat computeNetworkDiffusion(arma::sp_mat& G, arma::mat& X0, double alpha = 0.85, int max_it = 5,
-                                  int thread_no = 0, bool approx = false, int norm_method = 0, double tol = 1e-8) {
+arma::mat C_computeNetworkDiffusion(arma::sp_mat& G, arma::mat& X0, double alpha = 0.85, int max_it = 5,
+                                    int thread_no = 0, bool approx = false, int norm_method = 0, double tol = 1e-8) {
     arma::mat X = actionet::computeNetworkDiffusion(G, X0, alpha, max_it, thread_no, approx, norm_method, tol);
     return (X);
 }
@@ -88,7 +88,7 @@ arma::mat computeNetworkDiffusion(arma::sp_mat& G, arma::mat& X0, double alpha =
 //' G = colNets(ace)$ACTIONet
 //' cn = computeCoreness(G)
 // [[Rcpp::export]]
-arma::uvec computeCoreness(arma::sp_mat& G) {
+arma::uvec C_computeCoreness(arma::sp_mat& G) {
     arma::uvec core_num = actionet::computeCoreness(G);
     return (core_num);
 }
@@ -105,7 +105,7 @@ arma::uvec computeCoreness(arma::sp_mat& G) {
 //' assignments = ace$archetype.assignment
 //' connectivity = computeCoreness(G, assignments)
 // [[Rcpp::export]]
-arma::vec computeArchetypeCentrality(arma::sp_mat& G, const arma::uvec& sample_assignments) {
+arma::vec C_computeArchetypeCentrality(arma::sp_mat& G, const arma::uvec& sample_assignments) {
     arma::vec conn = actionet::computeArchetypeCentrality(G, sample_assignments);
 
     return (conn);

@@ -6,11 +6,14 @@
 \usage{
 decomp.ACTION(
   X,
-  k,
-  max_iter = 50,
-  min_delta = 1e-300,
+  k_min,
+  k_max,
+  specificity_th = -3,
+  min_cells_per_arch = 2,
+  max_it = 100,
+  tol = 1e-16,
   thread_no = 0,
-  return_raw = FALSE
+  norm = 1
 )
 }
 \description{

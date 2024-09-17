@@ -24,15 +24,15 @@
   } else {
     if (is.matrix(X)) {
       X = switch (dim,
-                  "1" = scaleMatrixDense(X, scale_fac, 1), # Better memory.
-                  "2" = scaleMatrixDense(X, scale_fac, 0)) # Absolutely better.
+                  "1" = C_scaleMatrixDense(X, scale_fac, 1), # Better memory.
+                  "2" = C_scaleMatrixDense(X, scale_fac, 0)) # Absolutely better.
     } else {
       if (!is(X, "CsparseMatrix")) {
         X = as(X, "CsparseMatrix")
       }
       X = switch (
         dim,
-        "1" = scaleMatrixSparse(X, scale_fac, 1), # Better memory.
+        "1" = C_scaleMatrixSparse(X, scale_fac, 1), # Better memory.
         "2" = X %*% Matrix::Diagonal(n = length(scale_fac), x = scale_fac)
       )
     }

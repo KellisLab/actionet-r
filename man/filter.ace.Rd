@@ -6,7 +6,7 @@
 \usage{
 filter.ace(
   ace,
-  assay_name = NULL,
+  assay_name = "counts",
   min_cells_per_feat = NULL,
   min_feats_per_cell = NULL,
   min_umis_per_cell = NULL,

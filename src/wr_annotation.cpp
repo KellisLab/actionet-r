@@ -8,9 +8,9 @@
 // marker_stats ========================================================================================================
 
 // [[Rcpp::export]]
-arma::mat compute_marker_aggregate_stats(arma::sp_mat& G, arma::sp_mat& S, arma::sp_mat& marker_mat,
-                                         double alpha = 0.85, int max_it = 5, int thread_no = 0,
-                                         bool ignore_baseline_expression = false) {
+arma::mat C_compute_marker_aggregate_stats(arma::sp_mat& G, arma::sp_mat& S, arma::sp_mat& marker_mat,
+                                           double alpha = 0.85, int max_it = 5, int thread_no = 0,
+                                           bool ignore_baseline_expression = false) {
     arma::mat stats = actionet::compute_marker_aggregate_stats(G, S, marker_mat, alpha, max_it, thread_no,
                                                                ignore_baseline_expression);
 
@@ -18,9 +18,9 @@ arma::mat compute_marker_aggregate_stats(arma::sp_mat& G, arma::sp_mat& S, arma:
 }
 
 // [[Rcpp::export]]
-Rcpp::List aggregate_genesets_vision(arma::sp_mat& G, arma::sp_mat& S, arma::mat& marker_mat,
-                                     int norm_type = 2, double alpha = 0.85, int max_it = 5, double tol = 1E-8,
-                                     int thread_no = 0) {
+Rcpp::List C_aggregate_genesets_vision(arma::sp_mat& G, arma::sp_mat& S, arma::mat& marker_mat,
+                                       int norm_type = 2, double alpha = 0.85, int max_it = 5, double tol = 1E-8,
+                                       int thread_no = 0) {
     arma::field<arma::mat> stats = actionet::aggregate_genesets_vision(G, S, marker_mat, norm_type,
                                                                        alpha, max_it, tol, thread_no);
 
@@ -51,7 +51,7 @@ Rcpp::List aggregate_genesets_vision(arma::sp_mat& G, arma::sp_mat& S, arma::mat
 //' logPvals.list = compute_archetype_feature_specificity(S.norm, unification.out$H_merged)
 //' specificity.scores = logPvals.list$upper_significance
 // [[Rcpp::export]]
-Rcpp::List archetypeFeatureSpecificitySparse(arma::sp_mat& S, arma::mat& H, int thread_no = 0) {
+Rcpp::List C_archetypeFeatureSpecificitySparse(arma::sp_mat& S, arma::mat& H, int thread_no = 0) {
     arma::field<arma::mat> res = actionet::computeFeatureSpecificity(S, H, thread_no);
 
     Rcpp::List out_list;
@@ -63,7 +63,7 @@ Rcpp::List archetypeFeatureSpecificitySparse(arma::sp_mat& S, arma::mat& H, int 
 }
 
 // [[Rcpp::export]]
-Rcpp::List archetypeFeatureSpecificityDense(arma::mat& S, arma::mat& H, int thread_no = 0) {
+Rcpp::List C_archetypeFeatureSpecificityDense(arma::mat& S, arma::mat& H, int thread_no = 0) {
     arma::field<arma::mat> res = actionet::computeFeatureSpecificity(S, H, thread_no);
 
     Rcpp::List out_list;
@@ -90,7 +90,7 @@ Rcpp::List archetypeFeatureSpecificityDense(arma::mat& S, arma::mat& H, int thre
 //' logPvals.list = compute_cluster_feature_specificity(S.norm, cell.clusters)
 //' specificity.scores = logPvals.list$upper_significance
 // [[Rcpp::export]]
-Rcpp::List clusterFeatureSpecificitySparse(arma::sp_mat& S, arma::uvec& sample_assignments, int thread_no = 0) {
+Rcpp::List C_clusterFeatureSpecificitySparse(arma::sp_mat& S, arma::uvec& sample_assignments, int thread_no = 0) {
     arma::field<arma::mat> res = actionet::computeFeatureSpecificity(S, sample_assignments, thread_no);
 
     Rcpp::List out_list;
@@ -102,7 +102,7 @@ Rcpp::List clusterFeatureSpecificitySparse(arma::sp_mat& S, arma::uvec& sample_a
 }
 
 // [[Rcpp::export]]
-Rcpp::List clusterFeatureSpecificityDense(arma::mat& S, arma::uvec& sample_assignments, int thread_no = 0) {
+Rcpp::List C_clusterFeatureSpecificityDense(arma::mat& S, arma::uvec& sample_assignments, int thread_no = 0) {
     arma::field<arma::mat> res = actionet::computeFeatureSpecificity(S, sample_assignments, thread_no);
 
     Rcpp::List out_list;

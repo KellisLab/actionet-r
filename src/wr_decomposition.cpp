@@ -6,8 +6,8 @@
 // orthogonalization ========================================================================================================
 // TODO: This whole submodule is fucked. Fix it.
 // [[Rcpp::export]]
-Rcpp::List orthogonalizeBatchEffect(arma::sp_mat& S, arma::mat& old_S_r, arma::mat& old_V, arma::mat& old_A,
-                                    arma::mat& old_B, arma::vec& old_sigma, arma::mat& design) {
+Rcpp::List C_orthogonalizeBatchEffect(arma::sp_mat& S, arma::mat& old_S_r, arma::mat& old_V, arma::mat& old_A,
+                                      arma::mat& old_B, arma::vec& old_sigma, arma::mat& design) {
     arma::field<arma::mat> SVD_results(5);
 
     SVD_results(0) = old_V;
@@ -41,8 +41,8 @@ Rcpp::List orthogonalizeBatchEffect(arma::sp_mat& S, arma::mat& old_S_r, arma::m
 }
 
 //[[Rcpp::export]]
-Rcpp::List orthogonalizeBatchEffect_full(arma::mat& S, arma::mat& old_S_r, arma::mat& old_V, arma::mat& old_A,
-                                         arma::mat& old_B, arma::vec& old_sigma, arma::mat& design) {
+Rcpp::List C_orthogonalizeBatchEffect_full(arma::mat& S, arma::mat& old_S_r, arma::mat& old_V, arma::mat& old_A,
+                                           arma::mat& old_B, arma::vec& old_sigma, arma::mat& design) {
     arma::field<arma::mat> SVD_results(5);
 
     SVD_results(0) = old_V;
@@ -75,8 +75,8 @@ Rcpp::List orthogonalizeBatchEffect_full(arma::mat& S, arma::mat& old_S_r, arma:
 }
 
 // [[Rcpp::export]]
-Rcpp::List orthogonalizeBasal(arma::sp_mat& S, arma::mat& old_S_r, arma::mat& old_V, arma::mat& old_A,
-                              arma::mat& old_B, arma::vec& old_sigma, arma::mat& basal) {
+Rcpp::List C_orthogonalizeBasal(arma::sp_mat& S, arma::mat& old_S_r, arma::mat& old_V, arma::mat& old_A,
+                                arma::mat& old_B, arma::vec& old_sigma, arma::mat& basal) {
     arma::field<arma::mat> SVD_results(5);
 
     SVD_results(0) = old_V;
@@ -109,8 +109,8 @@ Rcpp::List orthogonalizeBasal(arma::sp_mat& S, arma::mat& old_S_r, arma::mat& ol
 }
 
 //[[Rcpp::export]]
-Rcpp::List orthogonalizeBasal_full(arma::mat& S, arma::mat& old_S_r, arma::mat& old_V, arma::mat& old_A,
-                                   arma::mat& old_B, arma::vec& old_sigma, arma::mat& basal) {
+Rcpp::List C_orthogonalizeBasal_full(arma::mat& S, arma::mat& old_S_r, arma::mat& old_V, arma::mat& old_A,
+                                     arma::mat& old_B, arma::vec& old_sigma, arma::mat& basal) {
     arma::field<arma::mat> SVD_results(5);
 
     SVD_results(0) = old_V;
@@ -161,8 +161,8 @@ Rcpp::List orthogonalizeBasal_full(arma::mat& S, arma::mat& old_S_r, arma::mat& 
 //' svd.out = runSVD(A, dim = 3)
 //' U = svd.out$u
 // [[Rcpp::export]]
-Rcpp::List runSVDSparse(arma::sp_mat& A, int k = 30, int max_it = 0, int seed = 0, int algorithm = 0,
-                        bool verbose = true) {
+Rcpp::List C_runSVDSparse(arma::sp_mat& A, int k = 30, int max_it = 0, int seed = 0, int algorithm = 0,
+                          bool verbose = true) {
     arma::field<arma::mat> SVD_out = actionet::runSVD(A, k, max_it, seed, algorithm, verbose);
 
     Rcpp::List res;
@@ -174,7 +174,8 @@ Rcpp::List runSVDSparse(arma::sp_mat& A, int k = 30, int max_it = 0, int seed = 
 }
 
 // [[Rcpp::export]]
-Rcpp::List runSVDDense(arma::mat& A, int k = 30, int max_it = 0, int seed = 0, int algorithm = 0, bool verbose = true) {
+Rcpp::List C_runSVDDense(arma::mat& A, int k = 30, int max_it = 0, int seed = 0, int algorithm = 0,
+                         bool verbose = true) {
     arma::field<arma::mat> SVD_out = actionet::runSVD(A, k, max_it, seed, algorithm, verbose);
 
     Rcpp::List res;
@@ -186,7 +187,7 @@ Rcpp::List runSVDDense(arma::mat& A, int k = 30, int max_it = 0, int seed = 0, i
 }
 
 // [[Rcpp::export]]
-Rcpp::List perturbedSVD(arma::mat u, arma::vec d, arma::mat v, arma::mat A, arma::mat B) {
+Rcpp::List C_perturbedSVD(arma::mat u, arma::vec d, arma::mat v, arma::mat A, arma::mat B) {
     // TODO: Jank. Put this in the function
     if (1 < d.n_cols)
         d = d.diag();

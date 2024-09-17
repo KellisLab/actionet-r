@@ -11,7 +11,8 @@ reduce.ace(
   reduction_out = "action",
   algorithm = c("irlb", "halko", "feng"),
   max_it = NULL,
-  seed = 0
+  seed = 0,
+  verbose = TRUE
 )
 }
 \arguments{
