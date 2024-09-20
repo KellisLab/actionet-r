@@ -11,8 +11,9 @@ Authors@R: c(
 Description: More about what it does (maybe more than one line).
 URL: www.somethinggoeshere.com
 License: GPL3
-Imports: Rcpp (>= 1.0.12)
+Depends: R (>= 4.0.0), ACTIONetExperiment, Matrix
+Imports: Rcpp (>= 1.0.12), RcppArmadillo, BiocParallel
+Suggests: igraph, ggplot2, ggrepel, gplots, plotly, colorspace
 LinkingTo: Rcpp, RcppArmadillo
-Depends: R (>= 4.0.0), Rcpp, RcppArmadillo, ACTIONetExperiment, Matrix, BiocParallel
 RoxygenNote: 7.3.2
 Encoding: UTF-8

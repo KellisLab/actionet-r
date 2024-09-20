@@ -116,14 +116,14 @@ clusterFeatureSpecificity <- function(
 archetypeFeatureSpecificity <- function(
     ace,
     assay_name = "logcounts",
-    footprint_slot = "archetype_footprint",
+    map_slot = "archetype_footprint",
     thread_no = 0,
     return_raw = FALSE) {
   S <- .validate_assay(ace = ace, assay_name = assay_name)
 
   H <- .validate_map(
     ace = ace,
-    map_slot = footprint_slot,
+    map_slot = map_slot,
     matrix_type = "dense",
     force_type = TRUE
   )

@@ -128,7 +128,7 @@ runACTIONet <- function(ace,
   )
   initial_coordinates <- scale(red.out$u)
 
-  slot_layout <- sprintf("%s_%s", net_slot_out, layout_method)
+  slot_layout <- sprintf("%s_%s", layout_method, net_slot_out)
   layout_args <- list(
     method = layout_method,
     n_components = 2,
@@ -154,10 +154,10 @@ runACTIONet <- function(ace,
 
   if (layout_3d) {
     # Warm-start 3D layout using 2D embedding
-    initial_coordinates = cbind(
+    initial_coordinates <- cbind(
       colMaps(ace)[[layout_args$map_slot_out]],
       initial_coordinates[, 3]
-      )
+    )
 
     layout_args$n_components <- 3
     layout_args$n_epochs <- layout_epochs / 2
@@ -186,7 +186,7 @@ runACTIONet <- function(ace,
   ace <- archetypeFeatureSpecificity(
     ace = ace,
     assay_name = assay_name,
-    footprint_slot = "archetype_footprint",
+    map_slot = "archetype_footprint",
     thread_no = ifelse(compute_specificity_parallel, thread_no, 1),
     return_raw = FALSE
   )
@@ -400,7 +400,7 @@ rerun.archetype.unification <- function(ace,
   ace <- archetypeFeatureSpecificity(
     ace = ace,
     assay_name = assay_name,
-    footprint_slot = "archetype_footprint",
+    map_slot = "archetype_footprint",
     thread_no = ifelse(compute_specificity_parallel, thread_no, 1),
     return_raw = FALSE
   )

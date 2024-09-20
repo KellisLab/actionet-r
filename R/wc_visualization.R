@@ -107,7 +107,7 @@ layoutNetwork <- function(
     if (is_ace && !return_raw) {
         rownames(embedding) <- colnames(obj)
         if (is.null(map_slot_out)) {
-            map_slot_out <- sprintf("%s_%s", net_slot, method)
+            map_slot_out <- sprintf("%s_%s", method, net_slot)
         }
         colMaps(obj)[[map_slot_out]] <- embedding
         colMapTypes(obj)[[map_slot_out]] <- "embedding"
@@ -123,7 +123,6 @@ computeNodeColors <- function(
     color_slot_out = NULL,
     thread_no = 1,
     return_raw = FALSE) {
-
     is_ace <- .validate_ace(obj, error_on_fail = FALSE, return_elem = FALSE)
 
     coordinates <- .ace_or_map(
@@ -139,7 +138,7 @@ computeNodeColors <- function(
 
     if (is_ace && !return_raw) {
         if (is.null(color_slot_out)) {
-            color_slot_out <- sprintf("%s_colors", embedding_slot)
+            color_slot_out <- sprintf("colors_%s", embedding_slot)
         }
         colMaps(obj)[[color_slot_out]] <- colors
         return(obj)

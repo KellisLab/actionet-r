@@ -94,7 +94,7 @@ networkDiffusion <- function(
 
   if (is_ace && !return_raw) {
     if (is.null(map_slot_out)) {
-      map_slot_out <- sprintf("%s_%s", net_slot, algorithm)
+      map_slot_out <- sprintf("%s_%s", algorithm, net_slot)
     }
     colMaps(obj)[[map_slot_out]] <- X
     return(obj)
@@ -184,7 +184,7 @@ networkCentrality <- function(
 
   if (is_ace && !return_raw) {
     if (is.null(attr_out)) {
-      attr_out <- sprintf("%s_%s", net_slot, algorithm)
+      attr_out <- sprintf("%s_%s", algorithm, net_slot)
     }
     colData(obj)[[attr_out]] <- centrality
     return(obj)
