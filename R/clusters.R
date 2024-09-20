@@ -1,4 +1,3 @@
-
 #' Annotate clusters using prior cell annotations
 #' (It uses Fisher's exact test for computing overlaps -- approximate HGT is used)
 #'
@@ -222,169 +221,79 @@ annotate.profile.using.markers <- function(profile, markers) {
   return(X)
 }
 
-#' A wrapper function for the leiden algorithm
-#'
-#' @param G Adjacency matrix of the input graph
-#' @param resolution_parameter Resolution of the clustering.
-#' The higher the resolution, the more clusters we will get (default=0.5).
-#' @param initial_clusters Used as the inital clustering
-#' @param seed Random seed
-#'
-#' @return ace with added annotation
-#'
-#' @examples
-#' clusters <- cluster.graph(G, 1.0)
 #' @export
-cluster.graph <- function(G,
-                          resolution_parameter = 0.5,
-                          initial_clusters = NULL,
-                          seed = 0) {
-  
-  stop("Not implemented")
-  if (is.matrix(G)) {
-    G <- as(G, "sparseMatrix")
+clusterNetwork <- function(
+    obj,
+    algorithm = c("leiden"),
+    resolution_parameter = 1.0,
+    initial_membership = NULL,
+    n_iterations = 3,
+    net_slot = "actionet",
+    attr_out = NULL,
+    return_raw = TRUE) {
+  is_installed <- require(igraph)
+
+  if (!is_installed) {
+    stop("Package 'igraph' is not installed")
   }
 
-  is.signed <- FALSE
-  if (min(G) < 0) {
-    is.signed <- TRUE
-    print("Graph is signed. Switching to signed graph clustering mode.")
+  algorithm <- tolower(algorithm)
+  is_ace <- .validate_ace(obj, error_on_fail = FALSE, return_elem = FALSE)
+
+  G <- .ace_or_net(
+    obj = obj,
+    net_slot = net_slot,
+    matrix_type = "sparse",
+    force_type = TRUE,
+    obj_name = "obj"
+  )
+
+  if (!is.null(initial_membership)) {
+    initial_membership <- .validate_attr(
+      obj,
+      attr = initial_membership,
+      return_type = "data",
+      attr_name = "initial_membership",
+      return_elem = TRUE
+    )
+    initial_membership <- as.numeric(as.factor(initial_membership))
   }
 
-  if (!is.null(initial_clusters)) {
-    print("Perform graph clustering with *prior* initialization")
+  ig <- igraph::graph_from_adjacency_matrix(
+    adjmatrix = G,
+    mode = "undirected",
+    weighted = TRUE,
+    diag = TRUE,
+    add.colnames = NULL,
+    add.rownames = NA
+  )
 
-    if (is.signed) {
-      clusters <- as.numeric(signed_cluster(
-        A = G,
-        resolution_parameter = resolution_parameter,
-        initial_clusters_ = initial_clusters,
-        seed = seed
-      ))
-    } else {
-      clusters <- as.numeric(unsigned_cluster(
-        A = G,
-        resolution_parameter = resolution_parameter,
-        initial_clusters_ = initial_clusters,
-        seed = seed
-      ))
-    }
+  # Put this into separate hidden functions once more modes are supported.
+  if (algorithm == "leiden") {
+    comm <- igraph::cluster_leiden(
+      graph = ig,
+      objective_function = "modularity",
+      weights = NULL,
+      resolution_parameter = resolution_parameter,
+      beta = 0.01,
+      initial_membership = initial_membership,
+      n_iterations = n_iterations,
+      vertex_weights = NULL
+    )
   } else {
-    print("Perform graph clustering with *uniform* initialization")
+    stop("Invalid algorithm")
+  }
 
-    if (is.signed) {
-      clusters <- as.numeric(signed_cluster(
-        A = G,
-        resolution_parameter = resolution_parameter,
-        initial_clusters_ = NULL,
-        seed = seed
-      ))
-    } else {
-      clusters <- as.numeric(unsigned_cluster(
-        A = G,
-        resolution_parameter = resolution_parameter,
-        initial_clusters_ = NULL,
-        seed = seed
-      ))
+  clusters <- igraph::membership(comm)
+  if (is_ace && !return_raw) {
+    if (is.null(attr_out)) {
+      attr_out <- sprintf("%s_%s", algorithm, net_slot)
     }
+    colData(obj)[[attr_out]] <- clusters
+    return(obj)
   }
-  return(clusters)
-}
-
-#' @export
-leiden.clustering <- function(ace,
-                              resolution_parameter = 1,
-                              net_slot = "ACTIONet",
-                              init_slot = "assigned_archetype",
-                              seed = 0,
-                              postprocess = T,
-                              pp_lambda = 0,
-                              pp_iters = 3,
-                              pp_sig_threshold = 3) {
-  if (!is.null(init_slot)) {
-    initial.clusters <- ace[[init_slot]]
-  } else {
-    initial.clusters <- NULL
-  }
-
-  G <- colNets(ace)[[net_slot]]
-
-  clusters <- cluster.graph(G, resolution_parameter, initial.clusters, seed)
-  if (postprocess == TRUE) {
-    cc <- table(clusters)
-    clusters[clusters %in% as.numeric(names(cc)[cc < 30])] <- 0
-    clusters <- run_LPA(ace$ACTIONet, clusters, lambda = pp_lambda, iters = pp_iters, sig_threshold = pp_sig_threshold)
-  }
-  clusters <- as.numeric(clusters)
-  names(clusters) <- paste("C", as.character(clusters), sep = "")
 
   return(clusters)
-}
-
-
-#' @export
-clusterNetwork <- function(G, algorithm = "leiden",
-                           resolution_parameter = 1.0,
-                           initial_clusters = NULL,
-                           seed = 0,
-                           net_slot = "ACTIONet") {
-  
-  stop("Not implemented")
-  # algorithm <- tolower(algorithm)
-
-  # if (is(G, "ACTIONetExperiment")) {
-  #   G <- colNets(G)[[net_slot]]
-  # }
-  # if (algorithm == "leiden") {
-  #   if (is.matrix(G)) {
-  #     G <- as(G, "sparseMatrix")
-  #   }
-
-  #   is.signed <- FALSE
-  #   if (min(G) < 0) {
-  #     is.signed <- TRUE
-  #     print("Graph is signed. Switching to signed graph clustering mode.")
-  #   }
-
-  #   if (!is.null(initial_clusters)) {
-  #     print("Perform graph clustering with *prior* initialization")
-
-  #     if (is.signed) {
-  #       clusters <- as.numeric(signed_cluster(
-  #         A = G,
-  #         resolution_parameter = resolution_parameter,
-  #         initial_clusters_ = initial_clusters,
-  #         seed = seed
-  #       ))
-  #     } else {
-  #       clusters <- as.numeric(unsigned_cluster(
-  #         A = G,
-  #         resolution_parameter = resolution_parameter,
-  #         initial_clusters_ = initial_clusters,
-  #         seed = seed
-  #       ))
-  #     }
-  #   } else {
-  #     print("Perform graph clustering with *uniform* initialization")
-
-  #     if (is.signed) {
-  #       clusters <- as.numeric(signed_cluster(
-  #         A = G,
-  #         resolution_parameter = resolution_parameter,
-  #         initial_clusters_ = NULL,
-  #         seed = seed
-  #       ))
-  #     } else {
-  #       clusters <- as.numeric(unsigned_cluster(
-  #         A = G,
-  #         resolution_parameter = resolution_parameter,
-  #         initial_clusters_ = NULL,
-  #         seed = seed
-  #       ))
-  #     }
-  #   }
-  # }
-  # return(clusters)
 }
 
 
