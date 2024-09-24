@@ -1,6 +1,5 @@
 // Rcpp interface for `annotation` module
 // Organized by module header in th order imported.
-// [[Rcpp::interfaces(r, cpp)]]
 #include <utility>
 
 #include "actionet_r_config.h"

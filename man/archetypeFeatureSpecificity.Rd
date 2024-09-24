@@ -7,7 +7,7 @@
 archetypeFeatureSpecificity(
   ace,
   assay_name = "logcounts",
-  footprint_slot = "archetype_footprint",
+  map_slot = "archetype_footprint",
   thread_no = 0,
   return_raw = FALSE
 )

@@ -33,8 +33,8 @@ cmake -S ../libactionet \
   -DBUILD_SHARED_LIBS:bool=OFF \
   -DCMAKE_POSITION_INDEPENDENT_CODE:bool=ON \
   -DLIBACTIONET_BUILD_R=1 \
-  -DR_HOME="${R_HOME}"
-  # -DCMAKE_EXPORT_COMPILE_COMMANDS=1 # For debugging
+  -DR_HOME="${R_HOME}" \
+  -DCMAKE_EXPORT_COMPILE_COMMANDS=1 # For debugging
 
 echo "Starting make -------------------------------------------"
 ${MAKE} -j${NPROC}
