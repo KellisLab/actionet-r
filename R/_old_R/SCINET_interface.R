@@ -39,7 +39,7 @@ run.SCINET.archetype <- function(
         Adj = as(igraph::get.adjacency(G), "sparseMatrix")
     }
 
-    gene.scores = rowMaps(ace)[["merged_feature_specificity"]]
+    gene.scores = rowMaps(ace)[["arch_feat_spec"]]
 
     common.genes = intersect(rownames(gene.scores), rownames(PCNet))
     if (length(common.genes) == 0) {
@@ -90,7 +90,7 @@ run.SCINET.archetype <- function(
 #' Computes a list of cluster-specific interactomes
 #'
 #' @param ace ACTIONet output object
-#' @param specificity.slot.name An entry in the rowMaps(ace), precomputed using clusterFeatureSpecificity() function
+#' @param specificity.slot.name An entry in the rowMaps(ace), precomputed using computeFeatureSpecificity() function
 #' @param G Baseline network as an adjacency matrix or igraph object.
 #' If it is NULL, PCNet is loaded as the baseline from SCINET package.
 #' @param min.edge.weight Used in post-processing to remove insignificant edges
@@ -103,7 +103,7 @@ run.SCINET.archetype <- function(
 #' @examples
 #' data('curatedMarkers_human') # pre-packaged in ACTIONet
 #' marker.genes = curatedMarkers_human$Blood$PBMC$Monaco2019.12celltypes$marker.genes
-#' ace = clusterFeatureSpecificity(ace, ace$clusters, 'cluster_specificity_scores')
+#' ace = computeFeatureSpecificity(ace, ace$clusters, 'cluster_specificity_scores')
 #' network.list = run.SCINET.clusters(ace, 'cluster_specificity_scores')
 #' G = network.list[[1]]
 #' V(G)$name[order(V(G)$specificity, decreasing = T)[1:10]]
@@ -189,7 +189,7 @@ run.SCINET.clusters <- function(
 #' Computes a list of specific interactomes for an arbitrary gene score matrix
 #'
 #' @param gene.scores gene.scores
-#' @param specificity.slot.name An entry in the rowMaps(ace), precomputed using clusterFeatureSpecificity() function
+#' @param specificity.slot.name An entry in the rowMaps(ace), precomputed using computeFeatureSpecificity() function
 #' @param G Baseline network as an adjacency matrix or igraph object.
 #' If it is NULL, PCNet is loaded as the baseline from SCINET package.
 #' @param min.edge.weight Used in post-processing to remove insignificant edges

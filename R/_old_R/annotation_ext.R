@@ -1,6 +1,6 @@
 
 scoreCells <- function(ace, markers, algorithm = "gmm2", pre_imputation_algorithm = "none", gene_scaling_method = 0,
-                       pre_alpha = 0.15, post_alpha = 0.9, network_normalization_method = "pagerank_sym", diffusion_it = 5, thread_no = 0, features_use = NULL, TFIDF_prenorm = 1, assay_name = "logcounts", net_slot = "ACTIONet", specificity_slot = "merged_feature_specificity", H_slot = "H_merged") {
+                       pre_alpha = 0.15, post_alpha = 0.9, network_normalization_method = "pagerank_sym", diffusion_it = 5, thread_no = 0, features_use = NULL, TFIDF_prenorm = 1, assay_name = "logcounts", net_slot = "ACTIONet", specificity_slot = "arch_feat_spec", H_slot = "H_merged") {
   if (!(net_slot %in% names(colNets(ace)))) {
     warning(sprintf("net_slot does not exist in colNets(ace)."))
     return()
