@@ -8,9 +8,9 @@ compute.RNA.archetype.to.RNA.archetype.alignment <- function(
   specificity_filter_threshold = 1
 ) {
 
-    reference_profile = rowMaps(reference_ace)[[sprintf("%s_feature_specificity",
+    reference_profile = rowMaps(reference_ace)[[sprintf("%s_feat_spec",
         reference_slot_name)]]
-    query_profile = rowMaps(query_ace)[[sprintf("%s_feature_specificity", query_slot_name)]]
+    query_profile = rowMaps(query_ace)[[sprintf("%s_feat_spec", query_slot_name)]]
 
     g1 = rownames(reference_ace)[apply(reference_profile, 1, max) > specificity_filter_threshold]
     g2 = rownames(query_ace)[apply(query_profile, 1, max) > specificity_filter_threshold]
@@ -81,7 +81,7 @@ compute.bulkRNA.to.RNA.archetype.alignment <- function(
 ) {
 
     reference_profile = assays(bulk)[[bulk_assay_slot]]
-    query_profile = rowMaps(query_ace)[[sprintf("%s_feature_specificity", query_slot_name)]]
+    query_profile = rowMaps(query_ace)[[sprintf("%s_feat_spec", query_slot_name)]]
 
     filtered_query_genes = rownames(query_ace)[apply(query_profile, 1, max) > specificity_filter_threshold]
 

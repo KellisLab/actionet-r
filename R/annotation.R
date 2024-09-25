@@ -150,7 +150,7 @@ annotate.archetypes.using.labels <- function(ace,
 annotate.archetypes.using.markers <- function(ace,
                                               markers,
                                               features_use = NULL,
-                                              significance_slot = "merged_feature_specificity") {
+                                              significance_slot = "arch_feat_spec") {
   features_use <- .get_feature_vec(ace, features_use)
   marker_mat <- .preprocess_annotation_markers(markers, features_use)
 
@@ -253,7 +253,7 @@ annotate.cells.from.archetypes.using.markers <- function(ace,
                                                          markers,
                                                          merged_suffix = "merged") {
   marker_set <- markers
-  significance_slot <- sprintf("%s_feature_specificity", merged_suffix)
+  significance_slot <- sprintf("%s_feat_spec", merged_suffix)
   arch.annot <- annotate.archetypes.using.markers(
     ace = ace,
     markers = marker_set,
@@ -333,7 +333,7 @@ map.cell.scores.from.archetype.enrichment <- function(ace,
 
 # TODO : Clean up arguments
 #' @export
-annotateCells <- function(ace, markers, algorithm = "parametric", norm_type = "pagerank_sym", alpha = 0.85, max_it = 5, post_correction = F, thread_no = 0, features_use = NULL, assay_name = "logcounts", net_slot = "ACTIONet", specificity_slot = "merged_feature_specificity", H_slot = "H_merged") {
+annotateCells <- function(ace, markers, algorithm = "parametric", norm_type = "pagerank_sym", alpha = 0.85, max_it = 5, post_correction = F, thread_no = 0, features_use = NULL, assay_name = "logcounts", net_slot = "ACTIONet", specificity_slot = "arch_feat_spec", H_slot = "H_merged") {
   if (!(net_slot %in% names(colNets(ace)))) {
     warning(sprintf("net_slot does not exist in colNets(ace)."))
     return()
@@ -400,7 +400,7 @@ annotateCells <- function(ace, markers, algorithm = "parametric", norm_type = "p
 }
 
 
-annotateArchetypes <- function(ace, markers = NULL, labels = NULL, scores = NULL, archetype_slot = "H_merged", archetype_specificity_slot = "merged_feature_specificity") {
+annotateArchetypes <- function(ace, markers = NULL, labels = NULL, scores = NULL, archetype_slot = "H_merged", archetype_specificity_slot = "arch_feat_spec") {
   annotations.count <- is.null(markers) + is.null(labels) + is.null(scores)
   if (annotations.count != 2) {
     stop("Exactly one of the `markers`, `labels`, or `scores` can be provided.")
@@ -410,11 +410,11 @@ annotateArchetypes <- function(ace, markers = NULL, labels = NULL, scores = NULL
     features_use <- .get_feature_vec(ace, NULL)
     marker_mat <- as(.preprocess_annotation_markers(markers, features_use), "sparseMatrix")
 
-    archetype_feature_specificity <- as.matrix(rowMaps(ace)[[archetype_specificity_slot]])
-    colnames(archetype_feature_specificity) <- paste("A", 1:ncol(archetype_feature_specificity), sep = "")
+    archetype_feat_spec <- as.matrix(rowMaps(ace)[[archetype_specificity_slot]])
+    colnames(archetype_feat_spec) <- paste("A", 1:ncol(archetype_feat_spec), sep = "")
 
-    archetype_enrichment <- Matrix::t(assess_enrichment(archetype_feature_specificity, marker_mat)$logPvals)
-    rownames(archetype_enrichment) <- colnames(archetype_feature_specificity)
+    archetype_enrichment <- Matrix::t(assess_enrichment(archetype_feat_spec, marker_mat)$logPvals)
+    rownames(archetype_enrichment) <- colnames(archetype_feat_spec)
     colnames(archetype_enrichment) <- colnames(marker_mat)
   } else if (!is.null(labels)) {
     X1 <- as.matrix(colMaps(ace)[[archetype_slot]])
@@ -479,7 +479,7 @@ annotateClusters <- function(ace, markers = NULL, labels = NULL, scores = NULL, 
     features_use <- .get_feature_vec(ace, NULL)
     marker_mat <- as(.preprocess_annotation_markers(markers, features_use), "sparseMatrix")
 
-    scores <- as.matrix(rowMaps(ace)[[sprintf("%s_feature_specificity", cluster_name)]])
+    scores <- as.matrix(rowMaps(ace)[[sprintf("%s_feat_spec", cluster_name)]])
     cluster_enrichment <- Matrix::t(assess_enrichment(scores, marker_mat)$logPvals)
     rownames(cluster_enrichment) <- colnames(scores)
     colnames(cluster_enrichment) <- colnames(marker_mat)

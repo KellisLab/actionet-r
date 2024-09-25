@@ -9,7 +9,7 @@ annotate.archetypes.using.markers(
   ace,
   markers,
   features_use = NULL,
-  significance_slot = "merged_feature_specificity"
+  significance_slot = "arch_feat_spec"
 )
 }
 \arguments{

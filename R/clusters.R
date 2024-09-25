@@ -67,7 +67,7 @@ annotate.clusters.using.labels <- function(ace,
 #'
 #' @param ace ACTIONet output object
 #' @param marker.genes A list of lists (each a set of markers for a given cell type)
-#' @param specificity.slot.name An entry in the rowMaps(ace), precomputed using clusterFeatureSpecificity() function
+#' @param specificity.slot.name An entry in the rowMaps(ace), precomputed using computeFeatureSpecificity() function
 #' @param rand.sample.no Number of random permutations (default=1000)
 #'
 #' @return A named list: \itemize{
@@ -79,7 +79,7 @@ annotate.clusters.using.labels <- function(ace,
 #' @examples
 #' data("curatedMarkers_human") # pre-packaged in ACTIONet
 #' marker.genes <- curatedMarkers_human$Blood$PBMC$Monaco2019.12celltypes$marker.genes
-#' ace <- clusterFeatureSpecificity(ace, ace$clusters, "cluster_specificity_scores")
+#' ace <- computeFeatureSpecificity(ace, ace$clusters, "cluster_specificity_scores")
 #' arch.annot <- annotate.clusters.using.markers(ace, marker.genes = marker.genes, specificity.slot.name = "cluster_specificity_scores")
 #' @export
 annotate.clusters.using.markers <- function(ace,

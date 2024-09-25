@@ -8,7 +8,7 @@ assess.geneset.enrichment.from.archetypes(
   ace,
   associations,
   min.counts = 0,
-  specificity.slot = "merged_feature_specificity"
+  specificity.slot = "arch_feat_spec"
 )
 }
 \arguments{

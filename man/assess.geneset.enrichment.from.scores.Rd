@@ -22,6 +22,6 @@ PErforms geneset enrichment analysis on arbitrary gene scores
 \examples{
 data("gProfilerDB_human")
 associations <- gProfilerDB_human$SYMBOL$WP
-scores <- rowMaps(ace)$merged_feature_specificity
+scores <- rowMaps(ace)$arch_feat_spec
 Geneset.enrichments <- assess.geneset.enrichment.from.scores(scores, associations)
 }

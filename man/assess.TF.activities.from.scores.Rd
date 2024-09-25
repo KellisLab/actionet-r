@@ -18,6 +18,6 @@ Compute the activity score of each TF based on the observed activity of its targ
 (Similar to ChEA3; it is based on a meta-analysis using 4 separate datasets)
 }
 \examples{
-scores <- rowMaps(ace)$merged_feature_specificity
+scores <- rowMaps(ace)$arch_feat_spec
 TF.scores <- assess.TF.activities.from.scores(scores)
 }

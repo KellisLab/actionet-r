@@ -144,8 +144,8 @@ verify_aces <- function(ace1, ace2) {
   ########## Check archetype feature specificity  ###############
   ###############################################################
   ###############################################################
-  spec1 <- round(ace1$merged_feature_specificity, 3)
-  spec2 <- round(ace2$merged_feature_specificity, 3)
+  spec1 <- round(ace1$arch_feat_spec, 3)
+  spec2 <- round(ace2$arch_feat_spec, 3)
 
   deltaSpec <- sum(abs(spec1 - spec2)) / length(spec1)
   warnifnot(deltaSpec < 1e-3)

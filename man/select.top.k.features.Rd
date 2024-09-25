@@ -23,6 +23,6 @@ Sorted table with the selected top-ranked
 Report the top-rank features from a given enrichment table
 }
 \examples{
-feat_scores <- as.matrix(rowMaps(ace)[["merged_feature_specificity"]])
+feat_scores <- as.matrix(rowMaps(ace)[["arch_feat_spec"]])
 enrichment.table.top <- select.top.k.features(feat_scores, 3)
 }

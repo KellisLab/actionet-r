@@ -6,7 +6,7 @@
 #' @return Matrix of TF x cell type/state indicating inferred TF activity scores
 #'
 #' @examples
-#' scores <- rowMaps(ace)$merged_feature_specificity
+#' scores <- rowMaps(ace)$arch_feat_spec
 #' TF.scores <- assess.TF.activities.from.scores(scores)
 #' @export
 assess.TF.activities.from.scores <- function(scores) {
@@ -47,7 +47,7 @@ assess.TF.activities.from.scores <- function(scores) {
 #' TF.scores <- assess.TF.activities.from.archetypes(ace)
 #' @export
 assess.TF.activities.from.archetypes <- function(ace) {
-  scores <- rowMaps(ace)$merged_feature_specificity
+  scores <- rowMaps(ace)$arch_feat_spec
   TF.scores <- assess.TF.activities.from.scores(scores)
 
   return(TF.scores)
@@ -65,7 +65,7 @@ assess.TF.activities.from.archetypes <- function(ace) {
 #' @examples
 #' data("gProfilerDB_human")
 #' associations <- gProfilerDB_human$SYMBOL$WP
-#' scores <- rowMaps(ace)$merged_feature_specificity
+#' scores <- rowMaps(ace)$arch_feat_spec
 #' Geneset.enrichments <- assess.geneset.enrichment.from.scores(scores, associations)
 #' @export
 assess.geneset.enrichment.from.scores <- function(scores, associations) {
@@ -104,7 +104,7 @@ assess.geneset.enrichment.from.scores <- function(scores, associations) {
 assess.geneset.enrichment.from.archetypes <- function(ace,
                                                       associations,
                                                       min.counts = 0,
-                                                      specificity.slot = "merged_feature_specificity") {
+                                                      specificity.slot = "arch_feat_spec") {
   scores <- rowMaps(ace)[[specificity.slot]]
   if (max(scores) > 100) {
     scores <- log1p(scores)
@@ -149,7 +149,7 @@ assess.geneset.enrichment.from.archetypes <- function(ace,
 assess.peakset.enrichment.from.archetypes <- function(ace,
                                                       associations,
                                                       min.counts = 0,
-                                                      specificity.slot = "merged_feature_specificity") {
+                                                      specificity.slot = "arch_feat_spec") {
   scores <- rowMaps(ace)[[specificity.slot]]
   if (max(scores) > 100) {
     scores <- log1p(scores)

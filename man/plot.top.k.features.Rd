@@ -29,6 +29,6 @@ Enrichment heatmap
 Plots heatmap of the top-ranked features of an enrichment table
 }
 \examples{
-feat_scores <- as.matrix(rowMaps(ace)[["merged_feature_specificity"]])
+feat_scores <- as.matrix(rowMaps(ace)[["arch_feat_spec"]])
 plot.top.k.features(feat_scores, 3)
 }

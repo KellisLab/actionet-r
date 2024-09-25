@@ -146,7 +146,7 @@ impute.specific.genes.using.archetypes <- function(ace, genes, features_use = NU
     matched_feat <- intersect(unique(genes), features_use)
     idx_feat <- match(matched_feat, features_use)
 
-    Z <- log1p(rowMaps(ace)[["merged_feature_specificity"]][idx_feat, , drop = FALSE])
+    Z <- log1p(rowMaps(ace)[["arch_feat_spec"]][idx_feat, , drop = FALSE])
     H <- Matrix::t(colMaps(ace)[["H_merged"]])
 
     expression_imputed <- Matrix::t(Z %*% H)

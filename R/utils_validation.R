@@ -196,7 +196,7 @@
     return_type = "data",
     obj_name = "obj",
     attr_name = "attr",
-    split_d = 2,
+    dim = 2,
     match_row = FALSE,
     return_elem = TRUE) {
   if (is.null(obj)) {
@@ -209,8 +209,8 @@
     stop(err)
   }
 
-  if (is(obj, "ACTIONetExperiment")) {
-    attr <- ACTIONetExperiment::get.data.or.split(obj, attr = attr, to_return = return_type, d = split_d)
+  if (.is_se_like(obj)) {
+    attr <- ACTIONetExperiment::get.data.or.split(obj, attr = attr, to_return = return_type, d = dim)
   } else {
     attr <- c(attr)
 

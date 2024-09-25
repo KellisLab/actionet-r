@@ -2,7 +2,7 @@
 % Please edit documentation in R/reduction.R
 \name{reduce.ace}
 \alias{reduce.ace}
-\title{Takes a `ACTIONetExperiment` object and adds the reduced kernel matrix}
+\title{Compute the reduced kernel matrix of a specified assay}
 \usage{
 reduce.ace(
   ace,
@@ -16,7 +16,7 @@ reduce.ace(
 )
 }
 \arguments{
-\item{ace}{ACTIONetExperiment object.}
+\item{ace}{ACTIONetExperiment or SummarizedExperiment-derived object.}
 
 \item{reduced_dim}{Dimension of reduced kernel matrix. Number of singular vectors to estimate. Passed to <code>runSVD()</code>.}
 
@@ -34,9 +34,5 @@ reduce.ace(
 ACTIONetExperiment object with reduction in colMaps(ace).
 }
 \description{
-Takes a `ACTIONetExperiment` object and adds the reduced kernel matrix
-}
-\examples{
-ace <- import.ace.from.10X(input_path)
-ace <- reduce.ace(ace)
+Compute the reduced kernel matrix of a specified assay
 }
