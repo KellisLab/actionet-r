@@ -1,6 +1,6 @@
-#' Takes a `ACTIONetExperiment` object and adds the reduced kernel matrix
+#' Compute the reduced kernel matrix of a specified assay
 #'
-#' @param ace ACTIONetExperiment object.
+#' @param ace ACTIONetExperiment or SummarizedExperiment-derived object.
 #' @param reduced_dim Dimension of reduced kernel matrix. Number of singular vectors to estimate. Passed to <code>runSVD()</code>.
 #' @param assay_name Name of assay to reduce.
 #' @param reduction_out Name of slot to store reduced output.
@@ -10,9 +10,6 @@
 #'
 #' @return ACTIONetExperiment object with reduction in colMaps(ace).
 #'
-#' @examples
-#' ace <- import.ace.from.10X(input_path)
-#' ace <- reduce.ace(ace)
 #' @export
 reduce.ace <- function(ace,
                        reduced_dim = 50,
