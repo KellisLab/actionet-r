@@ -475,7 +475,7 @@ assess.categorical.autocorrelation <- function(A,
   w <- A@x
   s0 <- sum(w)
   s1 <- sum(4 * w^2) / 2
-  s2 <- sum((Matrix::colSums(A) + ACTIONetExperiment:::fastRowSums(A))^2)
+  s2 <- sum((Matrix::colSums(A) + Matrix::rowSums(A))^2)
 
   A <- as(A, "dgTMatrix")
 

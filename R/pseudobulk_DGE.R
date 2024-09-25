@@ -154,7 +154,7 @@ get.pseudobulk.SE.old <- function(
 
     se_assays = list()
 
-    S0 = do.call(cbind, bplapply(counts_list, ACTIONetExperiment:::fastRowSums, BPPARAM = BPPARAM)) + pseudocount
+    S0 = do.call(cbind, bplapply(counts_list, Matrix::rowSums, BPPARAM = BPPARAM)) + pseudocount
     se_assays$counts = S0
 
     if (with_E == TRUE) {
@@ -325,7 +325,7 @@ run.ensemble.pseudobulk.DESeq <- function(
         return(out)
     })
 
-    outlier_count = ACTIONetExperiment:::fastRowSums(sapply(dds_res, function(dds) dds$dispOutlier))
+    outlier_count = Matrix::rowSums(sapply(dds_res, function(dds) dds$dispOutlier))
 
     mat_Bstatm = sapply(dds_res, function(dds) dds$baseMean)
     bm_mean = Matrix::rowMeans(mat_Bstatm, na.rm = TRUE)
@@ -497,11 +497,11 @@ variance.adjusted.limma <- function(
 
     fil_dm = apply(design_mat[, selected_vars, drop = FALSE], 2, function(x) {
       mm = (x > 0)
-      v = as.numeric((ACTIONetExperiment:::fastRowSums(W_masked[, mm, drop = FALSE]) == 0) > 0)
+      v = as.numeric((Matrix::rowSums(W_masked[, mm, drop = FALSE]) == 0) > 0)
       return(v)
     })
 
-    fil_idx = which(ACTIONetExperiment:::fastRowSums(fil_dm) > 0)
+    fil_idx = which(Matrix::rowSums(fil_dm) > 0)
 
     selected_feats = setdiff(1:NROW(W_masked), fil_idx)
     lm_weights = W_masked[selected_feats, ]

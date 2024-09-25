@@ -71,7 +71,7 @@ doubleNorm <- function(
     }
     Enrichment[is.na(Enrichment)] = 0
 
-    rs = sqrt(ACTIONetExperiment:::fastRowSums(Enrichment))
+    rs = sqrt(Matrix::rowSums(Enrichment))
     rs[rs == 0] = 1
     D_r = Matrix::Diagonal(nrow(Enrichment), 1/rs)
 
@@ -84,65 +84,4 @@ doubleNorm <- function(
     Enrichment.scaled = Enrichment.scaled/max(Enrichment.scaled)
 
     return(Enrichment.scaled)
-}
-
-
-assess.label.local.enrichment <- function(P, Labels) {
-
-    if (is.null(names(Labels))) {
-        names(Labels) = as.character(Labels)
-    }
-    counts = table(Labels)
-    p = counts/sum(counts)
-    Annot = names(Labels)[match(as.numeric(names(counts)), Labels)]
-
-    X = sapply(names(p), function(label) {
-        x = as.numeric(Matrix::sparseVector(
-          x = 1,
-          i = which(Labels == label),
-          length = length(Labels)
-        ))
-    })
-    colnames(X) = Annot
-
-    Exp = array(1, nrow(P)) %*% Matrix::t(p)
-    Obs = as(P %*% X, "dgTMatrix")
-
-    # Need to rescale due to missing values within the neighborhood
-    rs = ACTIONetExperiment:::fastRowSums(Obs)
-    Obs = Matrix::sparseMatrix(
-      i = Obs@i + 1,
-      j = Obs@j + 1,
-      x = Obs@x/rs[Obs@i + 1],
-      dims = dim(Obs)
-    )
-
-    Lambda = Obs - Exp
-
-    w2 = ACTIONetExperiment:::fastRowSums(P^2)
-    Nu = w2 %*% Matrix::t(p)
-
-    a = as.numeric(fast_row_max(P)) %*% Matrix::t(array(1, length(p)))
-
-    logPval = (Lambda^2)/(2 * (Nu + (a * Lambda)/3))
-    logPval[Lambda < 0] = 0
-    logPval[is.na(logPval)] = 0
-
-    logPval = as.matrix(logPval)
-
-    colnames(logPval) = Annot
-
-    max.idx = apply(logPval, 1, which.max)
-    updated.Labels = as.numeric(names(p))[max.idx]
-    names(updated.Labels) = Annot[max.idx]
-
-    updated.Labels.conf = apply(logPval, 1, max)
-
-    res = list(
-      Label = updated.Labels,
-      Confidence = updated.Labels.conf,
-      Enrichment = logPval
-    )
-
-    return(res)
 }

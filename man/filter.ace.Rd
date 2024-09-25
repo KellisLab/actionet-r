@@ -11,9 +11,6 @@ filter.ace(
   min_feats_per_cell = NULL,
   min_umis_per_cell = NULL,
   max_umis_per_cell = NULL,
-  max_mito_fraction = NULL,
-  species = c("hsapiens", "mmusculus"),
-  features_use = NULL,
   return_fil_ace = TRUE
 )
 }

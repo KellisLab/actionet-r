@@ -7,9 +7,6 @@ filter.ace <- function(
   min_feats_per_cell = NULL,
   min_umis_per_cell = NULL,
   max_umis_per_cell = NULL,
-  max_mito_fraction = NULL,
-  species = c("hsapiens", "mmusculus"),
-  features_use = NULL,
   return_fil_ace = TRUE
 ) {
 
@@ -59,21 +56,6 @@ filter.ace <- function(
     }
     ace = ace[as.numeric(rownames(X)), as.numeric(colnames(X))]
     invisible(gc())
-
-    if (!is.null(max_mito_fraction)){
-      mt_frac = get_mtRNA_stats(
-        ace,
-        by = NULL,
-        groups_use = NULL,
-        assay = assay_name,
-        species = match.arg(species),
-        metric = "pct",
-        features_use = features_use
-      )
-
-      ace = ace[, mt_frac <= max_mito_fraction]
-      invisible(gc())
-    }
 
     if (return_fil_ace){
       return(ace)
