@@ -1,3 +1,13 @@
+.is_se_like <- function(obj) {
+  allowed_classes <- c("ACTIONetExperiment", "SummarizedExperiment", "RangedSummarizedExperiment", "SingleCellExperiment")
+
+  if (class(obj) %in% allowed_classes) {
+    return(TRUE)
+  } else {
+    return(FALSE)
+  }
+}
+
 .validate_ace <- function(
     obj,
     as_ace = FALSE,
@@ -13,7 +23,7 @@
 
   if (any(class(obj) != "ACTIONetExperiment")) {
     if (allow_se_like) {
-      if (!class(obj) %in% c("SummarizedExperiment", "RangedSummarizedExperiment", "SingleCellExperiment")) {
+      if (!.is_se_like(obj)) {
         if (error_on_fail) {
           err <- sprintf("'%s' must be 'ACTIONetExperiment' or inherit from 'SummarizedExperiment'.\n", obj_name)
           stop(err)
@@ -282,7 +292,7 @@
     force_type = FALSE,
     obj_name = NULL,
     return_elem = TRUE) {
-  if (is(obj, "ACTIONetExperiment")) {
+  if (.is_se_like(obj)) {
     x <- .validate_assay(
       ace = obj,
       assay_name = assay_name,
