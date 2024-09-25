@@ -15,6 +15,6 @@ PKG_CPPFLAGS=-I"../inst/include" -I"libactionet/include" -DARMA_64BIT_WORD
 # PKG_CFLAGS = -ferror-limit=5 #-fmax-errors=10
 PKG_CXXFLAGS=$(SHLIB_OPENMP_CXXFLAGS) -std=c++17 #-ferror-limit=5 #-fmax-errors=10
 # PKG_CXXFLAGS += -w -fmax-errors=10
-# PKG_CXXFLAGS = $(SHLIB_OPENMP_CXXFLAGS)
+
 PKG_LIBS=lib/libactionet.a -lcholmod $(LAPACK_LIBS) $(BLAS_LIBS) $(FLIBS)
 MAKEFLAGS+=-j ${NPROC}

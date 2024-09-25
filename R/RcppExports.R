@@ -9,8 +9,8 @@
 #' @param threads Threads to use for parallel subsetting and summation. Quickly depreciating (<=4 recommended)
 #'
 #' @return R vector or column/row sums.
-fastSpMatViewSum <- function(X, idx, dim = 2L, threads = 1L) {
-    .Call(`_actionet_fastSpMatViewSum`, X, idx, dim, threads)
+C_fastSpMatViewSum <- function(X, idx, dim = 2L, threads = 1L) {
+    .Call(`_actionet_C_fastSpMatViewSum`, X, idx, dim, threads)
 }
 
 #' Runs archetypal analysis (AA)

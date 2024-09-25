@@ -11,9 +11,9 @@ Rcpp::Rostream<true>&  Rcpp::Rcout = Rcpp::Rcpp_cout_get();
 Rcpp::Rostream<false>& Rcpp::Rcerr = Rcpp::Rcpp_cerr_get();
 #endif
 
-// fastSpMatViewSum
-NumericVector fastSpMatViewSum(arma::sp_mat X, arma::vec idx, int dim, int threads);
-RcppExport SEXP _actionet_fastSpMatViewSum(SEXP XSEXP, SEXP idxSEXP, SEXP dimSEXP, SEXP threadsSEXP) {
+// C_fastSpMatViewSum
+NumericVector C_fastSpMatViewSum(arma::sp_mat X, arma::vec idx, int dim, int threads);
+RcppExport SEXP _actionet_C_fastSpMatViewSum(SEXP XSEXP, SEXP idxSEXP, SEXP dimSEXP, SEXP threadsSEXP) {
 BEGIN_RCPP
     Rcpp::RObject rcpp_result_gen;
     Rcpp::RNGScope rcpp_rngScope_gen;
@@ -21,7 +21,7 @@ BEGIN_RCPP
     Rcpp::traits::input_parameter< arma::vec >::type idx(idxSEXP);
     Rcpp::traits::input_parameter< int >::type dim(dimSEXP);
     Rcpp::traits::input_parameter< int >::type threads(threadsSEXP);
-    rcpp_result_gen = Rcpp::wrap(fastSpMatViewSum(X, idx, dim, threads));
+    rcpp_result_gen = Rcpp::wrap(C_fastSpMatViewSum(X, idx, dim, threads));
     return rcpp_result_gen;
 END_RCPP
 }
@@ -746,7 +746,7 @@ END_RCPP
 }
 
 static const R_CallMethodDef CallEntries[] = {
-    {"_actionet_fastSpMatViewSum", (DL_FUNC) &_actionet_fastSpMatViewSum, 4},
+    {"_actionet_C_fastSpMatViewSum", (DL_FUNC) &_actionet_C_fastSpMatViewSum, 4},
     {"_actionet_C_runAA", (DL_FUNC) &_actionet_C_runAA, 4},
     {"_actionet_C_decompACTION", (DL_FUNC) &_actionet_C_decompACTION, 6},
     {"_actionet_C_runACTION", (DL_FUNC) &_actionet_C_runACTION, 8},

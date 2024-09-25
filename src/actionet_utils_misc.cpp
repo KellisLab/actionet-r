@@ -10,7 +10,7 @@ using namespace Rcpp;
 //'
 //' @return R vector or column/row sums.
 // [[Rcpp::export]]
-NumericVector fastSpMatViewSum(arma::sp_mat X, arma::vec idx, int dim = 2, int threads = 1)
+NumericVector C_fastSpMatViewSum(arma::sp_mat X, arma::vec idx, int dim = 2, int threads = 1)
 {
 
     idx = idx - 1;
