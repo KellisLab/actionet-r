@@ -1,7 +1,5 @@
 // Rcpp interface for `annotation` module
 // Organized by module header in th order imported.
-#include <utility>
-
 #include "actionet_r_config.h"
 
 // marker_stats ========================================================================================================
@@ -89,8 +87,8 @@ Rcpp::List C_archetypeFeatureSpecificityDense(arma::mat& S, arma::mat& H, int th
 //' logPvals.list = compute_cluster_feature_specificity(S.norm, cell.clusters)
 //' specificity.scores = logPvals.list$upper_significance
 // [[Rcpp::export]]
-Rcpp::List C_clusterFeatureSpecificitySparse(arma::sp_mat& S, arma::uvec& sample_assignments, int thread_no = 0) {
-    arma::field<arma::mat> res = actionet::computeFeatureSpecificity(S, sample_assignments, thread_no);
+Rcpp::List C_computeFeatureSpecificitySparse(arma::sp_mat& S, arma::uvec& labels, int thread_no = 0) {
+    arma::field<arma::mat> res = actionet::computeFeatureSpecificity(S, labels, thread_no);
 
     Rcpp::List out_list;
     out_list["average_profile"] = res(0);
@@ -101,8 +99,8 @@ Rcpp::List C_clusterFeatureSpecificitySparse(arma::sp_mat& S, arma::uvec& sample
 }
 
 // [[Rcpp::export]]
-Rcpp::List C_clusterFeatureSpecificityDense(arma::mat& S, arma::uvec& sample_assignments, int thread_no = 0) {
-    arma::field<arma::mat> res = actionet::computeFeatureSpecificity(S, sample_assignments, thread_no);
+Rcpp::List C_computeFeatureSpecificityDense(arma::mat& S, arma::uvec& labels, int thread_no = 0) {
+    arma::field<arma::mat> res = actionet::computeFeatureSpecificity(S, labels, thread_no);
 
     Rcpp::List out_list;
     out_list["average_profile"] = res(0);

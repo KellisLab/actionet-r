@@ -209,12 +209,12 @@ C_archetypeFeatureSpecificityDense <- function(S, H, thread_no = 0L) {
 #' S.norm = renormalize_input_matrix(S, cell.clusters)
 #' logPvals.list = compute_cluster_feature_specificity(S.norm, cell.clusters)
 #' specificity.scores = logPvals.list$upper_significance
-C_clusterFeatureSpecificitySparse <- function(S, sample_assignments, thread_no = 0L) {
-    .Call(`_actionet_C_clusterFeatureSpecificitySparse`, S, sample_assignments, thread_no)
+C_computeFeatureSpecificitySparse <- function(S, labels, thread_no = 0L) {
+    .Call(`_actionet_C_computeFeatureSpecificitySparse`, S, labels, thread_no)
 }
 
-C_clusterFeatureSpecificityDense <- function(S, sample_assignments, thread_no = 0L) {
-    .Call(`_actionet_C_clusterFeatureSpecificityDense`, S, sample_assignments, thread_no)
+C_computeFeatureSpecificityDense <- function(S, labels, thread_no = 0L) {
+    .Call(`_actionet_C_computeFeatureSpecificityDense`, S, labels, thread_no)
 }
 
 C_orthogonalizeBatchEffect <- function(S, old_S_r, old_V, old_A, old_B, old_sigma, design) {

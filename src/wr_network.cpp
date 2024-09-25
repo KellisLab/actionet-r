@@ -1,7 +1,5 @@
 // Rcpp interface for `network` module
 // Organized by module header in th order imported.
-#include <utility>
-
 #include "actionet_r_config.h"
 
 // build_network =======================================================================================================

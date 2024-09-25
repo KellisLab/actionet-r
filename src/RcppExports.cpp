@@ -219,29 +219,29 @@ BEGIN_RCPP
     return rcpp_result_gen;
 END_RCPP
 }
-// C_clusterFeatureSpecificitySparse
-Rcpp::List C_clusterFeatureSpecificitySparse(arma::sp_mat& S, arma::uvec& sample_assignments, int thread_no);
-RcppExport SEXP _actionet_C_clusterFeatureSpecificitySparse(SEXP SSEXP, SEXP sample_assignmentsSEXP, SEXP thread_noSEXP) {
+// C_computeFeatureSpecificitySparse
+Rcpp::List C_computeFeatureSpecificitySparse(arma::sp_mat& S, arma::uvec& labels, int thread_no);
+RcppExport SEXP _actionet_C_computeFeatureSpecificitySparse(SEXP SSEXP, SEXP labelsSEXP, SEXP thread_noSEXP) {
 BEGIN_RCPP
     Rcpp::RObject rcpp_result_gen;
     Rcpp::RNGScope rcpp_rngScope_gen;
     Rcpp::traits::input_parameter< arma::sp_mat& >::type S(SSEXP);
-    Rcpp::traits::input_parameter< arma::uvec& >::type sample_assignments(sample_assignmentsSEXP);
+    Rcpp::traits::input_parameter< arma::uvec& >::type labels(labelsSEXP);
     Rcpp::traits::input_parameter< int >::type thread_no(thread_noSEXP);
-    rcpp_result_gen = Rcpp::wrap(C_clusterFeatureSpecificitySparse(S, sample_assignments, thread_no));
+    rcpp_result_gen = Rcpp::wrap(C_computeFeatureSpecificitySparse(S, labels, thread_no));
     return rcpp_result_gen;
 END_RCPP
 }
-// C_clusterFeatureSpecificityDense
-Rcpp::List C_clusterFeatureSpecificityDense(arma::mat& S, arma::uvec& sample_assignments, int thread_no);
-RcppExport SEXP _actionet_C_clusterFeatureSpecificityDense(SEXP SSEXP, SEXP sample_assignmentsSEXP, SEXP thread_noSEXP) {
+// C_computeFeatureSpecificityDense
+Rcpp::List C_computeFeatureSpecificityDense(arma::mat& S, arma::uvec& labels, int thread_no);
+RcppExport SEXP _actionet_C_computeFeatureSpecificityDense(SEXP SSEXP, SEXP labelsSEXP, SEXP thread_noSEXP) {
 BEGIN_RCPP
     Rcpp::RObject rcpp_result_gen;
     Rcpp::RNGScope rcpp_rngScope_gen;
     Rcpp::traits::input_parameter< arma::mat& >::type S(SSEXP);
-    Rcpp::traits::input_parameter< arma::uvec& >::type sample_assignments(sample_assignmentsSEXP);
+    Rcpp::traits::input_parameter< arma::uvec& >::type labels(labelsSEXP);
     Rcpp::traits::input_parameter< int >::type thread_no(thread_noSEXP);
-    rcpp_result_gen = Rcpp::wrap(C_clusterFeatureSpecificityDense(S, sample_assignments, thread_no));
+    rcpp_result_gen = Rcpp::wrap(C_computeFeatureSpecificityDense(S, labels, thread_no));
     return rcpp_result_gen;
 END_RCPP
 }
@@ -760,8 +760,8 @@ static const R_CallMethodDef CallEntries[] = {
     {"_actionet_C_aggregate_genesets_vision", (DL_FUNC) &_actionet_C_aggregate_genesets_vision, 8},
     {"_actionet_C_archetypeFeatureSpecificitySparse", (DL_FUNC) &_actionet_C_archetypeFeatureSpecificitySparse, 3},
     {"_actionet_C_archetypeFeatureSpecificityDense", (DL_FUNC) &_actionet_C_archetypeFeatureSpecificityDense, 3},
-    {"_actionet_C_clusterFeatureSpecificitySparse", (DL_FUNC) &_actionet_C_clusterFeatureSpecificitySparse, 3},
-    {"_actionet_C_clusterFeatureSpecificityDense", (DL_FUNC) &_actionet_C_clusterFeatureSpecificityDense, 3},
+    {"_actionet_C_computeFeatureSpecificitySparse", (DL_FUNC) &_actionet_C_computeFeatureSpecificitySparse, 3},
+    {"_actionet_C_computeFeatureSpecificityDense", (DL_FUNC) &_actionet_C_computeFeatureSpecificityDense, 3},
     {"_actionet_C_orthogonalizeBatchEffect", (DL_FUNC) &_actionet_C_orthogonalizeBatchEffect, 7},
     {"_actionet_C_orthogonalizeBatchEffect_full", (DL_FUNC) &_actionet_C_orthogonalizeBatchEffect_full, 7},
     {"_actionet_C_orthogonalizeBasal", (DL_FUNC) &_actionet_C_orthogonalizeBasal, 7},
