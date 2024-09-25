@@ -1,68 +1,142 @@
-.get_mtRNA_genes <- function(species = c("hsapiens", "mmusculus")) {
-  MT_RNA <- c("mt-Nd1", "mt-Nd2", "mt-Nd3", "mt-Nd4", "mt-Nd4l", "mt-Nd5", "mt-Nd6", "mt-Co1", "mt-Co2", "mt-Co3", "mt-Atp6", "mt-Atp8")
+.get_mito_feats <- function(
+    id_type = c("gene_name", "ensembl_id"),
+    species = c("hsapiens", "mmusculus", "human", "mouse"),
+    protein_coding = FALSE) {
+  id_type <- tolower(id_type)
+  id_type <- match.arg(id_type, several.ok = TRUE)[1]
 
-  species <- match.arg(species)
-  if (species == "mmusculus") {
-    MT_RNA <- c(MT_RNA, "mt-Cytb")
-  } else if (species == "hsapiens") {
-    MT_RNA <- c(toupper(MT_RNA), "MT-CYB")
-  } else {
-    out <- sprintf("Invalid species.\n")
-    stop(out)
+  species <- tolower(species)
+  species <- match.arg(species, several.ok = TRUE)[1]
+
+  if (species == "human") {
+    species <- "hsapiens"
   }
-  return(MT_RNA)
+
+  if (species == "mouse") {
+    species <- "mmusculus"
+  }
+
+  feats_tbl <- int_feats_mito[int_feats_mito[["species"]] == species, , drop = FALSE]
+
+  if (protein_coding) {
+    feats_tbl <- feats_tbl[feats_tbl[["feature_type"]] == "protein_coding", , drop = FALSE]
+  }
+
+  out <- feats_tbl[[id_type]]
+  return(out)
 }
 
-get_mtRNA_stats <- function(ace, by = NULL, groups_use = NULL, features_use = NULL, assay = "counts", species = c("hsapiens", "mmusculus", "other"), metric = c("pct", "ratio", "counts")) {
-  require(stats)
-  species <- match.arg(species)
-  metric <- match.arg(metric)
+#' @export
+getFeatureAbundance <- function(
+    obj,
+    features,
+    by = NULL,
+    groups_use = NULL,
+    features_use = NULL,
+    metric = c("fraction", "percent", "ratio", "counts"),
+    assay_name = "counts") {
+  metric <- match.arg(metric, several.ok = TRUE)[1]
 
-  features_use <- .get_feature_vec(ace, features_use = features_use)
+  is_ace <- .validate_ace(obj, allow_se_like = TRUE, error_on_fail = FALSE, return_elem = FALSE, obj_name = "obj")
+  X <- .ace_or_assay(obj, assay_name = assay_name, allow_se_like = TRUE, return_elem = TRUE)
 
-  if (species != "other") {
-    mask <- features_use %in% .get_mtRNA_genes(species)
+  if (is_ace) {
+    features_use <- .get_feature_vec(obj, features_use = features_use)
   } else {
-    mask <- grepl("^MT[:.:]|^MT-", features_use, ignore.case = TRUE)
+    if (is.null(features_use)) {
+      features_use <- rownames(obj)
+    } else {
+      if (length(features_use) != NROW(obj)) {
+        err <- sprintf("length(features_use) (%d) does not match NROW(obj) (%d)", length(features_use), NROW(obj))
+        stop(err)
+      }
+    }
   }
 
-  mat <- assays(ace)[[assay]]
-  cs_mat <- Matrix::colSums(mat)
-  mm <- mat[mask, , drop = F]
-  cs_mm <- Matrix::colSums(mm)
+  idx_feat <- which(features_use %in% features)
+  if (length(idx_feat) < 1) {
+    stop("No matching features")
+  }
+
+  cs_mat <- Matrix::colSums(X)
+  cs_mm <- C_fastSpMatViewSum(
+    X = X,
+    idx = idx_feat,
+    dim = 2,
+    threads = .get_num_threads(base::ceiling(length(idx_feat) / 10), 0)
+  )
 
   if (!is.null(by)) {
-    IDX <- ACTIONetExperiment::get.data.or.split(
-      ace,
-      attr = by,
-      groups_use = groups_use,
-      to_return = "split"
-    )
+    if (is_ace) {
+      by.split <- ACTIONetExperiment::get.data.or.split(
+        obj,
+        attr = by,
+        groups_use = groups_use,
+        to_return = "split"
+      )
+    } else {
+      if (length(by) != NCOL(obj)) {
+        err <- sprintf("length(by) (%d) does not match NCOL(obj) (%d)", length(by), NCOL(obj))
+        stop(err)
+      }
+      by.split <- split(seq_len(NCOL(X)), f = by, drop = TRUE)
+    }
 
-    if (metric == "pct") {
-      frac.list <- lapply(IDX, function(idx) {
-        m <- 100 * cs_mm[idx] / cs_mat[idx]
+    if (metric %in% c("fraction", "percent")) {
+      out <- lapply(by.split, function(idx) {
+        x <- cs_mm[idx] / cs_mat[idx]
+        if (metric == "percent") {
+          x <- 100 * x
+        }
+        return(x)
       })
     } else if (metric == "ratio") {
-      frac.list <- lapply(IDX, function(idx) {
-        m <- cs_mm[idx] / (cs_mat[idx] - cs_mm[idx])
+      out <- lapply(by.split, function(idx) {
+        x <- cs_mm[idx] / (cs_mat[idx] - cs_mm[idx])
       })
     } else {
-      frac.list <- lapply(IDX, function(idx) {
-        m <- cs_mm[idx]
+      out <- lapply(by.split, function(idx) {
+        x <- cs_mm[idx]
       })
     }
-    return(frac.list)
   } else {
-    if (metric == "pct") {
-      frac <- cs_mm / cs_mat
+    if (metric %in% c("fraction", "percent")) {
+      out <- cs_mm / cs_mat
+      if (metric == "percent") {
+        out <- 100 * out
+      }
     } else if (metric == "ratio") {
-      frac <- cs_mm / (cs_mat - cs_mm)
+      out <- cs_mm / (cs_mat - cs_mm)
     } else {
-      frac <- cs_mm
+      out <- cs_mm
     }
-    return(frac)
+    return(out)
   }
+}
+
+
+#' @export
+getMitoAbundance <- function(
+    obj,
+    by = NULL,
+    groups_use = NULL,
+    features_use = NULL,
+    id_type = c("gene_name", "ensembl_id"),
+    species = c("hsapiens", "mmusculus", "human", "mouse"),
+    protein_coding = FALSE,
+    metric = c("fraction", "percent", "ratio", "counts"),
+    assay_name = "counts") {
+  feats_mito <- .get_mito_feats(id_type = id_type, species = species, protein_coding = protein_coding)
+
+  out <- getFeatureAbundance(
+    obj,
+    features = feats_mito,
+    by = by,
+    groups_use = groups_use,
+    features_use = features_use,
+    metric = metric
+  )
+  return(out)
 }
 
 #' @export
@@ -83,7 +157,7 @@ plot.mtRNA.dist.by.attr <- function(
   require(stats)
   to_return <- match.arg(to_return)
 
-  frac.list <- get_mtRNA_stats(
+  frac.list <- computeMitoStats(
     ace = ace,
     by = by,
     groups_use = groups_use,
