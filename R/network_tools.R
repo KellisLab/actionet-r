@@ -125,6 +125,7 @@ networkCentrality <- function(
     obj = obj,
     net_slot = net_slot,
     matrix_type = "sparse",
+    sparse_type = "CsparseMatrix",
     force_type = TRUE,
     obj_name = "obj"
   )
@@ -145,7 +146,7 @@ networkCentrality <- function(
   }
 
   if (!is.null(label_attr)) {
-    label_attr <- .validate_attr(obj, attr = label_attr, obj_name = "obj", attr_name = "label_attr")
+    label_attr <- .validate_attr(obj, attr = label_attr, obj_name = "obj", attr_name = "label_attr", return_elem = TRUE)
     assignments <- as.numeric(factor(label_attr))
   }
 
@@ -165,8 +166,8 @@ networkCentrality <- function(
   } else if (algorithm == "local_coreness") {
     centrality <- C_computeArchetypeCentrality(G, assignments)
   } else if (algorithm == "local_pagerank") {
-    design.mat <- model.matrix(~ 0 + as.factor(assignments))
-    design.mat <- scale(design.mat, center = FALSE, scale = colSums(design.mat))
+    design.mat <- stats::model.matrix(~ 0 + as.factor(assignments))
+    design.mat <- scale(design.mat, center = FALSE, scale = Matrix::colSums(design.mat))
     scores <- networkDiffusion(
       obj = G,
       scores = design.mat,
@@ -216,7 +217,7 @@ networkPropagation <- function(
     obj_name = "obj"
   )
 
-  lf <- factor(.validate_attr(obj, attr = label_attr, obj_name = "obj", attr_name = "label_attr"))
+  lf <- factor(.validate_attr(obj, attr = label_attr, obj_name = "obj", attr_name = "label_attr", return_elem = TRUE))
   labels <- as.numeric(lf)
   keys <- levels(lf)
   labels[is.na(labels)] <- -1
@@ -226,9 +227,7 @@ networkPropagation <- function(
     new_labels[new_labels == -1] <- NA
     new_labels <- keys[new_labels]
   } else {
-    warning("No propagation was performed")
-    new_labels[new_labels == -1] <- NA
-    new_labels <- keys[labels]
+    stop("Invalid algorithm")
   }
 
   return(new_labels)
