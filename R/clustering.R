@@ -1,3 +1,79 @@
+#' @export
+clusterNetwork <- function(
+    obj,
+    algorithm = c("leiden"),
+    resolution_parameter = 1.0,
+    initial_membership = NULL,
+    n_iterations = 3,
+    net_slot = "actionet",
+    attr_out = NULL,
+    return_raw = TRUE) {
+  is_installed <- require(igraph)
+
+  if (!is_installed) {
+    stop("Package 'igraph' is not installed")
+  }
+
+  algorithm <- tolower(algorithm)
+  is_ace <- .validate_ace(obj, error_on_fail = FALSE, return_elem = FALSE)
+
+  G <- .ace_or_net(
+    obj = obj,
+    net_slot = net_slot,
+    matrix_type = "sparse",
+    force_type = TRUE,
+    obj_name = "obj"
+  )
+
+  if (!is.null(initial_membership)) {
+    initial_membership <- .validate_attr(
+      obj,
+      attr = initial_membership,
+      return_type = "data",
+      attr_name = "initial_membership",
+      return_elem = TRUE
+    )
+    initial_membership <- as.numeric(as.factor(initial_membership))
+  }
+
+  ig <- igraph::graph_from_adjacency_matrix(
+    adjmatrix = G,
+    mode = "undirected",
+    weighted = TRUE,
+    diag = TRUE,
+    add.colnames = NULL,
+    add.rownames = NA
+  )
+
+  # Put this into separate hidden functions once more modes are supported.
+  if (algorithm == "leiden") {
+    comm <- igraph::cluster_leiden(
+      graph = ig,
+      objective_function = "modularity",
+      weights = NULL,
+      resolution_parameter = resolution_parameter,
+      beta = 0.01,
+      initial_membership = initial_membership,
+      n_iterations = n_iterations,
+      vertex_weights = NULL
+    )
+  } else {
+    stop("Invalid algorithm")
+  }
+
+  clusters <- igraph::membership(comm)
+  if (is_ace && !return_raw) {
+    if (is.null(attr_out)) {
+      attr_out <- sprintf("%s_%s", algorithm, net_slot)
+    }
+    colData(obj)[[attr_out]] <- clusters
+    return(obj)
+  }
+
+  return(clusters)
+}
+
+
 #' Annotate clusters using prior cell annotations
 #' (It uses Fisher's exact test for computing overlaps -- approximate HGT is used)
 #'
@@ -219,113 +295,4 @@ annotate.profile.using.markers <- function(profile, markers) {
   colnames(X) <- colnames(profile)
 
   return(X)
-}
-
-#' @export
-clusterNetwork <- function(
-    obj,
-    algorithm = c("leiden"),
-    resolution_parameter = 1.0,
-    initial_membership = NULL,
-    n_iterations = 3,
-    net_slot = "actionet",
-    attr_out = NULL,
-    return_raw = TRUE) {
-  is_installed <- require(igraph)
-
-  if (!is_installed) {
-    stop("Package 'igraph' is not installed")
-  }
-
-  algorithm <- tolower(algorithm)
-  is_ace <- .validate_ace(obj, error_on_fail = FALSE, return_elem = FALSE)
-
-  G <- .ace_or_net(
-    obj = obj,
-    net_slot = net_slot,
-    matrix_type = "sparse",
-    force_type = TRUE,
-    obj_name = "obj"
-  )
-
-  if (!is.null(initial_membership)) {
-    initial_membership <- .validate_attr(
-      obj,
-      attr = initial_membership,
-      return_type = "data",
-      attr_name = "initial_membership",
-      return_elem = TRUE
-    )
-    initial_membership <- as.numeric(as.factor(initial_membership))
-  }
-
-  ig <- igraph::graph_from_adjacency_matrix(
-    adjmatrix = G,
-    mode = "undirected",
-    weighted = TRUE,
-    diag = TRUE,
-    add.colnames = NULL,
-    add.rownames = NA
-  )
-
-  # Put this into separate hidden functions once more modes are supported.
-  if (algorithm == "leiden") {
-    comm <- igraph::cluster_leiden(
-      graph = ig,
-      objective_function = "modularity",
-      weights = NULL,
-      resolution_parameter = resolution_parameter,
-      beta = 0.01,
-      initial_membership = initial_membership,
-      n_iterations = n_iterations,
-      vertex_weights = NULL
-    )
-  } else {
-    stop("Invalid algorithm")
-  }
-
-  clusters <- igraph::membership(comm)
-  if (is_ace && !return_raw) {
-    if (is.null(attr_out)) {
-      attr_out <- sprintf("%s_%s", algorithm, net_slot)
-    }
-    colData(obj)[[attr_out]] <- clusters
-    return(obj)
-  }
-
-  return(clusters)
-}
-
-
-#' @export
-clusterCells <- function(ace, algorithm = "leiden",
-                         cluster_name = "leiden",
-                         resolution_parameter = 1.0,
-                         initial_clusters = NULL,
-                         seed = 0,
-                         net_slot = "ACTIONet") {
-  if (!is.null(initial_clusters)) {
-    if (is.character(initial_clusters)) {
-      initial_clusters <- as.factor(initial_clusters)
-    }
-  }
-  if (algorithm == "fix") {
-    cl <- initial_clusters
-  } else {
-    if (is.null(initial_clusters)) {
-      initial_clusters <- ace$assigned_archetype
-    }
-    cl <- clusterNetwork(ace,
-      algorithm = algorithm,
-      resolution_parameter = resolution_parameter,
-      initial_clusters = initial_clusters,
-      seed = seed,
-      net_slot = net_slot
-    )
-  }
-
-  colData(ace)[[cluster_name]] <- cl
-  ace <- computeGeneSpecifity.ace(ace, cl, out_name = cluster_name)
-
-  return(ace)
 }
