@@ -120,7 +120,7 @@ runACTIONet <- function(ace,
 
   # Use archetypal reduction as initial coordinates for uwot
   # Need to reduce it to 3D coordinate space.
-  red.out <- run.SVD(
+  red.out <- runSVD(
     X = scale(colMaps(ace)[["archetype_footprint"]]),
     k = 3,
     seed = seed,
