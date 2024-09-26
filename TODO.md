@@ -1,4 +1,5 @@
-## Primary\
+## Primary
+* Fix annotation
 * Fix broken R functions
 * Edit the help file skeletons in 'man', possibly combining help files
   for multiple functions.
