@@ -12,13 +12,12 @@ CPal_default <- c(
   "#BEBADA", "#FB8072", "#80B1D3", "#FDB462", "#B3DE69", "#FCCDE5"
 )
 
-
 .get_plot_coors <- function(X,
                             coordinate_attr = NULL,
                             scale_coors = TRUE) {
   if (is(X, "ACTIONetExperiment")) {
     if (!is.null(coordinate_attr)) {
-      if(coordinate_attr %in% names(colMaps(X))) {
+      if (coordinate_attr %in% names(colMaps(X))) {
         coors <- as.matrix(colMaps(X)[[coordinate_attr]])
       } else {
         err <- sprintf("Attribute '%s' is not in 'colMaps'.\n", coordinate_attr)
@@ -53,12 +52,6 @@ CPal_default <- c(
     return(NULL)
   }
 
-  # if (is(data, "ACTIONetExperiment")) {
-  #   plot_labels <- ACTIONetExperiment::get.data.or.split(data, attr = label_attr, to_return = "data")
-  # } else {
-  #   plot_labels <- label_attr
-  # }
-
   plot_labels <- .validate_attr(
     obj = data,
     attr = label_attr,
@@ -69,11 +62,6 @@ CPal_default <- c(
 
   plot_labels <- as.character(plot_labels)
 
-  # if (!is.numeric(plot_labels)) {
-  #   plot_labels <- as.character(plot_labels)
-  #   # plot_labels[is.na(plot_labels)] <- "NA"
-  # }
-
   return(plot_labels)
 }
 
@@ -83,8 +71,7 @@ CPal_default <- c(
                              data,
                              color_slot = "denovo_color",
                              palette = CPal_default,
-                             NA_color = "#CCCCCC"
-                           ) {
+                             NA_color = "#CCCCCC") {
   if (is(data, "ACTIONetExperiment")) {
     n_dim <- NCOL(data)
   } else {
@@ -99,13 +86,13 @@ CPal_default <- c(
         plot_colors <- c(color_attr)
       }
     } else if (is.character(color_attr)) {
-        plot_colors <- .validate_attr(
-          obj = data,
-          attr = color_attr,
-          obj_name = "data",
-          attr_name = "color_attr",
-          match_row = TRUE
-        )
+      plot_colors <- .validate_attr(
+        obj = data,
+        attr = color_attr,
+        obj_name = "data",
+        attr_name = "color_attr",
+        match_row = TRUE
+      )
       # if (length(color_attr) == 1) {
       #   plot_colors <- ACTIONetExperiment::get.data.or.split(data, attr = color_attr, to_return = "data")
       # } else {
@@ -113,7 +100,7 @@ CPal_default <- c(
       # }
     } else if (is.numeric(color_attr) && length(color_attr) == n_dim) {
       plot_colors <- color_attr
-    }else {
+    } else {
       err <- sprintf("Invalid 'color_attr'.\n")
       stop(err)
     }
@@ -123,12 +110,12 @@ CPal_default <- c(
     num_unique <- length(label_names)
 
     if (num_unique == 1) {
-      if(startsWith(palette[1], "#")) {
+      if (startsWith(palette[1], "#")) {
         plot_colors <- .default_colors(n_dim, col = palette[1])
       } else {
         plot_colors <- .default_colors(n_dim)
       }
-      plot_colors[is.na(plot_labels)] = NA_color
+      plot_colors[is.na(plot_labels)] <- NA_color
     } else {
       if (length(palette) == 1) {
         plot_palette <- ggpubr::get_palette(palette, num_unique)
@@ -150,7 +137,7 @@ CPal_default <- c(
 
       plot_labels[is.na(plot_labels)] <- "NA"
       names(plot_palette) <- label_names
-      plot_palette = c(plot_palette, "NA" = NA_color)
+      plot_palette <- c(plot_palette, "NA" = NA_color)
       plot_colors <- plot_palette[match(plot_labels, names(plot_palette))]
     }
   } else {
@@ -173,13 +160,11 @@ CPal_default <- c(
 
 
 .get_plot_transparency <- function(
-  trans_attr,
-  data,
-  trans_fac = 1.5,
-  trans_th = -0.5,
-  scale = TRUE
-) {
-
+    trans_attr,
+    data,
+    trans_fac = 1.5,
+    trans_th = -0.5,
+    scale = TRUE) {
   if (is.null(trans_attr)) {
     return(1)
   }
@@ -209,12 +194,12 @@ CPal_default <- c(
 
 
 .default_colors <- function(l, col = NULL) {
-  if(is.null(col)) {
-    col_use ="#FF6347"
+  if (is.null(col)) {
+    col_use <- "#FF6347"
   } else if (startsWith(col, "#") && nchar(col) == 7) {
-    col_use = col
+    col_use <- col
   } else {
-    col_use ="#FF6347"
+    col_use <- "#FF6347"
   }
   plot_colors <- rep(col_use, l)
   return(plot_colors)

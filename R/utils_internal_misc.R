@@ -1,4 +1,26 @@
+.get_features <- function(obj, features_use = NULL, allow_empty = FALSE, features_name = "features_use") {
+    if (is.null(features_use) || !.is_se_like(obj)) {
+        features_use <- rownames(obj)
+    } else {
+        features_use <- .validate_vector_attr(
+            obj,
+            attr = features_use,
+            return_type = "data",
+            dim = 1,
+            return_elem = TRUE
+        )
+    }
 
+    if (length(features_use) == 0) {
+        if (!allow_empty) {
+            err <- sprintf("%s cannot be empty", features_name)
+            stop(err)
+        }
+    }
+    return(features_use)
+}
+
+## Deprecated
 .get_feature_vec <- function(ace, features_use = NULL) {
     if (is.null(features_use)) {
         features_use <- rownames(ace)

@@ -1,7 +1,7 @@
 .is_se_like <- function(obj) {
   allowed_classes <- c("ACTIONetExperiment", "SummarizedExperiment", "RangedSummarizedExperiment", "SingleCellExperiment")
 
-  if (class(obj) %in% allowed_classes) {
+  if (any(class(obj) %in% allowed_classes)) {
     return(TRUE)
   } else {
     return(FALSE)
@@ -14,6 +14,7 @@
     allow_se_like = FALSE,
     allow_null = FALSE,
     obj_name = "ace",
+    fix_dimnames = FALSE,
     return_elem = FALSE,
     error_on_fail = TRUE) {
   if (is.null(obj) && !allow_null) {
@@ -44,6 +45,20 @@
     }
   }
 
+  if (fix_dimnames) {
+    if (is.null(rownames(obj))) {
+      rownames(obj) <- ACTIONetExperiment:::.default_rownames(NROW(obj))
+    } else {
+      rownames(obj) <- make.unique(rownames(obj), sep = "_")
+    }
+
+    if (is.null(colnames(obj))) {
+      colnames(obj) <- ACTIONetExperiment:::.default_colnames(NCOL(obj))
+    } else {
+      colnames(obj) <- make.unique(colnames(obj), sep = "_")
+    }
+  }
+
   if (return_elem == TRUE) {
     return(obj)
   } else {
@@ -58,6 +73,7 @@
     matrix_type = "either",
     sparse_type = "CsparseMatrix",
     force_type = FALSE,
+    error_on_fail = FALSE,
     return_elem = TRUE) {
   .validate_ace(
     ace,
@@ -70,8 +86,12 @@
   )
 
   if (!(assay_name %in% names(assays(ace)))) {
-    err <- sprintf("'%s' is not an assay of '%s'.\n", assay_name, obj_name)
-    stop(err)
+    if (error_on_fail) {
+      err <- sprintf("'%s' is not an assay of '%s'.\n", assay_name, obj_name)
+      stop(err)
+    } else {
+      return(FALSE)
+    }
   }
   x <- SummarizedExperiment::assays(ace)[[assay_name]]
 
@@ -89,7 +109,7 @@
   if (return_elem == TRUE) {
     return(x)
   } else {
-    return(NULL)
+    return(TRUE)
   }
 }
 
@@ -190,6 +210,7 @@
   }
 }
 
+# To be deprecated in favor of `.validate_vector_attr()`
 .validate_attr <- function(
     obj,
     attr,
@@ -233,6 +254,82 @@
     return(NULL)
   }
 }
+
+# Replaces `.validate_attr()` and `ACTIONetExperiment:::.get.data.or.split()`
+.validate_vector_attr <- function(
+    obj,
+    attr,
+    groups_use = NULL,
+    return_type = c("data", "split"),
+    dim = 2,
+    keep_factor = FALSE,
+    attr_name = "attr",
+    obj_name = "obj",
+    return_elem = TRUE) {
+  return_type <- match.arg(return_type, several.ok = TRUE)[1]
+
+
+  if (length(attr) == 1) {
+    if (!.is_se_like(obj)) {
+      err <- sprintf("length(%s) must be %d for given object type", attr_name, dim(obj)[dim])
+    }
+    data_vec <- switch(dim,
+      SummarizedExperiment::rowData(obj)[[attr]],
+      SummarizedExperiment::colData(obj)[[attr]]
+    )
+  } else {
+    if (length(attr) != dim(obj)[dim]) {
+      err <- sprintf(
+        "length(%s) (%d) does not match %s(%s) (%d)",
+        attr_name,
+        length(attr),
+        ifelse(dim == 1, "NROW", "NCOL"),
+        obj_name,
+        dim(obj)[dim]
+      )
+      stop(err)
+    }
+    data_vec <- attr
+  }
+  if (is.null(data_vec)) {
+    err <- sprintf("Invalid attribute (%s)", attr_name)
+    stop(err)
+  } else {
+    if (is.factor(data_vec)) {
+      if (keep_factor) {
+        data_vec <- droplevels(data_vec)
+      } else {
+        data_vec <- as.character(data_vec)
+      }
+    }
+  }
+  idx <- seq_len(dim(obj)[dim])
+  if (!is.null(groups_use)) {
+    na_mask <- (!data_vec %in% groups_use)
+    data_vec[na_mask] <- NA
+    split_vec <- data_vec[!na_mask]
+    if (length(split_vec) == 0) {
+      stop("Invalid 'groups_use'")
+    }
+
+    idx_list <- split(idx[!na_mask], f = split_vec, drop = TRUE)
+  } else {
+    idx_list <- split(idx, f = data_vec)
+  }
+
+  if (return_type == "data") {
+    out <- data_vec
+  } else if (return_type == "split") {
+    out <- idx_list
+  }
+
+  if (return_elem == TRUE) {
+    return(out)
+  } else {
+    return(TRUE)
+  }
+}
+
 
 .validate_matrix <- function(
     x,
@@ -290,6 +387,7 @@
     allow_se_like = FALSE,
     matrix_type = c("either", "sparse", "dense"),
     force_type = FALSE,
+    sparse_type = c("dMatrix", "CsparseMatrix"),
     obj_name = NULL,
     return_elem = TRUE) {
   if (.is_se_like(obj)) {
@@ -298,7 +396,9 @@
       assay_name = assay_name,
       obj_name = ifelse(is.null(obj_name), "ace", obj_name),
       matrix_type = matrix_type,
+      sparse_type = sparse_type,
       force_type = force_type,
+      error_on_fail = TRUE,
       return_elem = return_elem
     )
   } else {
@@ -306,6 +406,7 @@
       x = obj,
       var_name = ifelse(is.null(obj_name), "obj", obj_name),
       matrix_type = matrix_type,
+      sparse_type = sparse_type,
       force_type = force_type,
       return_elem = return_elem
     )
