@@ -1,10 +1,5 @@
-## Primary
-* Add Leiden clustering via igraph
+## Primary\
 * Fix broken R functions
-* `findMarker.ACTIONet` change name
-* Change mtRNA % computation
-* Allow character into `initial_coordinates = ` in rerun functions
-* Order numbers in violin plots.
 * Edit the help file skeletons in 'man', possibly combining help files
   for multiple functions.
 * Edit the package 'DESCRIPTION'.
@@ -15,3 +10,6 @@
 
 
 ## Done
+* New marker detection
+* WOrking and improved ledien via igraph
+* New qc functions
