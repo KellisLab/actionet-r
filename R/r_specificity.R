@@ -3,6 +3,7 @@
 computeFeatureSpecificity <- function(
     obj,
     labels,
+    labels_use = NULL,
     assay_name = "logcounts",
     map_out_prefix = "cluster",
     return_lower = FALSE,
@@ -11,13 +12,25 @@ computeFeatureSpecificity <- function(
   is_ace <- .validate_ace(obj, allow_se_like = TRUE, error_on_fail = FALSE, return_elem = FALSE)
   X <- .ace_or_assay(obj = obj, assay_name = assay_name, allow_se_like = TRUE, obj_name = "obj", return_elem = TRUE)
 
-  labels <- .validate_attr(
-    obj = obj,
+  # if((!is_ace || return_raw) && is.null(rownames(X))) {
+  #   err = sprintf("rownames(obj) be 'NULL'")
+  #   stop(err)
+  # }
+
+  labels <- .validate_vector_attr(
+    obj,
     attr = labels,
+    groups_use = labels_use,
     return_type = "data",
     attr_name = "labels",
     return_elem = TRUE
   )
+
+  na_mask <- is.na(labels)
+  if (any(na_mask)) {
+    labels <- labels[!na_mask]
+    X <- X[, !na_mask, drop = FALSE]
+  }
 
   obs_factor <- factor(labels)
   obs_labels <- as.numeric(obs_factor)

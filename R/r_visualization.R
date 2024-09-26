@@ -59,7 +59,7 @@ layoutNetwork <- function(
         } else {
             msg <- sprintf("Computing initial coordinates from assay '%s'.", assay_name)
             message(msg)
-            svd.out <- run.SVD(
+            svd.out <- runSVD(
                 X = .validate_assay(obj, assay_name = assay_name, return_elem = TRUE),
                 k = base::max(3, n_components),
                 seed = seed,
