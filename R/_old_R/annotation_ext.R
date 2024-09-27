@@ -1,3 +1,47 @@
+#' Interpolates cell scores from archetype enrichment matrix
+#'
+#' @param ace ACTIONet output object
+#' @param enrichment_mat Enrichment matrix with rows corresponding to archetypes and columns to an arbitrary annotation
+#' @param normalize If TRUE, enrichment matrix will be first doubly-normalized
+#'
+#' @return Enrichment map of size cell x annotation
+#'
+#' @examples
+#'
+#' data("curatedMarkers_human") # pre-packaged in ACTIONet
+#' marker_set <- curatedMarkers_human$Blood$PBMC$Monaco2019.12celltypes$marker.genes
+#' arch.annot <- annotate.archetypes.using.markers(ace, markers = markers)
+#' enrichment.mat <- arch.annot$enrichment
+#' cell.enrichment.mat <- map.cell.scores.from.archetype.enrichment(ace, enrichment.mat)
+#' cell.assignments <- colnames(cell.enrichment.mat)[apply(cell.enrichment.mat, 1, which.max)]
+#' @export
+map.cell.scores.from.archetype.enrichment <- function(ace,
+                                                      enrichment_mat,
+                                                      normalize = FALSE,
+                                                      H.slot = "H_merged") {
+  cell.scores.mat <- colMaps(ace)[[H.slot]]
+
+  if (nrow(enrichment_mat) != ncol(cell.scores.mat)) {
+    print("Flipping enrichment matrix")
+    enrichment_mat <- Matrix::t(enrichment_mat)
+  }
+
+  if (normalize == TRUE) {
+    enrichment.scaled <- doubleNorm(enrichment_mat)
+  } else {
+    enrichment.scaled <- enrichment_mat
+    enrichment.scaled[enrichment.scaled < 0] <- 0
+    if (max(enrichment.scaled) > 50) {
+      enrichment.scaled <- log1p(enrichment.scaled)
+    }
+  }
+
+  cell.enrichment.mat <- cell.scores.mat %*% enrichment.scaled
+  colnames(cell.enrichment.mat) <- colnames(enrichment_mat)
+  rownames(cell.enrichment.mat) <- colnames(ace)
+
+  return(cell.enrichment.mat)
+}
 
 scoreCells <- function(ace, markers, algorithm = "gmm2", pre_imputation_algorithm = "none", gene_scaling_method = 0,
                        pre_alpha = 0.15, post_alpha = 0.9, network_normalization_method = "pagerank_sym", diffusion_it = 5, thread_no = 0, features_use = NULL, TFIDF_prenorm = 1, assay_name = "logcounts", net_slot = "ACTIONet", specificity_slot = "arch_feat_spec", H_slot = "H_merged") {

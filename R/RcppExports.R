@@ -163,12 +163,12 @@ C_runSPA <- function(A, k) {
     .Call(`_actionet_C_runSPA`, A, k)
 }
 
-C_compute_marker_aggregate_stats <- function(G, S, marker_mat, alpha = 0.85, max_it = 5L, thread_no = 0L, ignore_baseline_expression = FALSE) {
-    .Call(`_actionet_C_compute_marker_aggregate_stats`, G, S, marker_mat, alpha, max_it, thread_no, ignore_baseline_expression)
+C_computeFeatureStats <- function(G, S, X, norm_type = 2L, alpha = 0.85, max_it = 5L, approx = FALSE, thread_no = 0L, ignore_baseline = FALSE) {
+    .Call(`_actionet_C_computeFeatureStats`, G, S, X, norm_type, alpha, max_it, approx, thread_no, ignore_baseline)
 }
 
-C_aggregate_genesets_vision <- function(G, S, marker_mat, norm_type = 2L, alpha = 0.85, max_it = 5L, tol = 1E-8, thread_no = 0L) {
-    .Call(`_actionet_C_aggregate_genesets_vision`, G, S, marker_mat, norm_type, alpha, max_it, tol, thread_no)
+C_computeFeatureStatsVision <- function(G, S, X, norm_type = 2L, alpha = 0.85, max_it = 5L, approx = FALSE, thread_no = 0L) {
+    .Call(`_actionet_C_computeFeatureStatsVision`, G, S, X, norm_type, alpha, max_it, approx, thread_no)
 }
 
 #' Compute feature specificity (from archetype footprints)
@@ -342,8 +342,8 @@ C_autocorrelation_Geary <- function(G, scores, normalization_method = 1L, perm_n
     .Call(`_actionet_C_autocorrelation_Geary`, G, scores, normalization_method, perm_no, thread_no)
 }
 
-C_assess_label_enrichment <- function(G, M, thread_no = 0L) {
-    .Call(`_actionet_C_assess_label_enrichment`, G, M, thread_no)
+C_computeGraphLabelEnrichment <- function(G, scores, thread_no = 0L) {
+    .Call(`_actionet_C_computeGraphLabelEnrichment`, G, scores, thread_no)
 }
 
 #' Computes feature enrichment wrt a given annotation

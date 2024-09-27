@@ -158,38 +158,40 @@ BEGIN_RCPP
     return rcpp_result_gen;
 END_RCPP
 }
-// C_compute_marker_aggregate_stats
-arma::mat C_compute_marker_aggregate_stats(arma::sp_mat& G, arma::sp_mat& S, arma::sp_mat& marker_mat, double alpha, int max_it, int thread_no, bool ignore_baseline_expression);
-RcppExport SEXP _actionet_C_compute_marker_aggregate_stats(SEXP GSEXP, SEXP SSEXP, SEXP marker_matSEXP, SEXP alphaSEXP, SEXP max_itSEXP, SEXP thread_noSEXP, SEXP ignore_baseline_expressionSEXP) {
+// C_computeFeatureStats
+arma::mat C_computeFeatureStats(arma::sp_mat& G, arma::sp_mat& S, arma::sp_mat& X, int norm_type, double alpha, int max_it, bool approx, int thread_no, bool ignore_baseline);
+RcppExport SEXP _actionet_C_computeFeatureStats(SEXP GSEXP, SEXP SSEXP, SEXP XSEXP, SEXP norm_typeSEXP, SEXP alphaSEXP, SEXP max_itSEXP, SEXP approxSEXP, SEXP thread_noSEXP, SEXP ignore_baselineSEXP) {
 BEGIN_RCPP
     Rcpp::RObject rcpp_result_gen;
     Rcpp::RNGScope rcpp_rngScope_gen;
     Rcpp::traits::input_parameter< arma::sp_mat& >::type G(GSEXP);
     Rcpp::traits::input_parameter< arma::sp_mat& >::type S(SSEXP);
-    Rcpp::traits::input_parameter< arma::sp_mat& >::type marker_mat(marker_matSEXP);
-    Rcpp::traits::input_parameter< double >::type alpha(alphaSEXP);
-    Rcpp::traits::input_parameter< int >::type max_it(max_itSEXP);
-    Rcpp::traits::input_parameter< int >::type thread_no(thread_noSEXP);
-    Rcpp::traits::input_parameter< bool >::type ignore_baseline_expression(ignore_baseline_expressionSEXP);
-    rcpp_result_gen = Rcpp::wrap(C_compute_marker_aggregate_stats(G, S, marker_mat, alpha, max_it, thread_no, ignore_baseline_expression));
-    return rcpp_result_gen;
-END_RCPP
-}
-// C_aggregate_genesets_vision
-Rcpp::List C_aggregate_genesets_vision(arma::sp_mat& G, arma::sp_mat& S, arma::mat& marker_mat, int norm_type, double alpha, int max_it, double tol, int thread_no);
-RcppExport SEXP _actionet_C_aggregate_genesets_vision(SEXP GSEXP, SEXP SSEXP, SEXP marker_matSEXP, SEXP norm_typeSEXP, SEXP alphaSEXP, SEXP max_itSEXP, SEXP tolSEXP, SEXP thread_noSEXP) {
-BEGIN_RCPP
-    Rcpp::RObject rcpp_result_gen;
-    Rcpp::RNGScope rcpp_rngScope_gen;
-    Rcpp::traits::input_parameter< arma::sp_mat& >::type G(GSEXP);
-    Rcpp::traits::input_parameter< arma::sp_mat& >::type S(SSEXP);
-    Rcpp::traits::input_parameter< arma::mat& >::type marker_mat(marker_matSEXP);
+    Rcpp::traits::input_parameter< arma::sp_mat& >::type X(XSEXP);
     Rcpp::traits::input_parameter< int >::type norm_type(norm_typeSEXP);
     Rcpp::traits::input_parameter< double >::type alpha(alphaSEXP);
     Rcpp::traits::input_parameter< int >::type max_it(max_itSEXP);
-    Rcpp::traits::input_parameter< double >::type tol(tolSEXP);
+    Rcpp::traits::input_parameter< bool >::type approx(approxSEXP);
     Rcpp::traits::input_parameter< int >::type thread_no(thread_noSEXP);
-    rcpp_result_gen = Rcpp::wrap(C_aggregate_genesets_vision(G, S, marker_mat, norm_type, alpha, max_it, tol, thread_no));
+    Rcpp::traits::input_parameter< bool >::type ignore_baseline(ignore_baselineSEXP);
+    rcpp_result_gen = Rcpp::wrap(C_computeFeatureStats(G, S, X, norm_type, alpha, max_it, approx, thread_no, ignore_baseline));
+    return rcpp_result_gen;
+END_RCPP
+}
+// C_computeFeatureStatsVision
+arma::mat C_computeFeatureStatsVision(arma::sp_mat& G, arma::sp_mat& S, arma::sp_mat& X, int norm_type, double alpha, int max_it, bool approx, int thread_no);
+RcppExport SEXP _actionet_C_computeFeatureStatsVision(SEXP GSEXP, SEXP SSEXP, SEXP XSEXP, SEXP norm_typeSEXP, SEXP alphaSEXP, SEXP max_itSEXP, SEXP approxSEXP, SEXP thread_noSEXP) {
+BEGIN_RCPP
+    Rcpp::RObject rcpp_result_gen;
+    Rcpp::RNGScope rcpp_rngScope_gen;
+    Rcpp::traits::input_parameter< arma::sp_mat& >::type G(GSEXP);
+    Rcpp::traits::input_parameter< arma::sp_mat& >::type S(SSEXP);
+    Rcpp::traits::input_parameter< arma::sp_mat& >::type X(XSEXP);
+    Rcpp::traits::input_parameter< int >::type norm_type(norm_typeSEXP);
+    Rcpp::traits::input_parameter< double >::type alpha(alphaSEXP);
+    Rcpp::traits::input_parameter< int >::type max_it(max_itSEXP);
+    Rcpp::traits::input_parameter< bool >::type approx(approxSEXP);
+    Rcpp::traits::input_parameter< int >::type thread_no(thread_noSEXP);
+    rcpp_result_gen = Rcpp::wrap(C_computeFeatureStatsVision(G, S, X, norm_type, alpha, max_it, approx, thread_no));
     return rcpp_result_gen;
 END_RCPP
 }
@@ -482,16 +484,16 @@ BEGIN_RCPP
     return rcpp_result_gen;
 END_RCPP
 }
-// C_assess_label_enrichment
-arma::mat C_assess_label_enrichment(const arma::sp_mat& G, arma::mat& M, int thread_no);
-RcppExport SEXP _actionet_C_assess_label_enrichment(SEXP GSEXP, SEXP MSEXP, SEXP thread_noSEXP) {
+// C_computeGraphLabelEnrichment
+arma::mat C_computeGraphLabelEnrichment(const arma::sp_mat& G, arma::mat& scores, int thread_no);
+RcppExport SEXP _actionet_C_computeGraphLabelEnrichment(SEXP GSEXP, SEXP scoresSEXP, SEXP thread_noSEXP) {
 BEGIN_RCPP
     Rcpp::RObject rcpp_result_gen;
     Rcpp::RNGScope rcpp_rngScope_gen;
     Rcpp::traits::input_parameter< const arma::sp_mat& >::type G(GSEXP);
-    Rcpp::traits::input_parameter< arma::mat& >::type M(MSEXP);
+    Rcpp::traits::input_parameter< arma::mat& >::type scores(scoresSEXP);
     Rcpp::traits::input_parameter< int >::type thread_no(thread_noSEXP);
-    rcpp_result_gen = Rcpp::wrap(C_assess_label_enrichment(G, M, thread_no));
+    rcpp_result_gen = Rcpp::wrap(C_computeGraphLabelEnrichment(G, scores, thread_no));
     return rcpp_result_gen;
 END_RCPP
 }
@@ -756,8 +758,8 @@ static const R_CallMethodDef CallEntries[] = {
     {"_actionet_C_reduceKernelDense", (DL_FUNC) &_actionet_C_reduceKernelDense, 6},
     {"_actionet_C_runSimplexRegression", (DL_FUNC) &_actionet_C_runSimplexRegression, 3},
     {"_actionet_C_runSPA", (DL_FUNC) &_actionet_C_runSPA, 2},
-    {"_actionet_C_compute_marker_aggregate_stats", (DL_FUNC) &_actionet_C_compute_marker_aggregate_stats, 7},
-    {"_actionet_C_aggregate_genesets_vision", (DL_FUNC) &_actionet_C_aggregate_genesets_vision, 8},
+    {"_actionet_C_computeFeatureStats", (DL_FUNC) &_actionet_C_computeFeatureStats, 9},
+    {"_actionet_C_computeFeatureStatsVision", (DL_FUNC) &_actionet_C_computeFeatureStatsVision, 8},
     {"_actionet_C_archetypeFeatureSpecificitySparse", (DL_FUNC) &_actionet_C_archetypeFeatureSpecificitySparse, 3},
     {"_actionet_C_archetypeFeatureSpecificityDense", (DL_FUNC) &_actionet_C_archetypeFeatureSpecificityDense, 3},
     {"_actionet_C_computeFeatureSpecificitySparse", (DL_FUNC) &_actionet_C_computeFeatureSpecificitySparse, 3},
@@ -777,7 +779,7 @@ static const R_CallMethodDef CallEntries[] = {
     {"_actionet_C_autocorrelation_Moran_parametric", (DL_FUNC) &_actionet_C_autocorrelation_Moran_parametric, 4},
     {"_actionet_C_autocorrelation_Moran", (DL_FUNC) &_actionet_C_autocorrelation_Moran, 5},
     {"_actionet_C_autocorrelation_Geary", (DL_FUNC) &_actionet_C_autocorrelation_Geary, 5},
-    {"_actionet_C_assess_label_enrichment", (DL_FUNC) &_actionet_C_assess_label_enrichment, 3},
+    {"_actionet_C_computeGraphLabelEnrichment", (DL_FUNC) &_actionet_C_computeGraphLabelEnrichment, 3},
     {"_actionet_C_assess_enrichment", (DL_FUNC) &_actionet_C_assess_enrichment, 3},
     {"_actionet_C_computeGroupedRowSumsSparse", (DL_FUNC) &_actionet_C_computeGroupedRowSumsSparse, 2},
     {"_actionet_C_computeGroupedRowSumsDense", (DL_FUNC) &_actionet_C_computeGroupedRowSumsDense, 2},

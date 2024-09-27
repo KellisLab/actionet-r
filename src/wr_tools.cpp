@@ -53,8 +53,8 @@ Rcpp::List C_autocorrelation_Geary(const arma::sp_mat& G, const arma::mat& score
 // enrichment ==========================================================================================================
 
 // [[Rcpp::export]]
-arma::mat C_assess_label_enrichment(const arma::sp_mat& G, arma::mat& M, int thread_no = 0) {
-    arma::mat logPvals = actionet::assess_label_enrichment(G, M, thread_no);
+arma::mat C_computeGraphLabelEnrichment(const arma::sp_mat& G, arma::mat& scores, int thread_no = 0) {
+    arma::mat logPvals = actionet::computeGraphLabelEnrichment(G, scores, thread_no);
 
     return (logPvals);
 }

@@ -1,3 +1,105 @@
+#' Infer cell annotations from imputed gene expression for all cells.
+#'
+#' @param ace ACTIONetExperiment object
+#' @param markers A named list of marker genes.
+#' @param features_use A vector of features of length NROW(ace) or the name of a column of rowData(ace) containing the genes given in 'markers'.
+#' @param alpha_val Random-walk parameter for gene imputation.
+#' @param thread_no Number of parallel threads used for gene imputation.
+#' @param net_slot Name of slot in colNets(ace) containing the network to use for gene expression imputation (default="ACTIONet").
+#' @param assay_name Name of assay for which to impute gene expression (default="logcounts").
+#' @return A named list: \itemize{
+#' \item Label: Inferred cell type labels
+#' \item Confidence: Confidence of inferred labels
+#' \item Enrichment: Cell type score matrix.
+#' }
+#'
+#' @examples
+#' data("curatedMarkers_human") # pre-packaged in ACTIONet
+#' markers <- curatedMarkers_human$Blood$PBMC$Monaco2019.12celltypes$marker.genes
+#' annots <- annotate.cells.using.markers(ace, markers = markers)
+#' plot.ACTIONet(ace, annots$Label, annots$Confidence)
+#' @export
+annotateCells <- function(
+    ace,
+    markers,
+    method = c("vision", "actionet"),
+    features_use = NULL,
+    assay_name = "logcounts",
+    net_slot = "actionet",
+    norm_type = c("pagerank", "pagerank_sym"),
+    alpha = 0.85,
+    max_it = 5,
+    approx = TRUE,
+    ignore_baseline = FALSE,
+    use_enrichment = TRUE,
+    use_lpa = FALSE,
+    thread_no = 0) {
+  method <- match.arg(method)
+  norm_type <- match.arg(norm_type)
+  norm_type <- ifelse(norm_type == "pagerank_sym", 2, 0)
+
+  .validate_ace(ace, allow_se_like = FALSE, return_elem = FALSE, error_on_fail = TRUE)
+  X <- .encode_markers(ace, markers = markers, features_use = features_use, obj_name = "ace")
+  S <- .validate_assay(ace, assay_name = assay_name, matrix_type = "sparse", force_type = TRUE, error_on_fail = TRUE, return_elem = TRUE)
+  G <- .validate_net(ace, net_slot = net_slot, matrix_type = "sparse", force_type = TRUE, return_elem = TRUE)
+
+  if (method == "vision") {
+    marker_stats <- C_computeFeatureStatsVision(
+      G = G,
+      S = S,
+      X = X,
+      norm_type = norm_type,
+      alpha = alpha,
+      max_it = max_it,
+      approx = approx,
+      thread_no = thread_no
+    )
+  } else if (method == "actionet") {
+    marker_stats <- C_computeFeatureStats(
+      G = G,
+      S = S,
+      X = X,
+      norm_type = norm_type,
+      alpha = alpha,
+      max_it = max_it,
+      approx = approx,
+      thread_no = thread_no,
+      ignore_baseline = ignore_baseline
+    )
+  }
+
+  colnames(marker_stats) <- colnames(X)
+  marker_stats[!is.finite(marker_stats)] <- 0
+  enrichment <- marker_stats
+
+  if (use_enrichment) {
+    Gn <- Matrix::t(C_normalizeGraph(G, norm_type = 1))
+    marker_stats[marker_stats < 0] <- 0
+    logPvals <- C_computeGraphLabelEnrichment(Gn, marker_stats)
+
+    labels <- colnames(X)[apply(logPvals, 1, which.max)]
+    confidence <- apply(logPvals, 1, max)
+  } else {
+    labels <- colnames(X)[apply(marker_stats, 1, which.max)]
+    confidence <- apply(marker_stats, 1, max)
+  }
+
+  out <- list(labels = labels, confidence = confidence, enrichment = enrichment)
+
+  if (use_lpa) {
+    out[["labels_corrected"]] <- propagateLabels(
+      ace,
+      labels = labels,
+      which_fixed = NULL,
+      algorithm = "LPA",
+      net_slot = net_slot,
+      thread_no = thread_no
+    )
+  }
+
+  return(out)
+}
+
 .preprocess_annotation_markers <- function(markers, feature_set) {
   if (is.matrix(markers) || ACTIONetExperiment:::is.sparseMatrix(markers)) {
     common_features <- sort(unique(intersect(feature_set, rownames(markers))))
@@ -170,235 +272,6 @@ annotate.archetypes.using.markers <- function(ace,
   return(out)
 }
 
-#' Infer cell annotations from imputed gene expression for all cells.
-#'
-#' @param ace ACTIONetExperiment object
-#' @param markers A named list of marker genes.
-#' @param features_use A vector of features of length NROW(ace) or the name of a column of rowData(ace) containing the genes given in 'markers'.
-#' @param alpha_val Random-walk parameter for gene imputation.
-#' @param thread_no Number of parallel threads used for gene imputation.
-#' @param net_slot Name of slot in colNets(ace) containing the network to use for gene expression imputation (default="ACTIONet").
-#' @param assay_name Name of assay for which to impute gene expression (default="logcounts").
-#' @return A named list: \itemize{
-#' \item Label: Inferred cell type labels
-#' \item Confidence: Confidence of inferred labels
-#' \item Enrichment: Cell type score matrix.
-#' }
-#'
-#' @examples
-#' data("curatedMarkers_human") # pre-packaged in ACTIONet
-#' markers <- curatedMarkers_human$Blood$PBMC$Monaco2019.12celltypes$marker.genes
-#' annots <- annotate.cells.using.markers(ace, markers = markers)
-#' plot.ACTIONet(ace, annots$Label, annots$Confidence)
-#' @export
-annotate.cells.using.markers <- function(ace,
-                                         markers,
-                                         features_use = NULL,
-                                         alpha_val = 0.9,
-                                         thread_no = 0,
-                                         net_slot = "ACTIONet",
-                                         assay_name = "logcounts",
-                                         max_iter = 5) {
-  features_use <- .get_feature_vec(ace, features_use)
-  marker_mat <- .preprocess_annotation_markers(markers, features_use)
-
-  # marker_mat = as(sapply(marker_set, function(gs) as.numeric(features_use %in% gs) ), "sparseMatrix")
-  G <- colNets(ace)[[net_slot]]
-  S <- as(SummarizedExperiment::assays(ace)[[assay_name]], "sparseMatrix")
-
-  marker_stats <- compute_marker_aggregate_stats(
-    G = G,
-    S = S,
-    marker_mat = marker_mat,
-    alpha = alpha_val,
-    max_it = max_iter,
-    thread_no = thread_no
-  )
-  colnames(marker_stats) <- colnames(marker_mat)
-
-  marker_stats[!is.finite(marker_stats)] <- 0
-  annots <- colnames(marker_mat)[apply(marker_stats, 1, which.max)]
-  conf <- apply(marker_stats, 1, max)
-
-  out <- list(
-    Label = annots,
-    Confidence = conf,
-    Enrichment = marker_stats
-  )
-
-  return(out)
-}
-
-
-#' Annotates cells by interpolating marker-based archetype annotations
-#'
-#' @param ace ACTIONet output object
-#' @param markers A list of lists (each a set of markers for a given cell type)
-#' @param rand_sample_no Number of random permutations (default=1000)
-#'
-#' @return A named list: \itemize{
-#' \item Label: Inferred archetype labels
-#' \item Confidence: Confidence of inferred labels
-#' \item Enrichment: Full enrichment matrix
-#' }
-#'
-#' @examples
-#'
-#' data("curatedMarkers_human") # pre-packaged in ACTIONet
-#' marker_set <- curatedMarkers_human$Blood$PBMC$Monaco2019.12celltypes$marker.genes
-#' cell.annotations <- annotate.cells.from.archetypes.using.markers(ace, markers)
-#' labels <- cell.annotations$Labels
-#' @export
-annotate.cells.from.archetypes.using.markers <- function(ace,
-                                                         markers,
-                                                         merged_suffix = "merged") {
-  marker_set <- markers
-  significance_slot <- sprintf("%s_feat_spec", merged_suffix)
-  arch.annot <- annotate.archetypes.using.markers(
-    ace = ace,
-    markers = marker_set,
-    significance_slot = significance_slot
-  )
-
-  enrichment.mat <- arch.annot$Enrichment
-
-  H.slot <- sprintf("H_%s", merged_suffix)
-  cell.enrichment.mat <- map.cell.scores.from.archetype.enrichment(
-    ace = ace,
-    enrichment_mat = enrichment.mat,
-    normalize = TRUE,
-    H.slot = H.slot
-  )
-  cell.annotations <- colnames(cell.enrichment.mat)[apply(
-    cell.enrichment.mat, 1,
-    which.max
-  )]
-
-  Labels <- colnames(cell.enrichment.mat)[apply(cell.enrichment.mat, 1, which.max)]
-  Labels.confidence <- apply(cell.enrichment.mat, 1, max)
-
-  res <- list(
-    Label = Labels,
-    Confidence = Labels.confidence,
-    Enrichment = cell.enrichment.mat
-  )
-
-  return(res)
-}
-
-#' Interpolates cell scores from archetype enrichment matrix
-#'
-#' @param ace ACTIONet output object
-#' @param enrichment_mat Enrichment matrix with rows corresponding to archetypes and columns to an arbitrary annotation
-#' @param normalize If TRUE, enrichment matrix will be first doubly-normalized
-#'
-#' @return Enrichment map of size cell x annotation
-#'
-#' @examples
-#'
-#' data("curatedMarkers_human") # pre-packaged in ACTIONet
-#' marker_set <- curatedMarkers_human$Blood$PBMC$Monaco2019.12celltypes$marker.genes
-#' arch.annot <- annotate.archetypes.using.markers(ace, markers = markers)
-#' enrichment.mat <- arch.annot$enrichment
-#' cell.enrichment.mat <- map.cell.scores.from.archetype.enrichment(ace, enrichment.mat)
-#' cell.assignments <- colnames(cell.enrichment.mat)[apply(cell.enrichment.mat, 1, which.max)]
-#' @export
-map.cell.scores.from.archetype.enrichment <- function(ace,
-                                                      enrichment_mat,
-                                                      normalize = FALSE,
-                                                      H.slot = "H_merged") {
-  cell.scores.mat <- colMaps(ace)[[H.slot]]
-
-  if (nrow(enrichment_mat) != ncol(cell.scores.mat)) {
-    print("Flipping enrichment matrix")
-    enrichment_mat <- Matrix::t(enrichment_mat)
-  }
-
-  if (normalize == TRUE) {
-    enrichment.scaled <- doubleNorm(enrichment_mat)
-  } else {
-    enrichment.scaled <- enrichment_mat
-    enrichment.scaled[enrichment.scaled < 0] <- 0
-    if (max(enrichment.scaled) > 50) {
-      enrichment.scaled <- log1p(enrichment.scaled)
-    }
-  }
-
-  cell.enrichment.mat <- cell.scores.mat %*% enrichment.scaled
-  colnames(cell.enrichment.mat) <- colnames(enrichment_mat)
-  rownames(cell.enrichment.mat) <- colnames(ace)
-
-  return(cell.enrichment.mat)
-}
-
-# TODO : Clean up arguments
-#' @export
-annotateCells <- function(ace, markers, algorithm = "parametric", norm_type = "pagerank_sym", alpha = 0.85, max_it = 5, post_correction = F, thread_no = 0, features_use = NULL, assay_name = "logcounts", net_slot = "ACTIONet", specificity_slot = "arch_feat_spec", H_slot = "H_merged") {
-  if (!(net_slot %in% names(colNets(ace)))) {
-    warning(sprintf("net_slot does not exist in colNets(ace)."))
-    return()
-  } else {
-    G <- colNets(ace)[[net_slot]]
-  }
-
-  features_use <- .get_feature_vec(ace, features_use)
-  marker_mat <- .preprocess_annotation_markers(markers, features_use)
-
-  S <- assays(ace)[[assay_name]]
-  S <- as(S, "sparseMatrix")
-
-  if (algorithm == "parametric") {
-    out <- aggregate_genesets_vision(
-      G = G,
-      S = S,
-      marker_mat = as.matrix(marker_mat),
-      norm_type = ifelse(norm_type == "pagerank_sym", 2, 0),
-      alpha = alpha,
-      max_it = max_it,
-      thread_no = thread_no
-      )
-
-    marker_stats <- out[["stats_norm_smoothed"]]
-    colnames(marker_stats) <- colnames(marker_mat)
-    marker_stats[!is.finite(marker_stats)] <- 0
-
-    marker_stats_raw <- out[["stats_norm"]]
-    marker_stats_raw[marker_stats_raw < 0] <- 0
-    G.norm <- Matrix::t(normalize_spmat(G, 1))
-
-    logPvals <- assess_label_enrichment(G.norm, marker_stats_raw)
-    annots <- colnames(marker_mat)[apply(logPvals, 1, which.max)]
-    conf <- apply(logPvals, 1, max)
-  } else if (algorithm == "archetypes") {
-    arch_enrichment_mat <- Matrix::t(assess.geneset.enrichment.from.archetypes(ace, marker_mat, specificity.slot = specificity_slot)$logPvals)
-    arch_enrichment_mat[!is.finite(arch_enrichment_mat)] <- 0
-
-    marker_stats <- as.matrix(map.cell.scores.from.archetype.enrichment(
-      ace = ace,
-      enrichment_mat = arch_enrichment_mat,
-      normalize = TRUE,
-      H.slot = H_slot
-    ))
-    marker_stats <- networkDiffusion(obj = G, scores = marker_stats, algorithm = network_normalization_method, alpha = alpha, thread_no = thread_no)
-
-    annots <- colnames(marker_mat)[apply(marker_stats, 1, which.max)]
-    conf <- apply(marker_stats, 1, max)
-  } else {
-    warning(sprintf("Algorithm %s not found. Reverting back to aggregate_genesets_weighted_enrichment_permutation", algorithm))
-    return
-  }
-
-  if (post_correction == TRUE) {
-    annots_corrected <- correct.cell.labels(ace, annots)
-  } else {
-    annots_corrected <- annots
-  }
-
-  out <- list(Label = annots_corrected, Confidence = conf, Enrichment = marker_stats)
-
-  return(out)
-}
-
 
 annotateArchetypes <- function(ace, markers = NULL, labels = NULL, scores = NULL, archetype_slot = "H_merged", archetype_specificity_slot = "arch_feat_spec") {
   annotations.count <- is.null(markers) + is.null(labels) + is.null(scores)
@@ -560,4 +433,227 @@ projectArchs <- function(ace, archtype_scores, archetype_slot = "H_merged", norm
   )
 
   return(res)
+}
+
+#' Annotate clusters using prior cell annotations
+#' (It uses Fisher's exact test for computing overlaps -- approximate HGT is used)
+#'
+#' @param ace ACTIONet output object
+#' @param clusters Cluster
+#' @param labels Annotation of interest (clusters, celltypes, etc.) to test enrichment
+#'
+#' @return A named list: \itemize{
+#' \item Labels: Inferred archetype labels
+#' \item Labels.confidence: Confidence of inferred labels
+#' \item Enrichment: Full enrichment matrix
+#' }
+#'
+#' @examples
+#' arch.annot <- annotate.clusters.using.labels(ace, ace$clusters, sce$celltypes)
+#' @export
+annotate.clusters.using.labels <- function(ace,
+                                           clusters,
+                                           labels) {
+  clusters <- .preprocess_annotation_labels(clusters, ace)
+  Labels <- .preprocess_annotation_labels(labels, ace)
+
+  pop.size <- length(Labels)
+  pos.size <- table(Labels)
+
+  logPvals <- sapply(sort(unique(clusters)), function(i) {
+    idx <- which(clusters == i)
+    sample.size <- length(idx)
+    success.size <- sapply(sort(unique(Labels)), function(i) {
+      sum(Labels[idx] == i)
+    })
+
+    logPval <- HGT_tail(
+      population.size = pop.size,
+      success.count = pos.size,
+      sample.size = sample.size,
+      observed.success = success.size
+    )
+
+    return(logPval)
+  })
+
+
+  cl.Annot <- names(clusters)[match(sort(unique(clusters)), clusters)]
+  Annot <- names(Labels)[match(sort(unique(Labels)), Labels)]
+
+  colnames(logPvals) <- cl.Annot
+  rownames(logPvals) <- Annot
+
+  clusterLabels <- Annot[apply(logPvals, 2, which.max)]
+
+  cellLabels <- match(clusterLabels[clusters], Annot)
+  names(cellLabels) <- clusterLabels[clusters]
+
+  res <- list(
+    Labels = clusterLabels,
+    cellLabels = cellLabels,
+    Enrichment = logPvals
+  )
+
+  return(res)
+}
+
+
+#' Annotate clusters using known marker genes
+#' (It uses permutation test on cluster specificity scores)
+#'
+#' @param ace ACTIONet output object
+#' @param marker.genes A list of lists (each a set of markers for a given cell type)
+#' @param specificity.slot.name An entry in the rowMaps(ace), precomputed using computeFeatureSpecificity() function
+#' @param rand.sample.no Number of random permutations (default=1000)
+#'
+#' @return A named list: \itemize{
+#' \item Labels: Inferred archetype labels
+#' \item Labels.confidence: Confidence of inferred labels
+#' \item Enrichment: Full enrichment matrix
+#' }
+#'
+#' @examples
+#' data("curatedMarkers_human") # pre-packaged in ACTIONet
+#' marker.genes <- curatedMarkers_human$Blood$PBMC$Monaco2019.12celltypes$marker.genes
+#' ace <- computeFeatureSpecificity(ace, ace$clusters, "cluster_specificity_scores")
+#' arch.annot <- annotate.clusters.using.markers(ace, marker.genes = marker.genes, specificity.slot.name = "cluster_specificity_scores")
+#' @export
+annotate.clusters.using.markers <- function(ace,
+                                            marker.genes,
+                                            specificity.slot.name,
+                                            rand.sample.no = 1000) {
+  if (!(specificity.slot.name %in% names(rowMaps(ace)))) {
+    message(sprintf("%s does not exist in rowMaps(ace)", specificity.slot.name))
+  }
+
+  if (is.matrix(marker.genes) | ACTIONetExperiment:::is.sparseMatrix(marker.genes)) {
+    marker.genes <- apply(marker.genes, 2, function(x) {
+      rownames(marker.genes)[x >
+        0]
+    })
+  }
+
+  specificity.panel <- Matrix::t(as.matrix(log1p(rowMaps(ace)[[specificity.slot.name]])))
+
+  GS.names <- names(marker.genes)
+  if (is.null(GS.names)) {
+    GS.names <- sapply(1:length(GS.names), function(i) sprintf("Celltype %s", i))
+  }
+
+  markers.table <- do.call(rbind, lapply(names(marker.genes), function(celltype) {
+    genes <- marker.genes[[celltype]]
+
+    if (length(genes) == 0) {
+      err <- sprintf("No markers left.\n")
+      stop(err, call. = FALSE)
+    }
+
+    signed.count <- sum(sapply(genes, function(gene) grepl("\\+$|-$", gene)))
+    is.signed <- signed.count > 0
+
+    if (!is.signed) {
+      df <- data.frame(
+        Gene = genes,
+        Direction = +1,
+        Celltype = celltype,
+        stringsAsFactors = FALSE
+      )
+    } else {
+      pos.genes <- (as.character(sapply(
+        genes[grepl("+", genes, fixed = TRUE)],
+        function(gene) stringr::str_replace(gene, stringr::fixed("+"), "")
+      )))
+      neg.genes <- (as.character(sapply(
+        genes[grepl("-", genes, fixed = TRUE)],
+        function(gene) stringr::str_replace(gene, stringr::fixed("-"), "")
+      )))
+
+      df <- data.frame(
+        Gene = c(pos.genes, neg.genes),
+        Direction = c(rep(+1, length(pos.genes)), rep(-1, length(neg.genes))),
+        Celltype = celltype,
+        stringsAsFactors = FALSE
+      )
+    }
+  }))
+
+  markers.table <- markers.table[markers.table$Gene %in% colnames(specificity.panel), ]
+
+  if (dim(markers.table)[1] == 0) {
+    err <- sprintf("No markers left.\n")
+    stop(err, call. = FALSE)
+  }
+
+  specificity.panel <- specificity.panel[, markers.table$Gene]
+
+  IDX <- split(1:dim(markers.table)[1], markers.table$Celltype)
+
+  print("Computing significance scores")
+  set.seed(0)
+  Z <- sapply(IDX, function(idx) {
+    markers <- (as.character(markers.table$Gene[idx]))
+    directions <- markers.table$Direction[idx]
+    mask <- markers %in% colnames(specificity.panel)
+
+    A <- as.matrix(specificity.panel[, markers[mask]])
+    sgn <- as.numeric(directions[mask])
+    stat <- A %*% sgn
+
+    rand.stats <- sapply(1:rand.sample.no, function(i) {
+      rand.samples <- sample.int(dim(specificity.panel)[2], sum(mask))
+      rand.A <- as.matrix(specificity.panel[, rand.samples])
+      rand.stat <- rand.A %*% sgn
+    })
+
+    cell.zscores <- as.numeric((stat - apply(rand.stats, 1, mean)) / apply(
+      rand.stats,
+      1, sd
+    ))
+
+    return(cell.zscores)
+  })
+
+  Z[is.na(Z)] <- 0
+  Labels <- colnames(Z)[apply(Z, 1, which.max)]
+
+  Labels.conf <- apply(Z, 1, max)
+
+  names(Labels) <- rownames(specificity.panel)
+  names(Labels.conf) <- rownames(specificity.panel)
+  rownames(Z) <- rownames(specificity.panel)
+
+  out <- list(
+    Label = Labels,
+    Confidence = Labels.conf,
+    Enrichment = Z
+  )
+
+  return(out)
+}
+
+
+#' Annotate arbitary feature score matrix using known marker genes
+#' (It uses permutation test on cluster specificity scores)
+#'
+#' @param profile An arbitrary matrix with rows corresponding to features and columns to any given annotation/grouping of cells
+#' @param markers A list of lists (each a set of markers for a given cell type)
+#'
+#' @return A named list: \itemize{
+#' \item Labels: Inferred archetype labels
+#' \item Labels.confidence: Confidence of inferred labels
+#' \item Enrichment: Full enrichment matrix
+#' }
+#'
+#' @export
+annotate.profile.using.markers <- function(profile, markers) {
+  marker_mat <- .preprocess_annotation_markers(markers, rownames(profile))
+
+  enrichment.out <- assess_enrichment(profile, marker_mat)
+
+  X <- enrichment.out$logPvals
+  rownames(X) <- colnames(marker_mat)
+  colnames(X) <- colnames(profile)
+
+  return(X)
 }

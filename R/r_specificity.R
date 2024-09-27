@@ -12,11 +12,6 @@ computeFeatureSpecificity <- function(
   is_ace <- .validate_ace(obj, allow_se_like = TRUE, error_on_fail = FALSE, return_elem = FALSE)
   X <- .ace_or_assay(obj = obj, assay_name = assay_name, allow_se_like = TRUE, obj_name = "obj", return_elem = TRUE)
 
-  # if((!is_ace || return_raw) && is.null(rownames(X))) {
-  #   err = sprintf("rownames(obj) be 'NULL'")
-  #   stop(err)
-  # }
-
   labels <- .validate_vector_attr(
     obj,
     attr = labels,

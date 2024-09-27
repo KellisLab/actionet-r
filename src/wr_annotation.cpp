@@ -5,29 +5,22 @@
 // marker_stats ========================================================================================================
 
 // [[Rcpp::export]]
-arma::mat C_compute_marker_aggregate_stats(arma::sp_mat& G, arma::sp_mat& S, arma::sp_mat& marker_mat,
-                                           double alpha = 0.85, int max_it = 5, int thread_no = 0,
-                                           bool ignore_baseline_expression = false) {
-    arma::mat stats = actionet::compute_marker_aggregate_stats(G, S, marker_mat, alpha, max_it, thread_no,
-                                                               ignore_baseline_expression);
+arma::mat C_computeFeatureStats(arma::sp_mat& G, arma::sp_mat& S, arma::sp_mat& X, int norm_type = 2,
+                                double alpha = 0.85, int max_it = 5, bool approx = false, int thread_no = 0,
+                                bool ignore_baseline = false) {
+    arma::mat stats = actionet::computeFeatureStats(G, S, X, norm_type, alpha, max_it,
+                                                    approx, thread_no, ignore_baseline);
 
     return (stats);
 }
 
 // [[Rcpp::export]]
-Rcpp::List C_aggregate_genesets_vision(arma::sp_mat& G, arma::sp_mat& S, arma::mat& marker_mat,
-                                       int norm_type = 2, double alpha = 0.85, int max_it = 5, double tol = 1E-8,
-                                       int thread_no = 0) {
-    arma::field<arma::mat> stats = actionet::aggregate_genesets_vision(G, S, marker_mat, norm_type,
-                                                                       alpha, max_it, tol, thread_no);
+arma::mat C_computeFeatureStatsVision(arma::sp_mat& G, arma::sp_mat& S, arma::sp_mat& X, int norm_type = 2,
+                                      double alpha = 0.85, int max_it = 5, bool approx = false, int thread_no = 0) {
+    arma::mat stats = actionet::computeFeatureStatsVision(G, S, X, norm_type,
+                                                          alpha, max_it, approx, thread_no);
 
-    Rcpp::List res;
-
-    res["stats_norm_smoothed"] = stats[0];
-    res["stats_norm"] = stats[1];
-    res["stats"] = stats[2];
-
-    return (res);
+    return (stats);
 }
 
 // specificity =========================================================================================================

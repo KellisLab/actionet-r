@@ -196,17 +196,17 @@ networkCentrality <- function(
 
 
 #' @export
-networkPropagation <- function(
+propagateLabels <- function(
     obj,
-    label_attr,
-    fixed_samples = NULL,
-    algorithm = c("lpa"),
+    labels,
+    which_fixed = NULL,
+    algorithm = c("LPA"),
     lambda = 0,
     iters = 3,
     sig_th = 3,
-    net_slot = "ACTIONet",
+    net_slot = "actionet",
     thread_no = 0) {
-  algorithm <- tolower(algorithm)
+
   algorithm <- match.arg(algorithm, several.ok = TRUE)[1]
 
   G <- .ace_or_net(
@@ -217,13 +217,28 @@ networkPropagation <- function(
     obj_name = "obj"
   )
 
-  lf <- factor(.validate_attr(obj, attr = label_attr, obj_name = "obj", attr_name = "label_attr", return_elem = TRUE))
-  labels <- as.numeric(lf)
+  lf <- .validate_vector_attr(
+    obj,
+    attr = labels,
+    return_type = "data",
+    attr_name = "labels",
+    return_elem = TRUE
+  )
+  lf <- factor(lf)
+  label_num <- as.numeric(lf)
   keys <- levels(lf)
-  labels[is.na(labels)] <- -1
+  label_num[is.na(label_num)] <- -1
 
-  if (algorithm == "lpa") {
-    new_labels <- run_LPA(G = G, labels = labels, lambda = lambda, iters = iters, sig_threshold = sig_th, fixed_labels_ = fixed_samples, thread_no = thread_no)
+  if (algorithm == "LPA") {
+    new_labels <- C_runLPA(
+      G = G,
+      labels = label_num,
+      lambda = lambda,
+      iters = iters,
+      sig_threshold = sig_th,
+      fixed_labels_ = which_fixed,
+      thread_no = thread_no
+    )
     new_labels[new_labels == -1] <- NA
     new_labels <- keys[new_labels]
   } else {
@@ -245,7 +260,7 @@ correct.cell.labels <- function(
     net_slot = "ACTIONet",
     thread_no = 0) {
   initial_labels <- ACTIONetExperiment::get.data.or.split(ace, attr = label_attr, to_return = "data")
-  labels <- networkPropagation(
+  labels <- propagateLabels(
     obj = ace,
     label_attr = initial_labels,
     fixed_samples = NULL,
@@ -273,7 +288,7 @@ infer.missing.cell.labels <- function(
   initial_labels <- ACTIONetExperiment::get.data.or.split(ace, attr = label_attr, to_return = "data")
   fixed_samples <- which(!is.na(initial_labels))
 
-  labels <- networkPropagation(
+  labels <- propagateLabels(
     obj = ace,
     label_attr = initial_labels,
     fixed_samples = fixed_samples,
