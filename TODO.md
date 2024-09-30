@@ -12,6 +12,8 @@
 * Creature "run pipeline" function
 * Fix plotting
  * interactive 3D coords
+ * Generalize "correctBatchEffect" for matrix input after fixing back-end
+ * Incorporate bact ortho into reduceKernel (requires generalized reduceKernel)
 
 ## Secondary
 

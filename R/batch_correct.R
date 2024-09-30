@@ -1,44 +1,34 @@
 #' Perform batch correction on `ACTIONetExperiment` and `SingleCellExperiment` objects.
 
 #' @export
-reduce.and.batch.correct.ace.fastMNN <- function(ace,
-                                                 batch_attr = NULL,
-                                                 assay_name = NULL,
-                                                 reduced_dim = 50,
-                                                 MNN_k = 20,
-                                                 reduction_out = "MNN",
-                                                 BPPARAM = SerialParam()) {
+correctBatchEffectFastMNN <- function(
+    ace,
+    batch_attr = NULL,
+    assay_name = NULL,
+    reduced_dim = 50,
+    MNN_k = 20,
+    reduction_out = "MNN",
+    BPPARAM = SerialParam()) {
+
   ACTIONetExperiment:::.check_and_load_package(c("scran", "SingleCellExperiment", "batchelor", "BiocParallel"))
+  ace <- .validate_ace(ace, as_ace = TRUE, allow_se_like = TRUE, fix_dimnames = TRUE, return_elem = TRUE)
+  S <- .validate_assay(ace, assay_name = assay_name, return_elem = TRUE)
+  batch_vec <- .validate_vector_attr(
+    ace,
+    attr = batch_attr,
+    return_type = "data",
+    attr_name = "batch_attr",
+    obj_name = "ace",
+    return_elem = TRUE
+  )
 
-  if (is.null(batch_attr)) {
-    warning("'batch_attr' must be provided")
-    return(ace)
-  }
-
-  ace <- as(ace, "ACTIONetExperiment")
-  m_data <- metadata(ace)
-
-  if (is.null(assay_name)) {
-    if ("default_assay" %in% names(metadata(ace))) {
-      message(sprintf("Input assay_name is NULL. Setting assay_name to the metadata(ace)[['default_assay']]"))
-      assay_name <- metadata(ace)[["default_assay"]]
-    } else {
-      message(sprintf("Input assay_name is NULL. Setting assay_name to logcounts"))
-      assay_name <- "logcounts"
-    }
-  }
-  .validate_assay(ace, assay_name = assay_name, return_elem = FALSE)
-
-
-  S <- SummarizedExperiment::assays(ace)[[assay_name]]
-  mnn_batch <- ACTIONetExperiment::get.data.or.split(ace, attr = batch_attr, to_return = "data")
-  IDX <- ACTIONetExperiment::get.data.or.split(ace, attr = batch_attr, to_return = "split")
+  IDX <- split(seq_len(length(batch_vec)), f = batch_vec)
   merge_order <- order(sapply(IDX, function(idx) length(idx)), decreasing = TRUE)
 
   set.seed(0)
   mnn.out <- batchelor::fastMNN(
     S,
-    batch = mnn_batch,
+    batch = batch_vec,
     k = MNN_k,
     d = reduced_dim,
     auto.merge = FALSE,
@@ -49,56 +39,50 @@ reduce.and.batch.correct.ace.fastMNN <- function(ace,
 
   S_r <- SingleCellExperiment::reducedDims(mnn.out)[["corrected"]]
   rownames(S_r) <- colnames(ace)
-  colnames(S_r) <- sapply(1:dim(S_r)[2], function(i) sprintf("PC%d", i))
+  colnames(S_r) <- sapply(seq_len(dim(S_r)[2]), function(i) sprintf("PC%d", i))
 
   colMaps(ace)[[reduction_out]] <- S_r
   colMapTypes(ace)[[reduction_out]] <- "reduction"
 
-  metadata(ace)[["default_reduction"]] <- reduction_out
-  metadata(ace)[["default_assay"]] <- assay_name
-
-
   V <- rowData(mnn.out)[["rotation"]]
-  colnames(V) <- paste0("V", 1:NCOL(V))
+  colnames(V) <- paste0("V", seq_len(NCOL(V)))
   rowMaps(ace)[[sprintf("%s_V", reduction_out)]] <- V
   rowMapTypes(ace)[[sprintf("%s_V", reduction_out)]] <- "internal"
 
   invisible(gc())
 
-  metadata(ace) <- m_data
   return(ace)
 }
 
 # TODO: Allow design_mat to be multiple input types.
 #' @export
-orthogonalize.ace.batch <- function(ace,
-                                    design_mat,
-                                    reduction_slot = "action",
-                                    ortho_out = "ACTION_ortho",
-                                    assay_name = NULL) {
-  ace <- as(ace, "ACTIONetExperiment")
+correctBatchEffect <- function(
+    ace,
+    design_mat,
+    reduction_slot = "action",
+    corrected_suffix = "orth",
+    assay_name = NULL) {
+  ace <- .validate_ace(ace, allow_se_like = FALSE, fix_dimnames = TRUE, return_elem = TRUE, error_on_fail = TRUE)
+  S <- .validate_assay(ace, assay_name = assay_name, error_on_fail = TRUE, return_elem = TRUE)
+  S_r <- .validate_map(ace, map_slot = reduction_slot, matrix_type = "dense", force_type = TRUE, return_elem = TRUE)
 
-  if (is.null(assay_name)) {
-    if ("default_assay" %in% names(metadata(ace))) {
-      message(sprintf("Input assay_name is NULL. Setting assay_name to the metadata(ace)[['default_assay']]"))
-      assay_name <- metadata(ace)[["default_assay"]]
-    } else {
-      message(sprintf("Input assay_name is NULL. Setting assay_name to logcounts"))
-      assay_name <- "logcounts"
-    }
-  }
-  .validate_assay(ace, assay_name = assay_name, return_elem = FALSE)
+  # V <- rowMaps(ace)[[sprintf("%s_V", reduction_slot)]]
+  # A <- rowMaps(ace)[[sprintf("%s_A", reduction_slot)]]
+  # B <- colMaps(ace)[[sprintf("%s_B", reduction_slot)]]
+  # sigma <- S4Vectors::metadata(ace)[[sprintf("%s_sigma", reduction_slot)]]
 
-
-  S <- SummarizedExperiment::assays(ace)[[assay_name]]
-  S_r <- colMaps(ace)[[sprintf("%s", reduction_slot)]]
-  V <- rowMaps(ace)[[sprintf("%s_V", reduction_slot)]]
-  A <- rowMaps(ace)[[sprintf("%s_A", reduction_slot)]]
-  B <- colMaps(ace)[[sprintf("%s_B", reduction_slot)]]
+  B <- .validate_map(ace, map_slot = sprintf("%s_B", reduction_slot), matrix_type = "dense", force_type = TRUE, return_elem = TRUE, row = FALSE)
+  V <- .validate_map(ace, map_slot = sprintf("%s_V", reduction_slot), matrix_type = "dense", force_type = TRUE, return_elem = TRUE, row = TRUE)
+  A <- .validate_map(ace, map_slot = sprintf("%s_A", reduction_slot), matrix_type = "dense", force_type = TRUE, return_elem = TRUE, row = TRUE)
   sigma <- S4Vectors::metadata(ace)[[sprintf("%s_sigma", reduction_slot)]]
 
+  if (length(sigma) != NCOL(S_r)) {
+    err <- sprintf("Size of 'sigma' in 'metadata(ace)' does not match reduction\nRecommend re-running 'reduceKernel()'")
+    stop(err)
+  }
+
   if (is.matrix(S)) {
-    reduction.out <- orthogonalize_batch_effect_full(
+    out <- C_orthogonalizeBatchEffect_full(
       S = S,
       old_S_r = S_r,
       old_V = V,
@@ -108,7 +92,7 @@ orthogonalize.ace.batch <- function(ace,
       design = design_mat
     )
   } else {
-    reduction.out <- orthogonalize_batch_effect(
+    out <- C_orthogonalizeBatchEffect(
       S = S,
       old_S_r = S_r,
       old_V = V,
@@ -118,32 +102,36 @@ orthogonalize.ace.batch <- function(ace,
       design = design_mat
     )
   }
-  S_r <- reduction.out$S_r
+  S_r <- out$S_r
   colnames(S_r) <- colnames(ace)
-  rownames(S_r) <- sapply(1:nrow(S_r), function(i) sprintf("Dim%d", i))
-  colMaps(ace)[[sprintf("%s", ortho_out)]] <- Matrix::t(S_r)
-  colMapTypes(ace)[[sprintf("%s", ortho_out)]] <- "reduction"
+  rownames(S_r) <- sapply(seq_len(NROW(S_r)), function(i) sprintf("Dim%d", i))
+  name_Sr <- sprintf("%s_%s", reduction_slot, corrected_suffix)
+  colMaps(ace)[[name_Sr]] <- Matrix::t(S_r)
+  colMapTypes(ace)[[name_Sr]] <- "reduction"
 
 
-  V <- reduction.out$V
-  colnames(V) <- sapply(1:dim(V)[2], function(i) sprintf("V%d", i))
-  rowMaps(ace)[[sprintf("%s_V", ortho_out)]] <- V
-  rowMapTypes(ace)[[sprintf("%s_V", ortho_out)]] <- "internal"
+  V <- out$V
+  colnames(V) <- sapply(seq_len(dim(V)[2]), function(i) sprintf("V%d", i))
+  name_V <- sprintf("%s_V_%s", reduction_slot, corrected_suffix)
+  rowMaps(ace)[[name_V]] <- V
+  rowMapTypes(ace)[[name_V]] <- "internal"
 
 
-  A <- reduction.out$A
-  colnames(A) <- sapply(1:dim(A)[2], function(i) sprintf("A%d", i))
-  rowMaps(ace)[[sprintf("%s_A", ortho_out)]] <- A
-  rowMapTypes(ace)[[sprintf("%s_A", ortho_out)]] <- "internal"
+  A <- out$A
+  colnames(A) <- sapply(seq_len(dim(A)[2]), function(i) sprintf("A%d", i))
+  name_A <- sprintf("%s_A_%s", reduction_slot, corrected_suffix)
+  rowMaps(ace)[[name_A]] <- A
+  rowMapTypes(ace)[[name_A]] <- "internal"
 
 
-  B <- reduction.out$B
-  colnames(B) <- sapply(1:dim(B)[2], function(i) sprintf("B%d", i))
-  colMaps(ace)[[sprintf("%s_B", ortho_out)]] <- B
-  colMapTypes(ace)[[sprintf("%s_B", ortho_out)]] <- "internal"
+  B <- out$B
+  colnames(B) <- sapply(seq_len(dim(B)[2]), function(i) sprintf("B%d", i))
+  name_B <- sprintf("%s_B_%s", reduction_slot, corrected_suffix)
+  colMaps(ace)[[name_B]] <- B
+  colMapTypes(ace)[[name_B]] <- "internal"
 
-
-  S4Vectors::metadata(ace)[[sprintf("%s_sigma", ortho_out)]] <- reduction.out$sigma
+  name_sigma <- sprintf("%s_sigma_%s", reduction_slot, corrected_suffix)
+  S4Vectors::metadata(ace)[[name_sigma]] <- out$sigma
 
   return(ace)
 }
@@ -151,7 +139,7 @@ orthogonalize.ace.batch <- function(ace,
 # orthogonalize.ace.batch.simple <- function(ace,
 #                                            batch_attr,
 #                                            reduction_slot = "action",
-#                                            ortho_out = "ACTION_ortho",
+#                                            corrected_out = "ACTION_ortho",
 #                                            assay_name = NULL) {
 #   ace <- as(ace, "ACTIONetExperiment")
 #
@@ -171,11 +159,11 @@ orthogonalize.ace.batch <- function(ace,
 #   batch_attr <- as.factor(batch_attr)
 #   design_mat <- stats::model.matrix(~batch_attr)
 #
-#   ace <- orthogonalize.ace.batch(
+#   ace <- correctBatchEffect(
 #     ace,
 #     design_mat,
 #     reduction_slot = reduction_slot,
-#     ortho_out = ortho_out,
+#     corrected_out = corrected_out,
 #     assay_name = assay_name
 #   )
 #
@@ -188,7 +176,7 @@ orthogonalize.ace.batch <- function(ace,
 #'                                                max_iter = 1000,
 #'                                                assay_name = NULL,
 #'                                                reduction_out = "action",
-#'                                                ortho_out = "ACTION_ortho",
+#'                                                corrected_out = "ACTION_ortho",
 #'                                                seed = 0,
 #'                                                SVD_algorithm = 0) {
 #'   ace <- as(ace, "ACTIONetExperiment")
@@ -219,11 +207,11 @@ orthogonalize.ace.batch <- function(ace,
 #'     SVD_algorithm = SVD_algorithm
 #'   )
 #'
-#'   ace <- orthogonalize.ace.batch(
+#'   ace <- correctBatchEffect(
 #'     ace = ace,
 #'     design_mat = design_mat,
 #'     reduction_slot = reduction_out,
-#'     ortho_out = ortho_out,
+#'     corrected_out = corrected_out,
 #'     assay_name = assay_name
 #'   )
 #'
