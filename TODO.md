@@ -11,6 +11,7 @@
 * Separation ACTION and ACTIONet
 * Creature "run pipeline" function
 * Fix plotting
+ * interactive 3D coords
 
 ## Secondary
 

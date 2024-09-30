@@ -70,7 +70,7 @@ runACTIONet <- function(ace,
       message(sprintf("Input reduction_slot is NULL. Setting reduction_slot to the metadata(ace)[['default_reduction']] => %s", reduction_slot))
     } else {
       message(sprintf("Input reduction_slot is NULL. Setting reduction_slot to ACTION"))
-      reduction_slot <- "ACTION"
+      reduction_slot <- "action"
     }
   }
 

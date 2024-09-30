@@ -5,7 +5,7 @@
 #' @param features_use A vector of features of length NROW(ace) or the name of a column of rowData(ace) containing the genes given in 'markers'.
 #' @param alpha_val Random-walk parameter for gene imputation.
 #' @param thread_no Number of parallel threads used for gene imputation.
-#' @param net_slot Name of slot in colNets(ace) containing the network to use for gene expression imputation (default="ACTIONet").
+#' @param net_slot Name of slot in colNets(ace) containing the network to use for gene expression imputation (default="actionet").
 #' @param assay_name Name of assay for which to impute gene expression (default="logcounts").
 #' @return A named list: \itemize{
 #' \item Label: Inferred cell type labels

@@ -6,7 +6,7 @@
                                gamma = 1.0,
                                n_epochs = 250,
                                learning_rate = 1,
-                               net_slot = "ACTIONet",
+                               net_slot = "actionet",
                                seed = 0,
                                thread_no = 0,
                                return_raw = FALSE) {
@@ -47,7 +47,7 @@
     colnames(X) <- c("x", "y")
     rownames(X) <- colnames(ace)
     colMaps(ace)$ACTIONet2D <- X
-    colMapTypes(ace)[["ACTIONet2D"]] <- "embedding"
+    colMapTypes(ace)[["umap_actionet_2d"]] <- "embedding"
 
     X <- vis.out$coordinates_3D
     colnames(X) <- c("x", "y", "z")
@@ -93,7 +93,7 @@
 
 #' Identiy equivalent classes of archetypes and group them together
 .run.mergeArchetypes <- function(ace,
-                                 reduction_slot = "ACTION",
+                                 reduction_slot = "action",
                                  C_stacked_slot = "C_stacked",
                                  H_stacked_slot = "H_stacked",
                                  normalization = 0,

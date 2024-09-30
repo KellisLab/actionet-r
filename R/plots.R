@@ -81,7 +81,7 @@ plot.ACTIONet <- function(
   show_legend = FALSE,
   legend_point_size = 3,
   legend_text_size = 10,
-  coordinate_attr = "ACTIONet2D",
+  coordinate_attr = "umap_actionet_2d",
   scale_coors = TRUE,
   color_slot = "denovo_color",
   point_order = NULL,
@@ -274,8 +274,8 @@ plot.ACTIONet.gradient <- function(
   stroke_contrast_fac = 0.1,
   grad_palette = "magma",
   show_legend = FALSE,
-  net_slot = "ACTIONet",
-  coordinate_attr = "ACTIONet2D",
+  net_slot = "actionet",
+  coordinate_attr = "umap_actionet_2d",
   scale_coors = TRUE
 ) {
  
@@ -388,7 +388,7 @@ plot.ACTIONet.interactive <- function(
   NA_color = "#CCCCCC",
   hide_NA = FALSE,
   show_legend = NULL,
-  coordinate_attr = "ACTIONet2D",
+  coordinate_attr = "umap_actionet_2d",
   scale_coors = TRUE,
   color_slot = "denovo_color",
   point_order = NULL,
@@ -411,10 +411,10 @@ plot.ACTIONet.interactive <- function(
 
   if (plot_3d == TRUE) {
     if (NCOL(plot_coors) < 3) {
-      if ("ACTIONet3D" %in% names(colMaps(data))) {
-        msg <- sprintf("Using 'coordinate_attr' = 'ACTIONet3D'.\n")
+      if ("umap_actionet_3d" %in% names(colMaps(data))) {
+        msg <- sprintf("Using 'coordinate_attr' = 'umap_actionet_3d'.\n")
         message(msg)
-        plot_coors <- .get_plot_coors(data, "ACTIONet3D", scale_coors)
+        plot_coors <- .get_plot_coors(data, "umap_actionet_3d", scale_coors)
       } else {
         err <- sprintf("'plot_3d == TRUE' but given coordinates have < 3 columns.\n")
         stop(err)
@@ -788,8 +788,8 @@ visualize.markers <- function(
   trans_fac = 3,
   grad_palette = "magma",
   point_size = 1,
-  net_slot = "ACTIONet",
-  coordinate_attr = "ACTIONet2D",
+  net_slot = "actionet",
+  coordinate_attr = "umap_actionet_2d",
   single_plot = FALSE,
   show_legend = FALSE
 ) {
@@ -979,8 +979,8 @@ plot.ACTIONet.archetype.footprint <- function(
   trans_fac = 2,
   grad_palette = "magma",
   point_size = 0.5,
-  net_slot = "ACTIONet",
-  coordinate_attr = "ACTIONet2D",
+  net_slot = "actionet",
+  coordinate_attr = "umap_actionet_2d",
   single_plot = FALSE,
   arch.labels = NULL
 ) {

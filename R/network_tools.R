@@ -259,7 +259,7 @@ correct.cell.labels <- function(
     iters = 3,
     lambda = 0,
     sig_th = 3,
-    net_slot = "ACTIONet",
+    net_slot = "actionet",
     thread_no = 0) {
   initial_labels <- ACTIONetExperiment::get.data.or.split(ace, attr = label_attr, to_return = "data")
   labels <- propagateLabels(
@@ -285,7 +285,7 @@ infer.missing.cell.labels <- function(
     iters = 3,
     lambda = 0,
     sig_th = 3,
-    net_slot = "ACTIONet",
+    net_slot = "actionet",
     thread_no = 0) {
   initial_labels <- ACTIONetExperiment::get.data.or.split(ace, attr = label_attr, to_return = "data")
   fixed_samples <- which(!is.na(initial_labels))
@@ -313,7 +313,7 @@ networkAutocorrelation <- function(
     score_normalization_method = 1L,
     perm_no = 0,
     thread_no = 0L,
-    net_slot = "ACTIONet") {
+    net_slot = "actionet") {
   algorithm <- tolower(algorithm)
   algorithm <- match.arg(algorithm, several.ok = TRUE)[1]
 

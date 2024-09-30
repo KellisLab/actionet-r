@@ -73,7 +73,7 @@ reduce.and.batch.correct.ace.fastMNN <- function(ace,
 #' @export
 orthogonalize.ace.batch <- function(ace,
                                     design_mat,
-                                    reduction_slot = "ACTION",
+                                    reduction_slot = "action",
                                     ortho_out = "ACTION_ortho",
                                     assay_name = NULL) {
   ace <- as(ace, "ACTIONetExperiment")
@@ -150,7 +150,7 @@ orthogonalize.ace.batch <- function(ace,
 
 # orthogonalize.ace.batch.simple <- function(ace,
 #                                            batch_attr,
-#                                            reduction_slot = "ACTION",
+#                                            reduction_slot = "action",
 #                                            ortho_out = "ACTION_ortho",
 #                                            assay_name = NULL) {
 #   ace <- as(ace, "ACTIONetExperiment")
@@ -187,7 +187,7 @@ orthogonalize.ace.batch <- function(ace,
 #'                                                reduced_dim = 50,
 #'                                                max_iter = 1000,
 #'                                                assay_name = NULL,
-#'                                                reduction_out = "ACTION",
+#'                                                reduction_out = "action",
 #'                                                ortho_out = "ACTION_ortho",
 #'                                                seed = 0,
 #'                                                SVD_algorithm = 0) {
