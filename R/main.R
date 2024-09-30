@@ -29,7 +29,7 @@
 runACTIONet <- function(ace,
                         k_min = 2,
                         k_max = 30,
-                        assay_name = NULL,
+                        assay_name = "logcounts",
                         reduction_slot = "action",
                         net_slot_out = "actionet",
                         min_obs = 2,
@@ -53,26 +53,8 @@ runACTIONet <- function(ace,
   layout_method <- tolower(layout_method)
   layout_method <- match.arg(layout_method, several.ok = FALSE)
 
-  if (is.null(assay_name)) {
-    if ("default_assay" %in% names(metadata(ace))) {
-      assay_name <- metadata(ace)[["default_assay"]]
-      message(sprintf("Input assay_name is NULL. Setting assay_name to the metadata(ace)[['default_assay']] => %s", assay_name))
-    } else {
-      message(sprintf("Input assay_name is NULL. Setting assay_name to logcounts"))
-      assay_name <- "logcounts"
-    }
-  }
   .validate_assay(ace, assay_name = assay_name, return_elem = FALSE)
-
-  if (is.null(reduction_slot)) {
-    if ("default_reduction" %in% names(metadata(ace))) {
-      reduction_slot <- metadata(ace)[["default_reduction"]]
-      message(sprintf("Input reduction_slot is NULL. Setting reduction_slot to the metadata(ace)[['default_reduction']] => %s", reduction_slot))
-    } else {
-      message(sprintf("Input reduction_slot is NULL. Setting reduction_slot to ACTION"))
-      reduction_slot <- "action"
-    }
-  }
+  .validate_map(ace, map_slot = reduction_slot, return_elem = FALSE)
 
   ace <- runACTION(
     ace,
