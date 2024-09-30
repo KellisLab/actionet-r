@@ -12,7 +12,7 @@ reduceKernel(
   seed = 0,
   verbose = TRUE,
   assay_name = "logcounts",
-  slot_out_prefix = "action",
+  reduction_slot = "action",
   return_raw = FALSE
 )
 }
@@ -31,7 +31,7 @@ reduceKernel(
 
 \item{assay_name}{Name of assay to reduce.}
 
-\item{slot_out_prefix}{Prefix of slots to store output (ACTIONetExperiment output only).}
+\item{reduction_slot}{Slot of colMaps(ace) in which to stored reduced kernel matrix. Also the prefix of slots to in which to store output components of the decomposition. (ACTIONetExperiment output only).}
 
 \item{return_raw}{Return raw output regardless of 'obj' type.}
 }

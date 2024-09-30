@@ -191,7 +191,7 @@ rerun.archetype.unification <- function(ace,
   archetype_footprint <- networkDiffusion(
     obj = G,
     scores = colMaps(ace)[[sprintf("H_%s", merged_suffix)]],
-    algorithm = "pagerank",
+    norm_method = "pagerank",
     alpha = footprint_alpha,
     thread_no = thread_no,
     max_it = 5,

@@ -7,7 +7,7 @@
 #' @param seed Random seed.
 #' @param verbose Print status messages.
 #' @param assay_name Name of assay to reduce.
-#' @param slot_out_prefix Prefix of slots to store output (ACTIONetExperiment output only).
+#' @param reduction_slot Slot of colMaps(ace) in which to stored reduced kernel matrix. Also the prefix of slots to in which to store output components of the decomposition. (ACTIONetExperiment output only).
 #' @param return_raw Return raw output regardless of 'obj' type.
 #'
 #' @return ACTIONetExperiment object with reduction in colMaps(ace).
@@ -21,7 +21,7 @@ reduceKernel <- function(
     seed = 0,
     verbose = TRUE,
     assay_name = "logcounts",
-    slot_out_prefix = "action",
+    reduction_slot = "action",
     return_raw = FALSE) {
 
   is_ace <- .is_se_like(obj)
@@ -63,25 +63,25 @@ reduceKernel <- function(
     S_r <- out$S_r
     colnames(S_r) <- colnames(obj)
     rownames(S_r) <- paste0("dim_", seq_len(NROW(S_r)))
-    colMaps(obj)[[slot_out_prefix]] <- Matrix::t(S_r)
-    colMapTypes(obj)[[slot_out_prefix]] <- "reduction"
+    colMaps(obj)[[reduction_slot]] <- Matrix::t(S_r)
+    colMapTypes(obj)[[reduction_slot]] <- "reduction"
 
     V <- out$V
     colnames(V) <- paste0("V", seq_len(NCOL(V)))
-    rowMaps(obj)[[sprintf("%s_V", slot_out_prefix)]] <- V
-    rowMapTypes(obj)[[sprintf("%s_V", slot_out_prefix)]] <- "internal"
+    rowMaps(obj)[[sprintf("%s_V", reduction_slot)]] <- V
+    rowMapTypes(obj)[[sprintf("%s_V", reduction_slot)]] <- "internal"
 
     A <- out$A
     colnames(A) <- paste0("A", seq_len(NCOL(A)))
-    rowMaps(obj)[[sprintf("%s_A", slot_out_prefix)]] <- A
-    rowMapTypes(obj)[[sprintf("%s_A", slot_out_prefix)]] <- "internal"
+    rowMaps(obj)[[sprintf("%s_A", reduction_slot)]] <- A
+    rowMapTypes(obj)[[sprintf("%s_A", reduction_slot)]] <- "internal"
 
     B <- out$B
     colnames(B) <- paste0("B", seq_len(NCOL(B)))
-    colMaps(obj)[[sprintf("%s_B", slot_out_prefix)]] <- B
-    colMapTypes(obj)[[sprintf("%s_B", slot_out_prefix)]] <- "internal"
+    colMaps(obj)[[sprintf("%s_B", reduction_slot)]] <- B
+    colMapTypes(obj)[[sprintf("%s_B", reduction_slot)]] <- "internal"
 
-    metadata(obj)[[sprintf("%s_sigma", slot_out_prefix)]] <- out$sigma
+    metadata(obj)[[sprintf("%s_sigma", reduction_slot)]] <- out$sigma
 
     return(obj)
   }

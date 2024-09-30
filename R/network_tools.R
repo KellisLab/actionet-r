@@ -48,7 +48,7 @@ buildNetwork <- function(
 networkDiffusion <- function(
     obj,
     scores, ## `scores` must be castable to dense matrix.
-    algorithm = c("pagerank", "pagerank_sym"),
+    norm_method = c("pagerank", "pagerank_sym"),
     alpha = 0.85,
     thread_no = 0,
     approx = TRUE,
@@ -57,16 +57,19 @@ networkDiffusion <- function(
     net_slot = "actionet",
     map_slot_out = NULL,
     return_raw = FALSE) {
-  algorithm <- tolower(algorithm)
-  algorithm <- match.arg(algorithm, several.ok = TRUE)[1]
+  norm_method <- tolower(norm_method)
+  norm_method <- match.arg(norm_method, several.ok = TRUE)[1]
 
-  scores <- Matrix::as.matrix(scores)
+  is_ace <- .validate_ace(obj, error_on_fail = FALSE, return_elem = FALSE)
+
+  if (!is.matrix(scores)) {
+    scores <- Matrix::as.matrix(scores)
+  }
+
   if (NROW(scores) != NCOL(obj)) {
     err <- sprintf("`length(scores)` must equal `NCOL(obj)`.\n")
     stop(err)
   }
-
-  is_ace <- .validate_ace(obj, error_on_fail = FALSE, return_elem = FALSE)
 
   G <- .ace_or_net(
     obj = obj,
@@ -88,13 +91,13 @@ networkDiffusion <- function(
     max_it = max_it,
     thread_no = thread_no,
     approx = approx,
-    norm_method = ifelse(algorithm == "pagerank_sym", 2, 0),
+    norm_method = ifelse(norm_method == "pagerank_sym", 2, 0),
     tol = tol
   )
 
   if (is_ace && !return_raw) {
     if (is.null(map_slot_out)) {
-      map_slot_out <- sprintf("%s_%s", algorithm, net_slot)
+      map_slot_out <- sprintf("%s_%s", norm_method, net_slot)
     }
     colMaps(obj)[[map_slot_out]] <- X
     return(obj)
@@ -156,7 +159,7 @@ networkCentrality <- function(
     centrality <- networkDiffusion(
       obj = G,
       scores = rep(1 / NCOL(G), NCOL(G)),
-      algorithm = "pagerank",
+      norm_method = "pagerank",
       alpha = alpha,
       thread_no = thread_no,
       max_it = max_it,
@@ -171,7 +174,7 @@ networkCentrality <- function(
     scores <- networkDiffusion(
       obj = G,
       scores = design.mat,
-      algorithm = "pagerank",
+      norm_method = "pagerank",
       alpha = alpha,
       thread_no = thread_no,
       max_it = max_it,
@@ -206,7 +209,6 @@ propagateLabels <- function(
     sig_th = 3,
     net_slot = "actionet",
     thread_no = 0) {
-
   algorithm <- match.arg(algorithm, several.ok = TRUE)[1]
 
   G <- .ace_or_net(

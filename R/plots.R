@@ -307,7 +307,7 @@ plot.ACTIONet.gradient <- function(
     x <- as.numeric(networkDiffusion(
       obj = colNets(data)[[net_slot]],
       scores = x,
-      algorithm = "pagerank",
+      norm_method = "pagerank",
       alpha = alpha,
       thread_no = 0
     ))
@@ -809,7 +809,7 @@ visualize.markers <- function(
 
   if (alpha > 0) {
 
-    expr_profile <- imputeGenes(
+    expr_profile <- imputeFeatures(
       ace = ace,
       genes = marker_set,
       algorithm = imputation_algorithm,

@@ -1,4 +1,3 @@
-
 .run.layoutNetwork <- function(ace,
                                initial_coordinates,
                                algorithm = "umap",
@@ -36,7 +35,7 @@
     learning_rate = learning_rate,
     seed = seed,
     thread_no = thread_no
-    )
+  )
 
   if (return_raw == TRUE) {
     return(vis.out)
@@ -69,10 +68,10 @@
 
 #' Prune nonspecific and/or unreliable archetypes
 .run.collectArchetypes <- function(ace,
-                                 C_trace,
-                                 H_trace,
-                                 specificity_th = -3,
-                                 min_cells_per_arch = 2) {
+                                   C_trace,
+                                   H_trace,
+                                   specificity_th = -3,
+                                   min_cells_per_arch = 2) {
   .validate_ace(ace, allow_null = FALSE, return_elem = FALSE)
 
   pruning.out <- .collectArchetypes(
@@ -151,15 +150,31 @@
   }
 }
 
+#' @export
+smoothKernel <- function(
+    ace,
+    norm_method = "pagerank",
+    alpha = 0.85,
+    max_it = 5,
+    reduction_slot = "action",
+    net_slot = "actionet",
+    thread_no = 0,
+    return_raw = FALSE) {
+  .validate_ace(ace, allow_se_like = FALSE, return_elem = FALSE, error_on_fail = TRUE)
 
-.smoothPCs <- function(ace,
-                       diffusion_algorithm = "pagerank",
-                       alpha = 0.9,
-                       diffusion_it = 5,
-                       reduction_slot = "ACTION",
-                       net_slot = "ACTIONet",
-                       thread_no = 0,
-                       return_raw = FALSE) {
+  vars <- list(
+    V = SummarizedExperiment::rowMaps(ace)[[sprintf("%s_V", reduction_slot)]],
+    A = SummarizedExperiment::rowMaps(ace)[[sprintf("%s_A", reduction_slot)]],
+    B = SummarizedExperiment::colMaps(ace)[[sprintf("%s_B", reduction_slot)]],
+    sigma = S4Vectors::metadata(ace)[[sprintf("%s_sigma", reduction_slot)]]
+  )
+
+  if (any(sapply(vars, is.null))) {
+    nullvars <- sprintf("%s_%s", reduction_slot, names(vars)[which(sapply(vars, is.null))])
+    err <- sprintf("'%s' missing from 'ace'. Did you run 'reduceKernel()'?", paste(nullvars, collapse = ","))
+    stop(err)
+  }
+
   S_r <- .validate_map(
     ace,
     map_slot = reduction_slot,
@@ -174,39 +189,20 @@
     force_type = TRUE,
   )
 
-  vars <- list(
-    V = rowMaps(ace)[[sprintf("%s_V", reduction_slot)]],
-    A = rowMaps(ace)[[sprintf("%s_A", reduction_slot)]],
-    B = colMaps(ace)[[sprintf("%s_B", reduction_slot)]],
-    sigma = S4Vectors::metadata(ace)[[sprintf("%s_sigma", reduction_slot)]]
-  )
-
-  if (any(sapply(vars, is.null))) {
-    nullvars <- sprintf("%s_%s", reduction_slot, names(vars)[which(sapply(vars, is.null))])
-    if (return_raw == TRUE) {
-      err <- sprintf("'%s' missing from 'ace'. Did you run 'reduce.ace()?'.\n", paste(nullvars, collapse = ","))
-      stop(err)
-    } else {
-      msg <- sprintf("'%s' missing from 'ace'. Did you run 'reduce.ace()'?\nSkipping PC smoothing.\n", paste(nullvars, collapse = ","))
-      warning(msg)
-      return(ace)
-    }
-  }
-
   V <- vars$V
   A <- vars$A
   B <- vars$B
   sigma <- vars$sigma
 
-  U <- as.matrix(S_r %*% Matrix::Diagonal(length(sigma), 1 / sigma))
+  U <- as.matrix(S_r %*% Matrix::Diagonal(length(sigma), 1.0 / sigma))
   SVD.out <- perturbedSVD(V, sigma, U, -A, B)
   V.smooth <- networkDiffusion(
     obj = G,
     scores = SVD.out$v,
-    algorithm = diffusion_algorithm,
+    norm_method = norm_method,
     alpha = alpha,
     thread_no = thread_no,
-    max_it = diffusion_it
+    max_it = max_it
   )
 
   H <- V.smooth %*% diag(SVD.out$d)

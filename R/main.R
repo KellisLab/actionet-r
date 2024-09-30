@@ -111,7 +111,7 @@ runACTIONet <- function(ace,
   ace <- networkDiffusion(
     ace,
     scores = colMaps(ace)[["H_merged"]],
-    algorithm = "pagerank",
+    norm_method = "pagerank",
     thread_no = thread_no,
     net_slot = net_slot_out,
     map_slot_out = "archetype_footprint"

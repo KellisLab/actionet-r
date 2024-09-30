@@ -61,7 +61,7 @@ scoreCells <- function(ace, markers, algorithm = "gmm2", pre_imputation_algorith
     S <- assays(ace)[[assay_name]]
     sub_S <- S[mask, ]
   } else {
-    sub_S <- Matrix::t(imputeGenes(ace, rownames(marker_mat), assay_name = assay_name, thread_no = thread_no, alpha = pre_alpha, diffusion_it = diffusion_it, net_slot = net_slot, algorithm = pre_imputation_algorithm))
+    sub_S <- Matrix::t(imputeFeatures(ace, rownames(marker_mat), assay_name = assay_name, thread_no = thread_no, alpha = pre_alpha, diffusion_it = diffusion_it, net_slot = net_slot, algorithm = pre_imputation_algorithm))
   }
   sub_S <- as(sub_S, "matrix")
 

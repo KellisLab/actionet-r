@@ -163,12 +163,12 @@ C_runSPA <- function(A, k) {
     .Call(`_actionet_C_runSPA`, A, k)
 }
 
-C_computeFeatureStats <- function(G, S, X, norm_type = 2L, alpha = 0.85, max_it = 5L, approx = FALSE, thread_no = 0L, ignore_baseline = FALSE) {
-    .Call(`_actionet_C_computeFeatureStats`, G, S, X, norm_type, alpha, max_it, approx, thread_no, ignore_baseline)
+C_computeFeatureStats <- function(G, S, X, norm_method = 2L, alpha = 0.85, max_it = 5L, approx = FALSE, thread_no = 0L, ignore_baseline = FALSE) {
+    .Call(`_actionet_C_computeFeatureStats`, G, S, X, norm_method, alpha, max_it, approx, thread_no, ignore_baseline)
 }
 
-C_computeFeatureStatsVision <- function(G, S, X, norm_type = 2L, alpha = 0.85, max_it = 5L, approx = FALSE, thread_no = 0L) {
-    .Call(`_actionet_C_computeFeatureStatsVision`, G, S, X, norm_type, alpha, max_it, approx, thread_no)
+C_computeFeatureStatsVision <- function(G, S, X, norm_method = 2L, alpha = 0.85, max_it = 5L, approx = FALSE, thread_no = 0L) {
+    .Call(`_actionet_C_computeFeatureStatsVision`, G, S, X, norm_method, alpha, max_it, approx, thread_no)
 }
 
 #' Compute feature specificity (from archetype footprints)
@@ -423,8 +423,8 @@ C_scaleMatrixSparse <- function(X, v, dim = 0L) {
     .Call(`_actionet_C_scaleMatrixSparse`, X, v, dim)
 }
 
-C_normalizeGraph <- function(G, norm_type = 0L) {
-    .Call(`_actionet_C_normalizeGraph`, G, norm_type)
+C_normalizeGraph <- function(G, norm_method = 0L) {
+    .Call(`_actionet_C_normalizeGraph`, G, norm_method)
 }
 
 #' Computes the maximum-weight bipartite graph matching

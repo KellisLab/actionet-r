@@ -159,39 +159,39 @@ BEGIN_RCPP
 END_RCPP
 }
 // C_computeFeatureStats
-arma::mat C_computeFeatureStats(arma::sp_mat& G, arma::sp_mat& S, arma::sp_mat& X, int norm_type, double alpha, int max_it, bool approx, int thread_no, bool ignore_baseline);
-RcppExport SEXP _actionet_C_computeFeatureStats(SEXP GSEXP, SEXP SSEXP, SEXP XSEXP, SEXP norm_typeSEXP, SEXP alphaSEXP, SEXP max_itSEXP, SEXP approxSEXP, SEXP thread_noSEXP, SEXP ignore_baselineSEXP) {
+arma::mat C_computeFeatureStats(arma::sp_mat& G, arma::sp_mat& S, arma::sp_mat& X, int norm_method, double alpha, int max_it, bool approx, int thread_no, bool ignore_baseline);
+RcppExport SEXP _actionet_C_computeFeatureStats(SEXP GSEXP, SEXP SSEXP, SEXP XSEXP, SEXP norm_methodSEXP, SEXP alphaSEXP, SEXP max_itSEXP, SEXP approxSEXP, SEXP thread_noSEXP, SEXP ignore_baselineSEXP) {
 BEGIN_RCPP
     Rcpp::RObject rcpp_result_gen;
     Rcpp::RNGScope rcpp_rngScope_gen;
     Rcpp::traits::input_parameter< arma::sp_mat& >::type G(GSEXP);
     Rcpp::traits::input_parameter< arma::sp_mat& >::type S(SSEXP);
     Rcpp::traits::input_parameter< arma::sp_mat& >::type X(XSEXP);
-    Rcpp::traits::input_parameter< int >::type norm_type(norm_typeSEXP);
+    Rcpp::traits::input_parameter< int >::type norm_method(norm_methodSEXP);
     Rcpp::traits::input_parameter< double >::type alpha(alphaSEXP);
     Rcpp::traits::input_parameter< int >::type max_it(max_itSEXP);
     Rcpp::traits::input_parameter< bool >::type approx(approxSEXP);
     Rcpp::traits::input_parameter< int >::type thread_no(thread_noSEXP);
     Rcpp::traits::input_parameter< bool >::type ignore_baseline(ignore_baselineSEXP);
-    rcpp_result_gen = Rcpp::wrap(C_computeFeatureStats(G, S, X, norm_type, alpha, max_it, approx, thread_no, ignore_baseline));
+    rcpp_result_gen = Rcpp::wrap(C_computeFeatureStats(G, S, X, norm_method, alpha, max_it, approx, thread_no, ignore_baseline));
     return rcpp_result_gen;
 END_RCPP
 }
 // C_computeFeatureStatsVision
-arma::mat C_computeFeatureStatsVision(arma::sp_mat& G, arma::sp_mat& S, arma::sp_mat& X, int norm_type, double alpha, int max_it, bool approx, int thread_no);
-RcppExport SEXP _actionet_C_computeFeatureStatsVision(SEXP GSEXP, SEXP SSEXP, SEXP XSEXP, SEXP norm_typeSEXP, SEXP alphaSEXP, SEXP max_itSEXP, SEXP approxSEXP, SEXP thread_noSEXP) {
+arma::mat C_computeFeatureStatsVision(arma::sp_mat& G, arma::sp_mat& S, arma::sp_mat& X, int norm_method, double alpha, int max_it, bool approx, int thread_no);
+RcppExport SEXP _actionet_C_computeFeatureStatsVision(SEXP GSEXP, SEXP SSEXP, SEXP XSEXP, SEXP norm_methodSEXP, SEXP alphaSEXP, SEXP max_itSEXP, SEXP approxSEXP, SEXP thread_noSEXP) {
 BEGIN_RCPP
     Rcpp::RObject rcpp_result_gen;
     Rcpp::RNGScope rcpp_rngScope_gen;
     Rcpp::traits::input_parameter< arma::sp_mat& >::type G(GSEXP);
     Rcpp::traits::input_parameter< arma::sp_mat& >::type S(SSEXP);
     Rcpp::traits::input_parameter< arma::sp_mat& >::type X(XSEXP);
-    Rcpp::traits::input_parameter< int >::type norm_type(norm_typeSEXP);
+    Rcpp::traits::input_parameter< int >::type norm_method(norm_methodSEXP);
     Rcpp::traits::input_parameter< double >::type alpha(alphaSEXP);
     Rcpp::traits::input_parameter< int >::type max_it(max_itSEXP);
     Rcpp::traits::input_parameter< bool >::type approx(approxSEXP);
     Rcpp::traits::input_parameter< int >::type thread_no(thread_noSEXP);
-    rcpp_result_gen = Rcpp::wrap(C_computeFeatureStatsVision(G, S, X, norm_type, alpha, max_it, approx, thread_no));
+    rcpp_result_gen = Rcpp::wrap(C_computeFeatureStatsVision(G, S, X, norm_method, alpha, max_it, approx, thread_no));
     return rcpp_result_gen;
 END_RCPP
 }
@@ -635,14 +635,14 @@ BEGIN_RCPP
 END_RCPP
 }
 // C_normalizeGraph
-arma::sp_mat C_normalizeGraph(arma::sp_mat& G, int norm_type);
-RcppExport SEXP _actionet_C_normalizeGraph(SEXP GSEXP, SEXP norm_typeSEXP) {
+arma::sp_mat C_normalizeGraph(arma::sp_mat& G, int norm_method);
+RcppExport SEXP _actionet_C_normalizeGraph(SEXP GSEXP, SEXP norm_methodSEXP) {
 BEGIN_RCPP
     Rcpp::RObject rcpp_result_gen;
     Rcpp::RNGScope rcpp_rngScope_gen;
     Rcpp::traits::input_parameter< arma::sp_mat& >::type G(GSEXP);
-    Rcpp::traits::input_parameter< int >::type norm_type(norm_typeSEXP);
-    rcpp_result_gen = Rcpp::wrap(C_normalizeGraph(G, norm_type));
+    Rcpp::traits::input_parameter< int >::type norm_method(norm_methodSEXP);
+    rcpp_result_gen = Rcpp::wrap(C_normalizeGraph(G, norm_method));
     return rcpp_result_gen;
 END_RCPP
 }

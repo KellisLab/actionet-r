@@ -5,19 +5,19 @@
 // marker_stats ========================================================================================================
 
 // [[Rcpp::export]]
-arma::mat C_computeFeatureStats(arma::sp_mat& G, arma::sp_mat& S, arma::sp_mat& X, int norm_type = 2,
+arma::mat C_computeFeatureStats(arma::sp_mat& G, arma::sp_mat& S, arma::sp_mat& X, int norm_method = 2,
                                 double alpha = 0.85, int max_it = 5, bool approx = false, int thread_no = 0,
                                 bool ignore_baseline = false) {
-    arma::mat stats = actionet::computeFeatureStats(G, S, X, norm_type, alpha, max_it,
+    arma::mat stats = actionet::computeFeatureStats(G, S, X, norm_method, alpha, max_it,
                                                     approx, thread_no, ignore_baseline);
 
     return (stats);
 }
 
 // [[Rcpp::export]]
-arma::mat C_computeFeatureStatsVision(arma::sp_mat& G, arma::sp_mat& S, arma::sp_mat& X, int norm_type = 2,
+arma::mat C_computeFeatureStatsVision(arma::sp_mat& G, arma::sp_mat& S, arma::sp_mat& X, int norm_method = 2,
                                       double alpha = 0.85, int max_it = 5, bool approx = false, int thread_no = 0) {
-    arma::mat stats = actionet::computeFeatureStatsVision(G, S, X, norm_type,
+    arma::mat stats = actionet::computeFeatureStatsVision(G, S, X, norm_method,
                                                           alpha, max_it, approx, thread_no);
 
     return (stats);

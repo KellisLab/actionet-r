@@ -26,7 +26,7 @@ annotateCells <- function(
     features_use = NULL,
     assay_name = "logcounts",
     net_slot = "actionet",
-    norm_type = c("pagerank", "pagerank_sym"),
+    norm_method = c("pagerank", "pagerank_sym"),
     alpha = 0.85,
     max_it = 5,
     approx = TRUE,
@@ -35,8 +35,8 @@ annotateCells <- function(
     use_lpa = FALSE,
     thread_no = 0) {
   method <- match.arg(method)
-  norm_type <- match.arg(norm_type)
-  norm_type <- ifelse(norm_type == "pagerank_sym", 2, 0)
+  norm_method <- match.arg(norm_method)
+  norm_method <- ifelse(norm_method == "pagerank_sym", 2, 0)
 
   .validate_ace(ace, allow_se_like = FALSE, return_elem = FALSE, error_on_fail = TRUE)
   X <- .encode_markers(ace, markers = markers, features_use = features_use, obj_name = "ace")
@@ -48,7 +48,7 @@ annotateCells <- function(
       G = G,
       S = S,
       X = X,
-      norm_type = norm_type,
+      norm_method = norm_method,
       alpha = alpha,
       max_it = max_it,
       approx = approx,
@@ -59,7 +59,7 @@ annotateCells <- function(
       G = G,
       S = S,
       X = X,
-      norm_type = norm_type,
+      norm_method = norm_method,
       alpha = alpha,
       max_it = max_it,
       approx = approx,
@@ -73,7 +73,7 @@ annotateCells <- function(
   enrichment <- marker_stats
 
   if (use_enrichment) {
-    Gn <- Matrix::t(C_normalizeGraph(G, norm_type = 1))
+    Gn <- Matrix::t(C_normalizeGraph(G, norm_method = 1))
     marker_stats[marker_stats < 0] <- 0
     logPvals <- C_computeGraphLabelEnrichment(Gn, marker_stats)
 
