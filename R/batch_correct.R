@@ -9,7 +9,6 @@ correctBatchEffectFastMNN <- function(
     MNN_k = 20,
     reduction_out = "MNN",
     BPPARAM = SerialParam()) {
-
   ACTIONetExperiment:::.check_and_load_package(c("scran", "SingleCellExperiment", "batchelor", "BiocParallel"))
   ace <- .validate_ace(ace, as_ace = TRUE, allow_se_like = TRUE, fix_dimnames = TRUE, return_elem = TRUE)
   S <- .validate_assay(ace, assay_name = assay_name, return_elem = TRUE)
@@ -58,10 +57,39 @@ correctBatchEffectFastMNN <- function(
 #' @export
 correctBatchEffect <- function(
     ace,
-    design_mat,
+    batches = NULL,
+    design = NULL,
     reduction_slot = "action",
     corrected_suffix = "orth",
-    assay_name = NULL) {
+    assay_name = "logcounts") {
+  if (!is.null(batches) && !is.null(design)) {
+    err <- sprintf("Only one of 'batches' or 'design' must be specified")
+    stop(err)
+  } else {
+    if (!is.null(batches)) {
+      batches <- .validate_vector_attr(
+        ace,
+        attr = batches,
+        return_type = "data",
+        keep_factor = TRUE,
+        attr_name = "batches",
+        obj_name = "ace",
+        return_elem = TRUE
+      )
+      batches <- as.factor(batches)
+      if (length(levels(batches)) < 2) {
+        err <- sprintf("'batches' must have >=2 levels")
+        stop(err)
+      }
+      design_mat <- model.matrix(~ 0 + batches)
+    } else {
+      design_mat <- .make_design_mat(design = design, data = colData(ace))
+      if (NROW(design_mat) != NCOL(ace)) {
+        err <- sprintf("Size of 'design' does not match 'NCOL(ace)'")
+      }
+    }
+  }
+
   ace <- .validate_ace(ace, allow_se_like = FALSE, fix_dimnames = TRUE, return_elem = TRUE, error_on_fail = TRUE)
   S <- .validate_assay(ace, assay_name = assay_name, error_on_fail = TRUE, return_elem = TRUE)
   S_r <- .validate_map(ace, map_slot = reduction_slot, matrix_type = "dense", force_type = TRUE, return_elem = TRUE)

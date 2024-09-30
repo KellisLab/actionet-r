@@ -1,25 +1,3 @@
-create_formula <- function(vars) {
-  fml <- Reduce(function(x, y) paste(x, y, sep = " + "), vars)
-  fml <- paste("~", fml)
-  fml <- as.formula(fml)
-  return(fml)
-}
-
-make_design_mat <- function(design, data = NULL) {
-  if (is(design, "formula")) {
-    if (is.null(data)) {
-      stop("'data' is missing.")
-    }
-    design_mat <- stats::model.matrix(
-      object = terms(design, keep.order = T),
-      data = data
-    )
-  } else if (is.matrix(design)) {
-    design_mat <- design
-  }
-  return(design_mat)
-}
-
 #' @export
 get.pseudobulk.SE <- function(
     ace,
@@ -377,7 +355,7 @@ run.ensemble.pseudobulk.Limma <- function(
     bins_use <- 1:bins
   }
 
-  design_mat <- make_design_mat(design, data = SummarizedExperiment::colData(se))
+  design_mat <- .make_design_mat(design, data = SummarizedExperiment::colData(se))
 
   design_list <- .preprocess_design_matrix_and_var_names(design_mat, variable_name)
   design_mat <- design_list$design_mat
@@ -454,7 +432,7 @@ variance.adjusted.limma <- function(
     stop("se must be an object of type 'SummarizedExperiment'.")
   }
 
-  design_mat <- make_design_mat(design, data = SummarizedExperiment::colData(se))
+  design_mat <- .make_design_mat(design, data = SummarizedExperiment::colData(se))
 
   design_list <- .preprocess_design_matrix_and_var_names(design_mat, variable_name)
   design_mat <- design_list$design_mat
