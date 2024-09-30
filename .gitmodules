@@ -1,4 +1,4 @@
 [submodule "src/libactionet"]
 	path = src/libactionet
-	url = git@github.com:KellisLab/libactionet.git
+	url = https://github.com/KellisLab/libactionet.git
 	branch = main
