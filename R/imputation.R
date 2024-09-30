@@ -36,8 +36,15 @@ imputeFeatures <- function(
 
     .validate_ace(ace, allow_se_like = FALSE, allow_null = FALSE, obj_name = "ace", return_elem = FALSE, error_on_fail = TRUE)
 
-    if (algorithm == "pca") {
+    X0 <- .ace_or_assay(
+        ace,
+        assay_name = assay_name,
+        allow_se_like = FALSE,
+        return_elem = TRUE
+    )[idx_feat, , drop = FALSE]
 
+
+    if (algorithm == "pca") {
         pc_smooth <- smoothKernel(
             ace = ace,
             norm_method = norm_method,
@@ -73,13 +80,6 @@ imputeFeatures <- function(
         #     W <- as.matrix(X0 %*% C)
         #     out <- W %*% Matrix::t(H)
     } else {
-        X0 <- .ace_or_assay(
-            ace,
-            assay_name = assay_name,
-            allow_se_like = FALSE,
-            return_elem = TRUE
-        )[idx_feat, , drop = FALSE]
-
         out <- networkDiffusion(
             obj = ace,
             scores = Matrix::t(X0),
