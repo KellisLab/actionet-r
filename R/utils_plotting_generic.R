@@ -147,7 +147,7 @@ CPal_default <- c(
       if (color_slot %in% names(colMaps(data))) {
         plot_colors <- grDevices::rgb(colMaps(data)[[color_slot]])
       } else {
-        err <- sprintf("%s not in colMaps(ace).\n")
+        err <- sprintf("'color_attr' not in colMaps(ace)")
         stop(err)
       }
     } else {

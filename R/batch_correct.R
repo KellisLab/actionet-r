@@ -83,7 +83,7 @@ correctBatchEffect <- function(
       }
       design_mat <- model.matrix(~ 0 + batches)
     } else {
-      design_mat <- .make_design_mat(design = design, data = colData(ace))
+      design_mat <- .make_design_mat(design = design, data = colData(ace), remove_intercept = TRUE)
       if (NROW(design_mat) != NCOL(ace)) {
         err <- sprintf("Size of 'design' does not match 'NCOL(ace)'")
       }

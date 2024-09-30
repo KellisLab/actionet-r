@@ -60,7 +60,6 @@ plot.ACTIONetExperiment <- function(ace, ...) {
 #'
 #' @examples
 #' plot.ACTIONet(data, data$assigned_archetype)
-#' @import ggplot2
 #' @export
 plot.ACTIONet <- function(
   data,
@@ -83,7 +82,7 @@ plot.ACTIONet <- function(
   legend_text_size = 10,
   coordinate_attr = "umap_actionet_2d",
   scale_coors = TRUE,
-  color_slot = "denovo_color",
+  color_slot = "umap_actionet_colors",
   point_order = NULL,
   use_repel = TRUE,
   repel_force = 0.05,
@@ -91,6 +90,7 @@ plot.ACTIONet <- function(
   arch_labels = NULL
 ) {
 
+  require(ggplot2)
   plot_coors <- .get_plot_coors(data, coordinate_attr, scale_coors)
   plot_labels <- .get_plot_labels(label_attr, data)
   plot_fill_col <- .get_plot_colors(color_attr, plot_labels, data, color_slot, palette, NA_color = NA_color)
