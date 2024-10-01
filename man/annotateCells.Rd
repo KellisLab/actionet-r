@@ -30,7 +30,7 @@ annotateCells(
 
 \item{assay_name}{Name of assay for which to impute gene expression (default="logcounts").}
 
-\item{net_slot}{Name of slot in colNets(ace) containing the network to use for gene expression imputation (default="ACTIONet").}
+\item{net_slot}{Name of slot in colNets(ace) containing the network to use for gene expression imputation (default="actionet").}
 
 \item{thread_no}{Number of parallel threads used for gene imputation.}
 

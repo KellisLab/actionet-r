@@ -6,7 +6,7 @@
 \usage{
 .run.mergeArchetypes(
   ace,
-  reduction_slot = "ACTION",
+  reduction_slot = "action",
   C_stacked_slot = "C_stacked",
   H_stacked_slot = "H_stacked",
   normalization = 0,

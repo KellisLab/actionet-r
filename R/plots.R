@@ -21,7 +21,7 @@ plot.ACTIONetExperiment <- function(ace, ...) {
       p_out <- do.call(plot.ACTIONet.gradient, as.list(args))
     } else if (sum(unlist(x[[1]]) %in% rownames(ace)) > length(x[[1]]) / 2) {
       genes <- sort(unique(unlist(x[[1]])))
-      p_out <- visualize.markers(ace, genes)
+      p_out <- plotFeatureExpression(ace, genes)
     } else {
       p_out <- do.call(plot.ACTIONet, args)
     }
@@ -62,40 +62,38 @@ plot.ACTIONetExperiment <- function(ace, ...) {
 #' plot.ACTIONet(data, data$assigned_archetype)
 #' @export
 plot.ACTIONet <- function(
-  data,
-  label_attr = NULL,
-  color_attr = NULL,
-  trans_attr = NULL,
-  trans_fac = 1.5,
-  trans_th = -0.5,
-  point_size = 1,
-  stroke_size = point_size * 0.1,
-  stroke_contrast_fac = 0.1,
-  palette = CPal_default,
-  NA_color = "#CCCCCC",
-  hide_NA = FALSE,
-  add_text_labels = TRUE,
-  label_text_size = 3,
-  nudge_text_labels = FALSE,
-  show_legend = FALSE,
-  legend_point_size = 3,
-  legend_text_size = 10,
-  coordinate_attr = "umap_actionet_2d",
-  scale_coors = TRUE,
-  color_slot = "umap_actionet_colors",
-  point_order = NULL,
-  use_repel = TRUE,
-  repel_force = 0.05,
-  add_backbone = FALSE,
-  arch_labels = NULL
-) {
-
+    data,
+    label_attr = NULL,
+    color_attr = NULL,
+    trans_attr = NULL,
+    trans_fac = 1.5,
+    trans_th = -0.5,
+    point_size = 1,
+    stroke_size = point_size * 0.1,
+    stroke_contrast_fac = 0.1,
+    palette = CPal_default,
+    NA_color = "#CCCCCC",
+    hide_NA = FALSE,
+    add_text_labels = TRUE,
+    label_text_size = 3,
+    nudge_text_labels = FALSE,
+    show_legend = FALSE,
+    legend_point_size = 3,
+    legend_text_size = 10,
+    coordinate_attr = "umap_actionet_2d",
+    scale_coors = TRUE,
+    color_slot = "umap_actionet_colors",
+    point_order = NULL,
+    use_repel = TRUE,
+    repel_force = 0.05,
+    add_backbone = FALSE,
+    arch_labels = NULL) {
   require(ggplot2)
   plot_coors <- .get_plot_coors(data, coordinate_attr, scale_coors)
   plot_labels <- .get_plot_labels(label_attr, data)
   plot_fill_col <- .get_plot_colors(color_attr, plot_labels, data, color_slot, palette, NA_color = NA_color)
   plot_alpha <- .get_plot_transparency(trans_attr, data, trans_fac, trans_th, scale = TRUE)
-  if(is.numeric(plot_fill_col)){
+  if (is.numeric(plot_fill_col)) {
     plot_border_col <- plot_fill_col
   } else {
     plot_border_col <- colorspace::darken(plot_fill_col, stroke_contrast_fac)
@@ -109,19 +107,18 @@ plot.ACTIONet <- function(
     }
     legend_labels <- NULL
     legend_fill_colors <- NULL
-    na_mask = NULL
+    na_mask <- NULL
   } else {
     data_labels <- plot_labels
     names(plot_fill_col) <- plot_labels
     legend_labels <- sort(unique(plot_labels))
     legend_fill_colors <- plot_fill_col[legend_labels]
-    plot_border_col[is.na(plot_labels)] = NA_color
+    plot_border_col[is.na(plot_labels)] <- NA_color
     if (hide_NA == TRUE && any(is.na(plot_labels))) {
-      na_mask = !is.na(plot_labels)
+      na_mask <- !is.na(plot_labels)
     } else {
-      na_mask = NULL
+      na_mask <- NULL
     }
-
   }
 
   plot_data <- data.frame(plot_coors,
@@ -133,7 +130,7 @@ plot.ACTIONet <- function(
   )
 
   if (!is.null(na_mask)) {
-    plot_data = plot_data[na_mask, , drop = FALSE]
+    plot_data <- plot_data[na_mask, , drop = FALSE]
   }
 
   if (is.null(point_order)) {
@@ -161,43 +158,43 @@ plot.ACTIONet <- function(
       show.legend = show_legend
     )
 
-    p_out <- .get_ggplot_scale(
-      p_out,
-      col_vals = plot_data$fill,
-      grad_palette = palette,
-      legend_point_size = legend_point_size,
-      legend_text_size = legend_text_size,
-      stroke_contrast_fac = stroke_contrast_fac,
-      legend_labels = legend_labels,
-      legend_fill_colors = legend_fill_colors
-    )
+  p_out <- .get_ggplot_scale(
+    p_out,
+    col_vals = plot_data$fill,
+    grad_palette = palette,
+    legend_point_size = legend_point_size,
+    legend_text_size = legend_text_size,
+    stroke_contrast_fac = stroke_contrast_fac,
+    legend_labels = legend_labels,
+    legend_fill_colors = legend_fill_colors
+  )
 
-  if(add_backbone == TRUE) {
-    C = colMaps(ace)$C_merged
-    cs = Matrix::colSums(C)
-    cs[cs == 0] = 1
-    Ct = Matrix::t(scale(C, center = F, scale = cs))
+  if (add_backbone == TRUE) {
+    C <- colMaps(ace)$C_merged
+    cs <- Matrix::colSums(C)
+    cs[cs == 0] <- 1
+    Ct <- Matrix::t(scale(C, center = F, scale = cs))
 
-    arch_coors = as.matrix(Ct %*% as.matrix(plot_coors))    
-    archLab = Ct %*% convertColor(Matrix::t(grDevices::col2rgb(plot_fill_col) / 255), from = "sRGB", to = "Lab")
+    arch_coors <- as.matrix(Ct %*% as.matrix(plot_coors))
+    archLab <- Ct %*% convertColor(Matrix::t(grDevices::col2rgb(plot_fill_col) / 255), from = "sRGB", to = "Lab")
     arch_colors <- colorspace::darken(rgb(convertColor(archLab, from = "Lab", to = "sRGB")), 0.25)
-    
-    if(is.null(arch_labels)) {
-      arch_labels = paste0("A",1:nrow(arch_coors))  
+
+    if (is.null(arch_labels)) {
+      arch_labels <- paste0("A", 1:nrow(arch_coors))
     }
 
-    arch.df = data.frame(x = arch_coors[, 1], y = arch_coors[, 2], fill = arch_colors, color = "black", label = arch_labels)
-    backbone = as(metadata(ace)$backbone$graph, "dgTMatrix")
+    arch.df <- data.frame(x = arch_coors[, 1], y = arch_coors[, 2], fill = arch_colors, color = "black", label = arch_labels)
+    backbone <- as(metadata(ace)$backbone$graph, "dgTMatrix")
     edge_aes <- list()
-    edge_aes$x = arch_coors[backbone@i+1, 1]
-    edge_aes$y = arch_coors[backbone@i+1, 2]
-    edge_aes$xend = arch_coors[backbone@j+1, 1]
-    edge_aes$yend = arch_coors[backbone@j+1, 2]
-    edge_args = list(color = "grey", alpha = 0.5)
-    edge_args$mapping = do.call(ggplot2::aes, edge_aes)
+    edge_aes$x <- arch_coors[backbone@i + 1, 1]
+    edge_aes$y <- arch_coors[backbone@i + 1, 2]
+    edge_aes$xend <- arch_coors[backbone@j + 1, 1]
+    edge_aes$yend <- arch_coors[backbone@j + 1, 2]
+    edge_args <- list(color = "grey", alpha = 0.5)
+    edge_args$mapping <- do.call(ggplot2::aes, edge_aes)
     p_out <- p_out + do.call(ggplot2::geom_segment, edge_args)
 
-    p_out = p_out + ggplot2::geom_point(
+    p_out <- p_out + ggplot2::geom_point(
       data = arch.df,
       mapping = ggplot2::aes(
         x = x,
@@ -206,10 +203,10 @@ plot.ACTIONet <- function(
         fill = fill
       ),
       shape = 21,
-      size = point_size*3,
-      stroke = stroke_size*3,
+      size = point_size * 3,
+      stroke = stroke_size * 3,
       show.legend = F
-    ) +  ggrepel::geom_text_repel(data = arch.df, ggplot2::aes(x = x, y = y, label = label), box.padding = 0.5, max.overlaps = Inf)
+    ) + ggrepel::geom_text_repel(data = arch.df, ggplot2::aes(x = x, y = y, label = label), box.padding = 0.5, max.overlaps = Inf)
   } else if (!is.null(plot_labels) && add_text_labels == TRUE) {
     text_layer <- .layout_plot_labels(
       plot_data = plot_data,
@@ -225,7 +222,7 @@ plot.ACTIONet <- function(
     )
     p_out <- p_out + text_layer
   }
-  p_out <- p_out + scale_alpha_identity() + .default_ggtheme + labs(fill="cat")
+  p_out <- p_out + scale_alpha_identity() + .default_ggtheme + labs(fill = "cat")
 
 
 
@@ -261,25 +258,23 @@ plot.ACTIONet <- function(
 #' @export
 
 plot.ACTIONet.gradient <- function(
-  data,
-  x,
-  alpha = 0,
-  log_scale = FALSE,
-  use_rank = FALSE,
-  trans_attr = NULL,
-  trans_fac = 1.5,
-  trans_th = -0.5,
-  point_size = 1,
-  stroke_size = point_size * 0.1,
-  stroke_contrast_fac = 0.1,
-  grad_palette = "magma",
-  show_legend = FALSE,
-  net_slot = "actionet",
-  coordinate_attr = "umap_actionet_2d",
-  scale_coors = TRUE
-) {
- 
-  if ( ((is(data, "ACTIONetExperiment")) & (length(x) != ncol(data))) | ((!is(data, "ACTIONetExperiment")) & (nrow(data) != length(x))) ) {    
+    data,
+    x,
+    alpha = 0,
+    log_scale = FALSE,
+    use_rank = FALSE,
+    trans_attr = NULL,
+    trans_fac = 1.5,
+    trans_th = -0.5,
+    point_size = 1,
+    stroke_size = point_size * 0.1,
+    stroke_contrast_fac = 0.1,
+    grad_palette = "magma",
+    show_legend = FALSE,
+    net_slot = "actionet",
+    coordinate_attr = "umap_actionet_2d",
+    scale_coors = TRUE) {
+  if (((is(data, "ACTIONetExperiment")) & (length(x) != ncol(data))) | ((!is(data, "ACTIONetExperiment")) & (nrow(data) != length(x)))) {
     stop("Length of input vector doesn't match the number of cells.")
   }
   ## Create color gradient generator
@@ -302,8 +297,9 @@ plot.ACTIONet.gradient <- function(
   }
 
   if (alpha > 0) {
-    if (alpha > 1)
-      alpha = 1
+    if (alpha > 1) {
+      alpha <- 1
+    }
     x <- as.numeric(networkDiffusion(
       obj = colNets(data)[[net_slot]],
       scores = x,
@@ -374,36 +370,34 @@ plot.ACTIONet.gradient <- function(
 #' @rawNamespace import(plotly, except = 'last_plot')
 #' @export
 plot.ACTIONet.interactive <- function(
-  data,
-  label_attr = NULL,
-  color_attr = NULL,
-  trans_attr = NULL,
-  trans_fac = 1.5,
-  trans_th = -0.5,
-  point_size = 3,
-  stroke_size = point_size * 0.1,
-  stroke_color = NULL,
-  stroke_contrast_fac = 0.1,
-  palette = CPal_default,
-  NA_color = "#CCCCCC",
-  hide_NA = FALSE,
-  show_legend = NULL,
-  coordinate_attr = "umap_actionet_2d",
-  scale_coors = TRUE,
-  color_slot = "denovo_color",
-  point_order = NULL,
-  hover_text = NULL,
-  plot_3d = FALSE
-) {
-
+    data,
+    label_attr = NULL,
+    color_attr = NULL,
+    trans_attr = NULL,
+    trans_fac = 1.5,
+    trans_th = -0.5,
+    point_size = 3,
+    stroke_size = point_size * 0.1,
+    stroke_color = NULL,
+    stroke_contrast_fac = 0.1,
+    palette = CPal_default,
+    NA_color = "#CCCCCC",
+    hide_NA = FALSE,
+    show_legend = NULL,
+    coordinate_attr = "umap_actionet_2d",
+    scale_coors = TRUE,
+    color_slot = "denovo_color",
+    point_order = NULL,
+    hover_text = NULL,
+    plot_3d = FALSE) {
   plot_coors <- .get_plot_coors(data, coordinate_attr, scale_coors)
   plot_labels <- .get_plot_labels(label_attr, data)
   plot_fill_col <- .get_plot_colors(color_attr, plot_labels, data, color_slot, palette, NA_color = NA_color)
   plot_alpha <- .get_plot_transparency(trans_attr, data, trans_fac, trans_th, TRUE)
 
-  if(is.numeric(plot_fill_col)){
+  if (is.numeric(plot_fill_col)) {
     plot_border_col <- plot_fill_col
-  } else if (is.null(stroke_color)){
+  } else if (is.null(stroke_color)) {
     plot_border_col <- colorspace::darken(plot_fill_col, stroke_contrast_fac)
   } else {
     plot_border_col <- stroke_color
@@ -430,16 +424,16 @@ plot.ACTIONet.interactive <- function(
   )
 
   if (is.null(label_attr)) {
-    na_mask = NULL
+    na_mask <- NULL
     plot_data$labels <- "NA"
   } else {
     plot_data$labels <- plot_labels
-    plot_data$labels[is.na(plot_data$labels)] = "NA"
-    plot_data$color[is.na(plot_labels)] = NA_color
+    plot_data$labels[is.na(plot_data$labels)] <- "NA"
+    plot_data$color[is.na(plot_labels)] <- NA_color
     if (hide_NA == TRUE && any(is.na(plot_labels))) {
-      na_mask = !is.na(plot_labels)
+      na_mask <- !is.na(plot_labels)
     } else {
-      na_mask = NULL
+      na_mask <- NULL
     }
   }
 
@@ -454,7 +448,7 @@ plot.ACTIONet.interactive <- function(
   }
 
   if (!is.null(na_mask)) {
-    plot_data = plot_data[na_mask, , drop = FALSE]
+    plot_data <- plot_data[na_mask, , drop = FALSE]
   }
 
   if (is.null(point_order)) {
@@ -528,16 +522,14 @@ plot.ACTIONet.interactive <- function(
 #' plot.top.k.features(feat_scores, 3)
 #' @export
 plot.top.k.features <- function(
-  feat_scores,
-  top_features = 3,
-  normalize = TRUE,
-  reorder_columns = TRUE,
-  row.title = "Archetypes",
-  column.title = "Genes",
-  rowPal = "black",
-  title = "Enrichment"
-) {
-
+    feat_scores,
+    top_features = 3,
+    normalize = TRUE,
+    reorder_columns = TRUE,
+    row.title = "Archetypes",
+    column.title = "Genes",
+    rowPal = "black",
+    title = "Enrichment") {
   W <- select.top.k.features(
     feat_scores = feat_scores,
     top_features = top_features,
@@ -587,15 +579,14 @@ plot.top.k.features <- function(
 #' plot.ACTIONet.feature.view(ace, feat_scores, 5)
 #' @export
 plot.ACTIONet.feature.view <- function(
-  ace,
-  feat_scores,
-  top_features = 5,
-  palette = NULL,
-  title = "Feature view",
-  label_size = 1,
-  renormalize = FALSE,
-  footprint_slot = "H_merged"
-) {
+    ace,
+    feat_scores,
+    top_features = 5,
+    palette = NULL,
+    title = "Feature view",
+    label_size = 1,
+    renormalize = FALSE,
+    footprint_slot = "H_merged") {
   if (ncol(feat_scores) != ncol(colMaps(ace)[["H_merged"]])) {
     feat_scores <- Matrix::t(feat_scores)
   }
@@ -612,7 +603,7 @@ plot.ACTIONet.feature.view <- function(
   ))
   selected.features <- colnames(X)
 
-  
+
 
   cs <- Matrix::colSums(X)
   cs[cs == 0] <- 1
@@ -643,9 +634,9 @@ plot.ACTIONet.feature.view <- function(
     to = "sRGB"
   ))
   names(feature.colors) <- selected.features
-  
-  
-  
+
+
+
   plot.ACTIONet(feature.coors, selected.features, color_attr = feature.colors)
 }
 
@@ -758,7 +749,7 @@ plot.individual.gene <- function(ace,
   print(gp)
 }
 
-
+# TODO: Clean this up
 #' Projects a set of markers on the ACTIONet
 #' It also optionally imputes the markers.
 #'
@@ -775,31 +766,35 @@ plot.individual.gene <- function(ace,
 #'
 #' @examples
 #' ace <- run.ACTIONet(sce)
-#' visualize.markers(ace, markers = c("CD14", "CD19", "CD3G"), trans_attr = ace$node_centrality)
-visualize.markers <- function(
-  ace,
-  markers,
-  features_use = NULL,
-  alpha = 0.9,
-  imputation_algorithm = "actionet",
-  assay_name = "logcounts",
-  trans_attr = NULL,
-  trans_th = -0.5,
-  trans_fac = 3,
-  grad_palette = "magma",
-  point_size = 1,
-  net_slot = "actionet",
-  coordinate_attr = "umap_actionet_2d",
-  single_plot = FALSE,
-  show_legend = FALSE
-) {
+#' plotFeatureExpression(ace, markers = c("CD14", "CD19", "CD3G"), trans_attr = ace$node_centrality)
+plotFeatureExpression <- function(
+    ace,
+    features,
+    features_use = NULL,
+    alpha = 0.9,
+    algorithm = "actionet",
+    assay_name = "logcounts",
+    trans_attr = NULL,
+    trans_th = -0.5,
+    trans_fac = 3,
+    grad_palette = "magma",
+    point_size = 1,
+    net_slot = "actionet",
+    coordinate_attr = "umap_actionet_2d",
+    single_plot = FALSE,
+    show_legend = FALSE,
+    sort_features = TRUE) {
 
-  features_use <- .get_feature_vec(ace, features_use = features_use)
-  markers_all <- sort(unique(unlist(markers)))
+  features_use <- .get_features(ace, features_use = features_use)
+  markers_all <- unique(unlist(features))
   marker_set <- intersect(markers_all, features_use)
 
+  if (sort_features) {
+    marker_set <- sort(sort_features)
+  }
+
   if (length(marker_set) == 0) {
-    err <- sprintf("No given markers found in feature set.\n")
+    err <- sprintf("No features in 'features_use'")
     stop(err, call. = FALSE)
   }
 
@@ -808,17 +803,15 @@ visualize.markers <- function(
   }
 
   if (alpha > 0) {
-
     expr_profile <- imputeFeatures(
       ace = ace,
-      genes = marker_set,
+      features = marker_set,
       algorithm = imputation_algorithm,
       features_use = features_use,
       alpha = alpha,
       assay_name = assay_name,
       net_slot = net_slot
     )
-
   } else {
     expr_profile <- assays(ace)[[assay_name]][match(marker_set, features_use), ,
       drop = FALSE
@@ -827,10 +820,9 @@ visualize.markers <- function(
     colnames(expr_profile) <- marker_set
   }
 
-  print(sprintf("Markers Visualized: %s", paste0(marker_set, collapse = ", ")))
   markers_missing <- setdiff(markers_all, marker_set)
   if (length(markers_missing) > 0) {
-    print(sprintf("Markers Missing: %s", paste0(markers_missing, collapse = ", ")))
+    print(sprintf("Features missing: %s", paste0(markers_missing, collapse = ", ")))
   }
 
   if (single_plot == TRUE && NCOL(expr_profile) > 1) {
@@ -968,24 +960,21 @@ plot.archetype.selected.genes <- function(ace,
 
 #' @export
 plot.ACTIONet.archetype.footprint <- function(
-  ace,
-  markers,
-  features_use = NULL,
-  alpha = 0.9,
-  assay_name = "logcounts",
-  footprint_slot = "archetype_footprint",
-  trans_attr = NULL,
-  trans_th = 0,
-  trans_fac = 2,
-  grad_palette = "magma",
-  point_size = 0.5,
-  net_slot = "actionet",
-  coordinate_attr = "umap_actionet_2d",
-  single_plot = FALSE,
-  arch.labels = NULL
-) {
-
-
+    ace,
+    markers,
+    features_use = NULL,
+    alpha = 0.9,
+    assay_name = "logcounts",
+    footprint_slot = "archetype_footprint",
+    trans_attr = NULL,
+    trans_th = 0,
+    trans_fac = 2,
+    grad_palette = "magma",
+    point_size = 0.5,
+    net_slot = "actionet",
+    coordinate_attr = "umap_actionet_2d",
+    single_plot = FALSE,
+    arch.labels = NULL) {
   if (!(footprint_slot %in% names(colMaps(ace)))) {
     err <- sprintf("`%s` is not in `colMaps(ace)`.\n", footprint_slot)
     stop(err)
@@ -1039,7 +1028,6 @@ plot.ACTIONet.archetype.footprint <- function(
   }
 
   if (single_plot == TRUE && length(out) > 1) {
-
     out <- ggpubr::ggarrange(
       plotlist = out,
       nrow = d[1],

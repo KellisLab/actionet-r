@@ -94,11 +94,6 @@ correctBatchEffect <- function(
   S <- .validate_assay(ace, assay_name = assay_name, error_on_fail = TRUE, return_elem = TRUE)
   S_r <- .validate_map(ace, map_slot = reduction_slot, matrix_type = "dense", force_type = TRUE, return_elem = TRUE)
 
-  # V <- rowMaps(ace)[[sprintf("%s_V", reduction_slot)]]
-  # A <- rowMaps(ace)[[sprintf("%s_A", reduction_slot)]]
-  # B <- colMaps(ace)[[sprintf("%s_B", reduction_slot)]]
-  # sigma <- S4Vectors::metadata(ace)[[sprintf("%s_sigma", reduction_slot)]]
-
   B <- .validate_map(ace, map_slot = sprintf("%s_B", reduction_slot), matrix_type = "dense", force_type = TRUE, return_elem = TRUE, row = FALSE)
   V <- .validate_map(ace, map_slot = sprintf("%s_V", reduction_slot), matrix_type = "dense", force_type = TRUE, return_elem = TRUE, row = TRUE)
   A <- .validate_map(ace, map_slot = sprintf("%s_A", reduction_slot), matrix_type = "dense", force_type = TRUE, return_elem = TRUE, row = TRUE)
@@ -163,85 +158,3 @@ correctBatchEffect <- function(
 
   return(ace)
 }
-
-# orthogonalize.ace.batch.simple <- function(ace,
-#                                            batch_attr,
-#                                            reduction_slot = "action",
-#                                            corrected_out = "ACTION_ortho",
-#                                            assay_name = NULL) {
-#   ace <- as(ace, "ACTIONetExperiment")
-#
-#   if (is.null(assay_name)) {
-#     if ("default_assay" %in% names(metadata(ace))) {
-#       message(sprintf("Input assay_name is NULL. Setting assay_name to the metadata(ace)[['default_assay']]"))
-#       assay_name <- metadata(ace)[["default_assay"]]
-#     } else {
-#       message(sprintf("Input assay_name is NULL. Setting assay_name to logcounts"))
-#       assay_name <- "logcounts"
-#     }
-#   }
-#   .validate_assay(ace, assay_name = assay_name, return_elem = FALSE)
-#
-#
-#   batch_attr <- ACTIONetExperiment::get.data.or.split(ace, attr = batch_attr, to_return = "data")
-#   batch_attr <- as.factor(batch_attr)
-#   design_mat <- stats::model.matrix(~batch_attr)
-#
-#   ace <- correctBatchEffect(
-#     ace,
-#     design_mat,
-#     reduction_slot = reduction_slot,
-#     corrected_out = corrected_out,
-#     assay_name = assay_name
-#   )
-#
-#   return(ace)
-# }
-
-#' reduce.and.batch.orthogonalize.ace <- function(ace,
-#'                                                design_mat,
-#'                                                reduced_dim = 50,
-#'                                                max_iter = 1000,
-#'                                                assay_name = NULL,
-#'                                                reduction_out = "action",
-#'                                                corrected_out = "ACTION_ortho",
-#'                                                seed = 0,
-#'                                                SVD_algorithm = 0) {
-#'   ace <- as(ace, "ACTIONetExperiment")
-#'
-#'   if (is.null(assay_name)) {
-#'     if ("default_assay" %in% names(metadata(ace))) {
-#'       message(sprintf("Input assay_name is NULL. Setting assay_name to the metadata(ace)[['default_assay']]"))
-#'       assay_name <- metadata(ace)[["default_assay"]]
-#'     } else {
-#'       message(sprintf("Input assay_name is NULL. Setting assay_name to logcounts"))
-#'       assay_name <- "logcounts"
-#'     }
-#'   }
-#'   .validate_assay(ace, assay_name = assay_name, return_elem = FALSE)
-#'
-#'   if (!is.matrix(design_mat)) {
-#'     err <- sprintf("'design_mat' must be a matrix.\n")
-#'     stop(err)
-#'   }
-#'
-#'   ace <- reduce.ace(
-#'     ace = ace,
-#'     reduced_dim = reduced_dim,
-#'     max_iter = max_iter,
-#'     assay_name = assay_name,
-#'     reduction_out = reduction_out,
-#'     seed = seed,
-#'     SVD_algorithm = SVD_algorithm
-#'   )
-#'
-#'   ace <- correctBatchEffect(
-#'     ace = ace,
-#'     design_mat = design_mat,
-#'     reduction_slot = reduction_out,
-#'     corrected_out = corrected_out,
-#'     assay_name = assay_name
-#'   )
-#'
-#'   return(ace)
-#' }

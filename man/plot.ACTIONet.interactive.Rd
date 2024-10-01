@@ -19,7 +19,7 @@
   NA_color = "#CCCCCC",
   hide_NA = FALSE,
   show_legend = NULL,
-  coordinate_attr = "ACTIONet2D",
+  coordinate_attr = "umap_actionet_2d",
   scale_coors = TRUE,
   color_slot = "denovo_color",
   point_order = NULL,

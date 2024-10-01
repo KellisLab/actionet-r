@@ -8,7 +8,7 @@ runACTIONet(
   ace,
   k_min = 2,
   k_max = 30,
-  assay_name = NULL,
+  assay_name = "logcounts",
   reduction_slot = "action",
   net_slot_out = "actionet",
   min_obs = 2,

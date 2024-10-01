@@ -18,8 +18,8 @@
   stroke_contrast_fac = 0.1,
   grad_palette = "magma",
   show_legend = FALSE,
-  net_slot = "ACTIONet",
-  coordinate_attr = "ACTIONet2D",
+  net_slot = "actionet",
+  coordinate_attr = "umap_actionet_2d",
   scale_coors = TRUE
 )
 }
