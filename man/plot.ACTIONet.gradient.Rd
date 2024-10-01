@@ -19,7 +19,7 @@
   grad_palette = "magma",
   show_legend = FALSE,
   net_slot = "actionet",
-  coordinate_attr = "umap_actionet_2d",
+  coordinate_attr = "umap_2d_actionet",
   scale_coors = TRUE
 )
 }

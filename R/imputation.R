@@ -34,6 +34,11 @@ imputeFeatures <- function(
     matched_feat <- intersect(unique(features), features_use)
     idx_feat <- match(matched_feat, features_use)
 
+    if (length(idx_feat) == 0) {
+        err <- sprintf("No 'features' in 'features_use'")
+        stop(err)
+    }
+
     .validate_ace(ace, allow_se_like = FALSE, allow_null = FALSE, obj_name = "ace", return_elem = FALSE, error_on_fail = TRUE)
 
     X0 <- .ace_or_assay(

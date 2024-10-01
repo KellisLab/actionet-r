@@ -108,8 +108,7 @@ runACTIONet <- function(ace,
     verbose = FALSE
   )
   initial_coordinates <- scale(red.out$u)
-
-  slot_layout <- sprintf("%s_%s", layout_method, net_slot_out)
+  # slot_layout <- sprintf("%s_%s", layout_method, net_slot_out)
   layout_args <- list(
     method = layout_method,
     n_components = 2,
@@ -118,8 +117,8 @@ runACTIONet <- function(ace,
     n_epochs = layout_epochs,
     net_slot = net_slot_out,
     seed = seed,
-    thread_no = ifelse(layout_parallel, thread_no, 1),
-    map_slot_out = sprintf("%s_2d", slot_layout)
+    thread_no = ifelse(layout_parallel, thread_no, 1)
+    # map_slot_out = sprintf("%s_2d", slot_layout)
   )
 
   ace <- do.call(
@@ -142,7 +141,7 @@ runACTIONet <- function(ace,
 
     layout_args$n_components <- 3
     layout_args$n_epochs <- layout_epochs / 2
-    layout_args$map_slot_out <- sprintf("%s_3d", slot_layout)
+    # layout_args$map_slot_out <- sprintf("%s_3d", slot_layout)
 
     ace <- do.call(
       layoutNetwork,
@@ -158,7 +157,7 @@ runACTIONet <- function(ace,
     ace <- computeNodeColors(
       ace,
       embedding_slot = layout_args$map_slot_out,
-      color_slot_out = sprintf("%s_colors", slot_layout),
+      # color_slot_out = sprintf("%s_colors", slot_layout),
       thread_no = thread_no
     )
   }

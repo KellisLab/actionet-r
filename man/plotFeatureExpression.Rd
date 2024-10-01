@@ -18,7 +18,7 @@ plotFeatureExpression(
   grad_palette = "magma",
   point_size = 1,
   net_slot = "actionet",
-  coordinate_attr = "umap_actionet_2d",
+  coordinate_attr = "umap_2d_actionet",
   single_plot = FALSE,
   show_legend = FALSE,
   sort_features = TRUE

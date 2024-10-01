@@ -47,7 +47,7 @@
     colnames(X) <- c("x", "y")
     rownames(X) <- colnames(ace)
     colMaps(ace)$ACTIONet2D <- X
-    colMapTypes(ace)[["umap_actionet_2d"]] <- "embedding"
+    colMapTypes(ace)[["umap_2d_actionet"]] <- "embedding"
 
     X <- vis.out$coordinates_3D
     colnames(X) <- c("x", "y", "z")

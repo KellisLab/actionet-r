@@ -23,7 +23,7 @@
   show_legend = FALSE,
   legend_point_size = 3,
   legend_text_size = 10,
-  coordinate_attr = "umap_actionet_2d",
+  coordinate_attr = "umap_2d_actionet",
   scale_coors = TRUE,
   color_slot = "umap_actionet_colors",
   point_order = NULL,

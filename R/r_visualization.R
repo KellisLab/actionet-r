@@ -46,18 +46,35 @@ layoutNetwork <- function(
     )
 
     if (!is.null(initial_coordinates)) {
-        initial_coordinates <- .validate_matrix(
-            x = initial_coordinates,
-            matrix_type = "dense",
-            force_type = TRUE,
-            return_elem = TRUE
-        )
+        if (is.matrix(initial_coordinates)) {
+            initial_coordinates <- .validate_matrix(
+                x = initial_coordinates,
+                matrix_type = "dense",
+                force_type = TRUE,
+                return_elem = TRUE
+            )
+        } else if (is_ace) {
+            initial_coordinates <- .validate_map(
+                obj,
+                map_slot = initial_coordinates,
+                matrix_type = "dense",
+                force_type = TRUE,
+                return_elem = TRUE
+            )
+        } else {
+            if (is_ace) {
+                err <- sprintf("'initial_coordinates' must be type 'matrix' or entry in 'colMaps(obj)' for 'obj' type '%s'", class(obj))
+            } else {
+                err <- sprintf("'initial_coordinates' must be type 'matrix' for 'obj' type '%s'", class(obj))
+            }
+            stop(err)
+        }
     } else {
         if (!is_ace) {
-            err <- sprintf("'initial_coordinates' cannot be NULL for 'obj' type '%s'.\n", class(obj))
+            err <- sprintf("'initial_coordinates' cannot be NULL for 'obj' type '%s'", class(obj))
             stop(err)
         } else {
-            msg <- sprintf("Computing initial coordinates from assay '%s'.", assay_name)
+            msg <- sprintf("Computing initial coordinates from assay '%s'", assay_name)
             message(msg)
             svd.out <- runSVD(
                 X = .validate_assay(obj, assay_name = assay_name, return_elem = TRUE),
@@ -69,8 +86,19 @@ layoutNetwork <- function(
         }
     }
 
+    if (NROW(initial_coordinates) != NCOL(obj)) {
+        err <- sprintf("'NROW(initial_coordinates)' (%d) does not match 'NCOL(obj)' (%d)", NROW(initial_coordinates), NCOL(obj))
+        stop(err)
+    }
+
+    if (n_components < 2) {
+        err <- sprintf("'n_components' (%d) must be >= 2", n_components)
+        stop(err)
+    }
+
     if (NCOL(initial_coordinates) < n_components) {
-        sprintf("'NCOL(initial_coordinates)' must be >= 'n_components' (%d)\n.", n_components)
+        err <- sprintf("'NCOL(initial_coordinates)' must be >= 'n_components' (%d)", n_components)
+        stop(err)
     }
 
     if (is.null(a) || is.null(b)) {
@@ -107,7 +135,7 @@ layoutNetwork <- function(
     if (is_ace && !return_raw) {
         rownames(embedding) <- colnames(obj)
         if (is.null(map_slot_out)) {
-            map_slot_out <- sprintf("%s_%s", method, net_slot)
+            map_slot_out <- sprintf("%s_%dd_%s", method, n_components, net_slot)
         }
         colMaps(obj)[[map_slot_out]] <- embedding
         colMapTypes(obj)[[map_slot_out]] <- "embedding"
@@ -119,7 +147,7 @@ layoutNetwork <- function(
 #' @export
 computeNodeColors <- function(
     obj,
-    embedding_slot = "actionet_3d",
+    embedding_slot = "umap_3d_actionet",
     color_slot_out = NULL,
     thread_no = 1,
     return_raw = FALSE) {

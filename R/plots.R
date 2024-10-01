@@ -80,7 +80,7 @@ plot.ACTIONet <- function(
     show_legend = FALSE,
     legend_point_size = 3,
     legend_text_size = 10,
-    coordinate_attr = "umap_actionet_2d",
+    coordinate_attr = "umap_2d_actionet",
     scale_coors = TRUE,
     color_slot = "umap_actionet_colors",
     point_order = NULL,
@@ -272,7 +272,7 @@ plot.ACTIONet.gradient <- function(
     grad_palette = "magma",
     show_legend = FALSE,
     net_slot = "actionet",
-    coordinate_attr = "umap_actionet_2d",
+    coordinate_attr = "umap_2d_actionet",
     scale_coors = TRUE) {
   if (((is(data, "ACTIONetExperiment")) & (length(x) != ncol(data))) | ((!is(data, "ACTIONetExperiment")) & (nrow(data) != length(x)))) {
     stop("Length of input vector doesn't match the number of cells.")
@@ -384,7 +384,7 @@ plot.ACTIONet.interactive <- function(
     NA_color = "#CCCCCC",
     hide_NA = FALSE,
     show_legend = NULL,
-    coordinate_attr = "umap_actionet_2d",
+    coordinate_attr = "umap_2d_actionet",
     scale_coors = TRUE,
     color_slot = "denovo_color",
     point_order = NULL,
@@ -407,10 +407,10 @@ plot.ACTIONet.interactive <- function(
 
   if (plot_3d == TRUE) {
     if (NCOL(plot_coors) < 3) {
-      if ("umap_actionet_3d" %in% names(colMaps(data))) {
-        msg <- sprintf("Using 'coordinate_attr' = 'umap_actionet_3d'.\n")
+      if ("umap_3d_actionet" %in% names(colMaps(data))) {
+        msg <- sprintf("Using 'coordinate_attr' = 'umap_3d_actionet'.\n")
         message(msg)
-        plot_coors <- .get_plot_coors(data, "umap_actionet_3d", scale_coors)
+        plot_coors <- .get_plot_coors(data, "umap_3d_actionet", scale_coors)
       } else {
         err <- sprintf("'plot_3d == TRUE' but given coordinates have < 3 columns.\n")
         stop(err)
@@ -782,7 +782,7 @@ plotFeatureExpression <- function(
     grad_palette = "magma",
     point_size = 1,
     net_slot = "actionet",
-    coordinate_attr = "umap_actionet_2d",
+    coordinate_attr = "umap_2d_actionet",
     single_plot = FALSE,
     show_legend = FALSE,
     sort_features = TRUE) {
@@ -983,7 +983,7 @@ plot.ACTIONet.archetype.footprint <- function(
     grad_palette = "magma",
     point_size = 0.5,
     net_slot = "actionet",
-    coordinate_attr = "umap_actionet_2d",
+    coordinate_attr = "umap_2d_actionet",
     single_plot = FALSE,
     arch.labels = NULL) {
   if (!(footprint_slot %in% names(colMaps(ace)))) {
