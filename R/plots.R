@@ -784,7 +784,6 @@ plotFeatureExpression <- function(
     single_plot = FALSE,
     show_legend = FALSE,
     sort_features = TRUE) {
-
   features_use <- .get_features(ace, features_use = features_use)
   markers_all <- unique(unlist(features))
   marker_set <- intersect(markers_all, features_use)
@@ -798,8 +797,11 @@ plotFeatureExpression <- function(
     stop(err, call. = FALSE)
   }
 
-  if (length(marker_set) == 1) {
+  if ((length(marker_set) == 1) && (alpha != 0)) {
+    msg <- sprintf("Imputation (alpha > 0) requires 2+ features to compute diffusion\nAdd a reference feature")
+    message(msg)
     alpha <- 0
+    message("Using \"alpha = 0\"")
   }
 
   if (alpha > 0) {
@@ -813,9 +815,16 @@ plotFeatureExpression <- function(
       net_slot = net_slot
     )
   } else {
-    expr_profile <- assays(ace)[[assay_name]][match(marker_set, features_use), ,
-      drop = FALSE
-    ]
+    expr_profile <- .validate_assay(
+      ace,
+      assay_name = assay_name,
+      error_on_fail = TRUE,
+      return_elem = TRUE
+    )[match(marker_set, features_use), , drop = FALSE]
+
+    # expr_profile <- assays(ace)[[assay_name]][match(marker_set, features_use), ,
+    #   drop = FALSE
+    # ]
     expr_profile <- Matrix::t(expr_profile)
     colnames(expr_profile) <- marker_set
   }
