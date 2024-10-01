@@ -5,6 +5,7 @@ clusterNetwork <- function(
     resolution_parameter = 1.0,
     initial_membership = NULL,
     n_iterations = 3,
+    min_size = 3,
     net_slot = "actionet",
     attr_out = NULL,
     return_raw = FALSE) {
@@ -64,6 +65,12 @@ clusterNetwork <- function(
   }
 
   clusters <- igraph::membership(comm)
+  c0 <- names(which(table(clusters) < min_size))
+  if (length(c0) > 1) {
+    clusters[clusters %in% as.numeric(c0)] <- 0
+  }
+
+
   if (is_ace && !return_raw) {
     if (is.null(attr_out)) {
       attr_out <- sprintf("%s_%s", algorithm, net_slot)

@@ -390,6 +390,8 @@ plot.ACTIONet.interactive <- function(
     point_order = NULL,
     hover_text = NULL,
     plot_3d = FALSE) {
+
+  require(plotly)
   plot_coors <- .get_plot_coors(data, coordinate_attr, scale_coors)
   plot_labels <- .get_plot_labels(label_attr, data)
   plot_fill_col <- .get_plot_colors(color_attr, plot_labels, data, color_slot, palette, NA_color = NA_color)

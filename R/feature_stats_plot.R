@@ -34,11 +34,15 @@ plotFeatureDist <- function(
     assay_name = assay_name
   )
 
-  df <- lapply(seq_len(length(feature_stats)), function(l) {
-    data.frame(label = names(feature_stats)[l], stat = feature_stats[[l]])
-  })
-  df <- do.call(rbind, df)
-  df$label <- factor(df$label, levels = names(feature_stats))
+  if (is.list(feature_stats)) {
+    df <- lapply(seq_len(length(feature_stats)), function(l) {
+      data.frame(label = names(feature_stats)[l], stat = feature_stats[[l]])
+    })
+    df <- do.call(rbind, df)
+    df$label <- factor(df$label, levels = names(feature_stats))
+  } else {
+    df <- data.frame(label = "all", stat = feature_stats)
+  }
 
   if (log_trans != "none") {
     df$stat[df$stat == 0] <- 1
@@ -87,7 +91,7 @@ plotMitoDist <- function(
   }
 
   feats_mito <- .get_mito_feats(id_type = id_type, species = species, protein_coding = protein_coding)
-  plotFeatureDist(
+  out <- plotFeatureDist(
     obj,
     labels = labels,
     features = feats_mito,
@@ -103,6 +107,8 @@ plotMitoDist <- function(
     plot_title = plot_title,
     to_return = to_return
   )
+
+  return(out)
 }
 
 .plot_gg_violin <- function(df, x_label = NULL, y_label = NULL, plot_title = NULL, palette = NULL) {

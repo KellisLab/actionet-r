@@ -485,3 +485,10 @@
 
   return(x)
 }
+
+.warn_dgt <- function(X) {
+  if (any(class(X) %in% "dgTMatrix")) {
+    msg <- sprintf("Computing on sparse matrix type 'dgTMatrix' will be very slow\nRecommend casting to 'dgCMatrix'")
+    warning(msg)
+  }
+}

@@ -21,6 +21,7 @@ getFeatureAbundance <- function(
   }
 
   X <- .ace_or_assay(obj, assay_name = assay_name, allow_se_like = TRUE, return_elem = TRUE)
+  .warn_dgt(X)
 
   if (nonzero) {
     X <- X > 0
@@ -47,7 +48,7 @@ getFeatureAbundance <- function(
         X = X,
         idx = idx_feat,
         dim = 2,
-        threads = .get_num_threads(base::ceiling(length(idx_feat) / 10), 0)
+        threads = .get_num_threads(.SYS_THREADS_DEF, 0)
       )
     } else {
       cs_mm <- Matrix::rowSums(X[idx_feat, , drop = FALSE])
