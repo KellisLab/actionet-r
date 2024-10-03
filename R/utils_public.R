@@ -188,8 +188,8 @@ verify_aces <- function(ace1, ace2) {
   print(sprintf("%.02f %% 3D mismatch", mismatch.3D))
 
   ## Colors
-  colors1 <- round(ace1$denovo_color, 1)
-  colors2 <- round(ace2$denovo_color, 1)
+  colors1 <- round(ace1$colors_actionet, 1)
+  colors2 <- round(ace2$colors_actionet, 1)
 
   mismatch.colors <- 100 * sum(colors1 != colors2) / length(colors1)
   warnifnot(mismatch.colors < 0.5)

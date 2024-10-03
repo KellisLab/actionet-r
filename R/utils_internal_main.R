@@ -58,8 +58,8 @@
     X <- vis.out$colors
     colnames(X) <- c("r", "g", "b")
     rownames(X) <- colnames(ace)
-    colMaps(ace)$denovo_color <- X
-    colMapTypes(ace)[["denovo_color"]] <- "embedding"
+    colMaps(ace)$colors_actionet <- X
+    colMapTypes(ace)[["colors_actionet"]] <- "embedding"
 
     return(ace)
   }

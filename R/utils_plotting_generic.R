@@ -60,7 +60,8 @@ CPal_default <- c(
     match_row = TRUE
   )
 
-  plot_labels <- as.character(plot_labels)
+  # plot_labels <- as.character(plot_labels)
+  plot_labels <- factor(plot_labels)
 
   return(plot_labels)
 }
@@ -69,7 +70,7 @@ CPal_default <- c(
 .get_plot_colors <- function(color_attr,
                              plot_labels,
                              data,
-                             color_slot = "denovo_color",
+                             color_slot = "colors_actionet",
                              palette = CPal_default,
                              NA_color = "#CCCCCC") {
   if (is(data, "ACTIONetExperiment")) {
@@ -105,8 +106,11 @@ CPal_default <- c(
       stop(err)
     }
   } else if (!is.null(plot_labels)) {
-    plot_labels <- as.character(plot_labels)
-    label_names <- sort(unique(plot_labels[!is.na(plot_labels)]))
+    # plot_labels <- as.character(plot_labels)
+    # label_names <- sort(unique(plot_labels[!is.na(plot_labels)]))
+
+    plot_labels <- factor(plot_labels)
+    label_names <- levels(plot_labels)
     num_unique <- length(label_names)
 
     if (num_unique == 1) {
@@ -121,7 +125,7 @@ CPal_default <- c(
         plot_palette <- ggpubr::get_palette(palette, num_unique)
       } else if (length(palette) < num_unique) {
         plot_palette <- CPal_default[1:num_unique]
-        msg <- sprintf("Not enough colors in 'palette'.\n")
+        msg <- sprintf("Not enough colors in 'palette'")
         message(msg)
       } else {
         if (!is.null(names(palette))) {
@@ -135,10 +139,12 @@ CPal_default <- c(
         }
       }
 
-      plot_labels[is.na(plot_labels)] <- "NA"
+      which_NA <- which(is.na(plot_labels))
+      # plot_labels[is.na(plot_labels)] <- "NA"
       names(plot_palette) <- label_names
-      plot_palette <- c(plot_palette, "NA" = NA_color)
+      # plot_palette <- c(plot_palette, "NA" = NA_color)
       plot_colors <- plot_palette[match(plot_labels, names(plot_palette))]
+      plot_colors[which_NA] <- NA_color
     }
   } else {
     if (is.null(color_slot)) {
