@@ -66,7 +66,7 @@ clusterNetwork <- function(
 
   clusters <- igraph::membership(comm)
   c0 <- names(which(table(clusters) < min_size))
-  if (length(c0) > 1) {
+  if (length(c0) > 0) {
     clusters[clusters %in% as.numeric(c0)] <- 0
   }
 
