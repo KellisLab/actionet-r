@@ -68,6 +68,10 @@ clusterNetwork <- function(
   c0 <- names(which(table(clusters) < min_size))
   if (length(c0) > 0) {
     clusters[clusters %in% as.numeric(c0)] <- 0
+    clusters <- as.character(as.numeric(factor(clusters)))
+    tbl_clusters <- sort(table(clusters), decreasing = TRUE)
+    new_clusters <- setNames(seq_len(length(tbl_clusters)), names(tbl_clusters))
+    clusters <- new_clusters[clusters]
   }
 
 

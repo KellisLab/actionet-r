@@ -109,7 +109,8 @@ plot.ACTIONet <- function(
   } else {
     data_labels <- plot_labels
     names(plot_fill_col) <- plot_labels
-    legend_labels <- sort(unique(plot_labels))
+    # legend_labels <- sort(unique(plot_labels))
+    legend_labels <- levels(plot_labels)
     legend_fill_colors <- plot_fill_col[legend_labels]
     plot_border_col[is.na(plot_labels)] <- NA_color
     if (hide_NA == TRUE && any(is.na(plot_labels))) {
@@ -377,26 +378,47 @@ plot.ACTIONet.interactive <- function(
     }
   }
 
-  plot_data <- data.frame(plot_coors,
+  plot_data <- data.frame(
+    plot_coors,
     fill = plot_fill_col,
     color = plot_border_col,
     trans = plot_alpha,
-    idx = 1:NROW(plot_coors)
+    idx = seq_len(NROW(plot_coors))
   )
 
   if (is.null(label_attr)) {
-    na_mask <- NULL
     plot_data$labels <- "NA"
   } else {
-    plot_data$labels <- plot_labels
-    plot_data$labels[is.na(plot_data$labels)] <- "NA"
-    plot_data$color[is.na(plot_labels)] <- NA_color
-    if (hide_NA == TRUE && any(is.na(plot_labels))) {
-      na_mask <- !is.na(plot_labels)
-    } else {
-      na_mask <- NULL
-    }
+    plot_data$labels <- as.character(plot_labels)
+    plot_data$labels[is.na(plot_labels)] <- "NA"
+    # plot_data$color[is.na(plot_labels)] <- NA_color
+    # if (hide_NA == TRUE && any(is.na(plot_labels))) {
+    #   na_mask <- !is.na(plot_labels)
+    # } else {
+    #   na_mask <- NULL
+    # }
   }
+
+  if (hide_NA) {
+    na_mask <- !is.na(plot_data$labels)
+  } else {
+    na_mask <- NULL
+  }
+
+
+  # if (is.null(label_attr)) {
+  #   na_mask <- NULL
+  #   plot_data$labels <- "NA"
+  # } else {
+  #   plot_data$labels <- plot_labels
+  #   plot_data$labels[is.na(plot_data$labels)] <- "NA"
+  #   plot_data$color[is.na(plot_labels)] <- NA_color
+  #   if (hide_NA == TRUE && any(is.na(plot_labels))) {
+  #     na_mask <- !is.na(plot_labels)
+  #   } else {
+  #     na_mask <- NULL
+  #   }
+  # }
 
   if (!is.null(hover_text)) {
     plot_data$text <- hover_text
@@ -408,9 +430,13 @@ plot.ACTIONet.interactive <- function(
     }
   }
 
-  if (!is.null(na_mask)) {
+  if (length(na_mask) > 0) {
     plot_data <- plot_data[na_mask, , drop = FALSE]
   }
+
+  # if (!is.null(na_mask)) {
+  #   plot_data <- plot_data[na_mask, , drop = FALSE]
+  # }
 
   if (is.null(point_order)) {
     pidx <- sample(NROW(plot_data))
