@@ -15,7 +15,7 @@
  * Generalize "correctBatchEffect" for matrix input after fixing back-end
  * Incorporate bact ortho into reduceKernel (requires generalized reduceKernel)
 * Replace `plot.marker.enrichment.by.archetype.heatmap` and `plot.marker.enrichment.by.cluster.heatmap`
-
+* Change coordinate ionitialization to "archetype_footprint" in `runACTIONet()`
 
 ## Secondary
 
