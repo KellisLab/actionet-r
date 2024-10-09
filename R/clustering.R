@@ -65,15 +65,25 @@ clusterNetwork <- function(
   }
 
   clusters <- igraph::membership(comm)
+
+  ## Aggregate and mark trivial clusters
+  to_zero <- NULL
   c0 <- names(which(table(clusters) < min_size))
   if (length(c0) > 0) {
-    clusters[clusters %in% as.numeric(c0)] <- 0
-    clusters <- as.character(as.numeric(factor(clusters)))
-    tbl_clusters <- sort(table(clusters), decreasing = TRUE)
-    new_clusters <- setNames(seq_len(length(tbl_clusters)), names(tbl_clusters))
-    clusters <- new_clusters[clusters]
+    to_zero <- which(clusters %in% as.numeric(c0))
+    clusters[to_zero] <- 0
   }
 
+  ## Sort cluster labels by size descending
+  clusters <- as.character(as.numeric(factor(clusters)))
+  tbl_clusters <- sort(table(clusters), decreasing = TRUE)
+  new_clusters <- setNames(seq_len(length(tbl_clusters)), names(tbl_clusters))
+  clusters <- new_clusters[clusters]
+
+  ## Reset zero label
+  if (!is.null(to_zero)) {
+    clusters[to_zero] <- 0
+  }
 
   if (is_ace && !return_raw) {
     if (is.null(attr_out)) {
