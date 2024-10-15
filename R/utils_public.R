@@ -1,9 +1,8 @@
-
 .groupedRowSums <- function(S, group_vec) {
   if (ACTIONetExperiment:::is.sparseMatrix(S)) {
-    mat <- compute_grouped_rowsums(S, sample_assignments = group_vec)
+    mat <- C_computeGroupedRowSumsSparse(S, sample_assignments = group_vec)
   } else {
-    mat <- compute_grouped_rowsums_full(S, sample_assignments = group_vec)
+    mat <- C_computeGroupedRowSumsDense(S, sample_assignments = group_vec)
   }
   return(mat)
 }
@@ -11,9 +10,9 @@
 
 .groupedRowMeans <- function(S, group_vec) {
   if (ACTIONetExperiment:::is.sparseMatrix(S)) {
-    mat <- compute_grouped_rowmeans(S, sample_assignments = group_vec)
+    mat <- C_computeGroupedRowMeansSparse(S, sample_assignments = group_vec)
   } else {
-    mat <- compute_grouped_rowmeans_full(S, sample_assignments = group_vec)
+    mat <- C_computeGroupedRowMeansDense(S, sample_assignments = group_vec)
   }
   return(mat)
 }
@@ -21,9 +20,9 @@
 
 .groupedRowVars <- function(S, group_vec) {
   if (ACTIONetExperiment:::is.sparseMatrix(S)) {
-    mat <- compute_grouped_rowvars(S, sample_assignments = group_vec)
+    mat <- C_computeGroupedRowVarsSparse(S, sample_assignments = group_vec)
   } else {
-    mat <- compute_grouped_rowvars_full(S, sample_assignments = group_vec)
+    mat <- C_computeGroupedRowVarsDense(S, sample_assignments = group_vec)
   }
   return(mat)
 }
@@ -50,7 +49,7 @@ aggregateMatrix <- function(S,
   keys <- levels(lf)
 
   if (ACTIONetExperiment:::is.sparseMatrix(S) &&
-      !is(S, "dMatrix")) {
+    !is(S, "dMatrix")) {
     S <- as(S, "dMatrix")
   }
 

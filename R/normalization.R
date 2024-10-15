@@ -139,6 +139,7 @@ normalize.matrix <- function(S,
 
 
 .scale.matrix <- function(X, dim, scale_fac = NULL) {
+  dn <- dimnames(X)
   if (is.null(scale_fac)) {
     return(X)
   }
@@ -161,5 +162,6 @@ normalize.matrix <- function(S,
       )
     }
   }
+  dimnames(X) <- dn
   return(X)
 }
