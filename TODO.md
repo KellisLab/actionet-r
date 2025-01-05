@@ -14,6 +14,7 @@
 * Replace `plot.marker.enrichment.by.archetype.heatmap` and `plot.marker.enrichment.by.cluster.heatmap`
 * Change coordinate ionitialization to "archetype_footprint" in `runACTIONet()`
 * In `plot.ACTIONet()`, plotting order should have `NA` points on bottom.
+* Fix bug in `plot.ACTIONet()` and `.layout_plot_labels()` when `label_attr` contains empty string (`""`)
 
 ## Secondary
 
