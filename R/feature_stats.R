@@ -43,16 +43,17 @@ getFeatureAbundance <- function(
       stop("No matching features")
     }
 
-    if (!is.matrix(X)) {
-      cs_mm <- C_fastSpMatViewSum(
-        X = X,
-        idx = idx_feat,
-        dim = 2,
-        threads = .get_num_threads(.SYS_THREADS_DEF, 0)
-      )
-    } else {
-      cs_mm <- Matrix::rowSums(X[idx_feat, , drop = FALSE])
-    }
+    cs_mm <- Matrix::rowSums(X[idx_feat, , drop = FALSE])
+    # if (!is.matrix(X)) {
+    #   cs_mm <- C_fastSpMatViewSum(
+    #     X = X,
+    #     idx = idx_feat,
+    #     dim = 2,
+    #     threads = .get_num_threads(.SYS_THREADS_DEF, 0)
+    #   )
+    # } else {
+    #   cs_mm <- Matrix::rowSums(X[idx_feat, , drop = FALSE])
+    # }
   }
 
   if (!is.null(labels)) {

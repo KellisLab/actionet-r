@@ -23,3 +23,4 @@
 * New marker detection
 * WOrking and improved ledien via igraph
 * New qc functions
+* Removed `C_fastSpMatViewSum` due to inaccuracy when multithreading.
