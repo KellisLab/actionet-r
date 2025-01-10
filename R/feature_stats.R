@@ -43,7 +43,7 @@ getFeatureAbundance <- function(
       stop("No matching features")
     }
 
-    cs_mm <- Matrix::rowSums(X[idx_feat, , drop = FALSE])
+    cs_mm <- Matrix::colSums(X[idx_feat, , drop = FALSE])
     # if (!is.matrix(X)) {
     #   cs_mm <- C_fastSpMatViewSum(
     #     X = X,
@@ -52,7 +52,7 @@ getFeatureAbundance <- function(
     #     threads = .get_num_threads(.SYS_THREADS_DEF, 0)
     #   )
     # } else {
-    #   cs_mm <- Matrix::rowSums(X[idx_feat, , drop = FALSE])
+    #   cs_mm <- Matrix::colSums(X[idx_feat, , drop = FALSE])
     # }
   }
 
