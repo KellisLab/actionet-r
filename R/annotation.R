@@ -342,7 +342,7 @@ annotateArchetypes <- function(ace, markers = NULL, labels = NULL, scores = NULL
 }
 
 
-annotateClusters <- function(ace, markers = NULL, labels = NULL, scores = NULL, cluster_name = "leiden") {
+annotateClusters <- function(ace, markers = NULL, labels = NULL, scores = NULL, cluster_name = "cluster") {
   annotations.count <- is.null(markers) + is.null(labels) + is.null(scores)
   if (annotations.count != 2) {
     stop("Exactly one of the `markers`, `labels`, or `scores` can be provided.")

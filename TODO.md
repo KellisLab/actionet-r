@@ -15,7 +15,8 @@
 * Change coordinate ionitialization to "archetype_footprint" in `runACTIONet()`
 * In `plot.ACTIONet()`, plotting order should have `NA` points on bottom.
 * Fix bug in `plot.ACTIONet()` and `.layout_plot_labels()` when `label_attr` contains empty string (`""`)
-
+* Finish `annotateClusters`
+* Add error for `annotateClusters` for when feat_spec is not in object.
 ## Secondary
 
 
