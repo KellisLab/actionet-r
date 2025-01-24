@@ -17,6 +17,7 @@
 * Fix bug in `plot.ACTIONet()` and `.layout_plot_labels()` when `label_attr` contains empty string (`""`)
 * Finish `annotateClusters`
 * Add error for `annotateClusters` for when feat_spec is not in object.
+* Force all zero rows removed if `min_cells_per_feat` > 0 in `filter.ace`
 ## Secondary
 
 
