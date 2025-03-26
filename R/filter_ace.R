@@ -37,7 +37,7 @@ filter.ace <- function(
 
     if (!is.null(min_cells_per_feat)) {
       if ((min_cells_per_feat < 1) & (min_cells_per_feat > 0)) {
-        min_fc <- min_cells_per_feat * prev_dim[2]
+        min_fc <- ceiling(min_cells_per_feat * prev_dim[2])
       } else {
         min_fc <- min_cells_per_feat
       }
