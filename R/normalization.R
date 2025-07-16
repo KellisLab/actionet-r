@@ -6,7 +6,7 @@ normalize.ace <- function(
     assay_name = "counts",
     assay_out = "logcounts",
     scale_param = stats::median,
-    trans_func = base::log1p,
+    trans_func = base::log2,
     BPPARAM = SerialParam()) {
   norm_method <- match.arg(norm_method)
 
@@ -116,8 +116,11 @@ normalize.matrix <- function(S,
   S <- .scale.matrix(S, dim = dim, scale_fac = scale_param)
 
   if (!is.null(trans_func)) {
-    # S <- trans_func(S)
-    S@x <- trans_func(S@x)
+    if (ACTIONetExperiment:::is.sparseMatrix(S)) {
+      S@x <- trans_func(S@x + 1)
+    } else {
+      S <- trans_func(S + 1)
+    }
   }
 
   return(S)
