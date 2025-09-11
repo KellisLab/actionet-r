@@ -18,8 +18,8 @@
 * Finish `annotateClusters`
 * Add error for `annotateClusters` for when feat_spec is not in object.
 * Force all zero rows removed if `min_cells_per_feat` > 0 in `filter.ace`
-## Secondary
 
+## Secondary
 * Change ggtheme to bw
 * Add arbitrary pseudo count
 * Normalize only subset of features
