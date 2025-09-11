@@ -20,6 +20,9 @@
 * Force all zero rows removed if `min_cells_per_feat` > 0 in `filter.ace`
 ## Secondary
 
+* Change ggtheme to bw
+* Add arbitrary pseudo count
+* Normalize only subset of features
 
 ## Done
 * New marker detection

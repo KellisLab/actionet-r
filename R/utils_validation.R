@@ -221,7 +221,7 @@
     match_row = FALSE,
     return_elem = TRUE) {
   if (is.null(obj)) {
-    err <- sprintf("'%s' cannot be 'NULL'.\n", var_name)
+    err <- sprintf("'%s' cannot be 'NULL'.\n", obj_name)
     stop(err)
   }
 
