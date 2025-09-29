@@ -35,7 +35,14 @@ get.pseudobulk.SE <- function(
 
   se_assays <- list()
 
-  se_assays$counts <- aggregateMatrix(counts_mat, group_vec = group_vec, method = "sum") + pseudocount
+  if(!any(c(with_S, with_E, with_V))) {
+    err <- sprintf("At least one of 'with_S', 'with_E', or 'with_V' must be TRUE.\n")
+    stop(err)
+  }
+
+  if (with_S == TRUE) {
+    se_assays$counts <- aggregateMatrix(counts_mat, group_vec = group_vec, method = "sum") + pseudocount
+  }
 
   if (with_E == TRUE) {
     se_assays$mean <- aggregateMatrix(counts_mat, group_vec = group_vec, method = "mean")
