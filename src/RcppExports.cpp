@@ -509,6 +509,19 @@ BEGIN_RCPP
     return rcpp_result_gen;
 END_RCPP
 }
+// C_computeGroupedSumsSparse2
+arma::sp_mat C_computeGroupedSumsSparse2(arma::sp_mat& S, arma::vec& sample_assignments, int axis);
+RcppExport SEXP _actionet_C_computeGroupedSumsSparse2(SEXP SSEXP, SEXP sample_assignmentsSEXP, SEXP axisSEXP) {
+BEGIN_RCPP
+    Rcpp::RObject rcpp_result_gen;
+    Rcpp::RNGScope rcpp_rngScope_gen;
+    Rcpp::traits::input_parameter< arma::sp_mat& >::type S(SSEXP);
+    Rcpp::traits::input_parameter< arma::vec& >::type sample_assignments(sample_assignmentsSEXP);
+    Rcpp::traits::input_parameter< int >::type axis(axisSEXP);
+    rcpp_result_gen = Rcpp::wrap(C_computeGroupedSumsSparse2(S, sample_assignments, axis));
+    return rcpp_result_gen;
+END_RCPP
+}
 // C_computeGroupedSumsDense
 arma::mat C_computeGroupedSumsDense(arma::mat& S, arma::vec& sample_assignments, int axis);
 RcppExport SEXP _actionet_C_computeGroupedSumsDense(SEXP SSEXP, SEXP sample_assignmentsSEXP, SEXP axisSEXP) {
@@ -535,6 +548,19 @@ BEGIN_RCPP
     return rcpp_result_gen;
 END_RCPP
 }
+// C_computeGroupedMeansSparse2
+arma::sp_mat C_computeGroupedMeansSparse2(arma::sp_mat& S, arma::vec& sample_assignments, int axis);
+RcppExport SEXP _actionet_C_computeGroupedMeansSparse2(SEXP SSEXP, SEXP sample_assignmentsSEXP, SEXP axisSEXP) {
+BEGIN_RCPP
+    Rcpp::RObject rcpp_result_gen;
+    Rcpp::RNGScope rcpp_rngScope_gen;
+    Rcpp::traits::input_parameter< arma::sp_mat& >::type S(SSEXP);
+    Rcpp::traits::input_parameter< arma::vec& >::type sample_assignments(sample_assignmentsSEXP);
+    Rcpp::traits::input_parameter< int >::type axis(axisSEXP);
+    rcpp_result_gen = Rcpp::wrap(C_computeGroupedMeansSparse2(S, sample_assignments, axis));
+    return rcpp_result_gen;
+END_RCPP
+}
 // C_computeGroupedMeansDense
 arma::mat C_computeGroupedMeansDense(arma::mat& S, arma::vec& sample_assignments, int axis);
 RcppExport SEXP _actionet_C_computeGroupedMeansDense(SEXP SSEXP, SEXP sample_assignmentsSEXP, SEXP axisSEXP) {
@@ -558,6 +584,19 @@ BEGIN_RCPP
     Rcpp::traits::input_parameter< arma::vec& >::type sample_assignments(sample_assignmentsSEXP);
     Rcpp::traits::input_parameter< int >::type axis(axisSEXP);
     rcpp_result_gen = Rcpp::wrap(C_computeGroupedVarsSparse(S, sample_assignments, axis));
+    return rcpp_result_gen;
+END_RCPP
+}
+// C_computeGroupedVarsSparse2
+arma::sp_mat C_computeGroupedVarsSparse2(arma::sp_mat& S, arma::vec& sample_assignments, int axis);
+RcppExport SEXP _actionet_C_computeGroupedVarsSparse2(SEXP SSEXP, SEXP sample_assignmentsSEXP, SEXP axisSEXP) {
+BEGIN_RCPP
+    Rcpp::RObject rcpp_result_gen;
+    Rcpp::RNGScope rcpp_rngScope_gen;
+    Rcpp::traits::input_parameter< arma::sp_mat& >::type S(SSEXP);
+    Rcpp::traits::input_parameter< arma::vec& >::type sample_assignments(sample_assignmentsSEXP);
+    Rcpp::traits::input_parameter< int >::type axis(axisSEXP);
+    rcpp_result_gen = Rcpp::wrap(C_computeGroupedVarsSparse2(S, sample_assignments, axis));
     return rcpp_result_gen;
 END_RCPP
 }
@@ -773,10 +812,13 @@ static const R_CallMethodDef CallEntries[] = {
     {"_actionet_C_computeGraphLabelEnrichment", (DL_FUNC) &_actionet_C_computeGraphLabelEnrichment, 3},
     {"_actionet_C_assess_enrichment", (DL_FUNC) &_actionet_C_assess_enrichment, 3},
     {"_actionet_C_computeGroupedSumsSparse", (DL_FUNC) &_actionet_C_computeGroupedSumsSparse, 3},
+    {"_actionet_C_computeGroupedSumsSparse2", (DL_FUNC) &_actionet_C_computeGroupedSumsSparse2, 3},
     {"_actionet_C_computeGroupedSumsDense", (DL_FUNC) &_actionet_C_computeGroupedSumsDense, 3},
     {"_actionet_C_computeGroupedMeansSparse", (DL_FUNC) &_actionet_C_computeGroupedMeansSparse, 3},
+    {"_actionet_C_computeGroupedMeansSparse2", (DL_FUNC) &_actionet_C_computeGroupedMeansSparse2, 3},
     {"_actionet_C_computeGroupedMeansDense", (DL_FUNC) &_actionet_C_computeGroupedMeansDense, 3},
     {"_actionet_C_computeGroupedVarsSparse", (DL_FUNC) &_actionet_C_computeGroupedVarsSparse, 3},
+    {"_actionet_C_computeGroupedVarsSparse2", (DL_FUNC) &_actionet_C_computeGroupedVarsSparse2, 3},
     {"_actionet_C_computeGroupedVarsDense", (DL_FUNC) &_actionet_C_computeGroupedVarsDense, 3},
     {"_actionet_C_normalizeMatrixSparse", (DL_FUNC) &_actionet_C_normalizeMatrixSparse, 3},
     {"_actionet_C_normalizeMatrixDense", (DL_FUNC) &_actionet_C_normalizeMatrixDense, 3},

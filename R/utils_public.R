@@ -1,75 +1,97 @@
-.groupedMatSums <- function(S, group_vec, dim) {
-  if (ACTIONetExperiment:::is.sparseMatrix(S)) {
-    mat <- C_computeGroupedSumsSparse(S, sample_assignments = group_vec, axis = dim)
+.groupedMatSums <- function(X, group_vec, dim, return_sparse = FALSE) {
+  if (ACTIONetExperiment:::is.sparseMatrix(X)) {
+    if(return_sparse) {
+      mat <- C_computeGroupedSumsSparse2(X, sample_assignments = group_vec, axis = dim)
+    } else {
+      mat <- C_computeGroupedSumsSparse(X, sample_assignments = group_vec, axis = dim)
+    }
   } else {
-    mat <- C_computeGroupedSumsDense(S, sample_assignments = group_vec, axis = dim)
+    mat <- C_computeGroupedSumsDense(X, sample_assignments = group_vec, axis = dim)
   }
   return(mat)
 }
 
 
-.groupedMatMeans <- function(S, group_vec, dim) {
-  if (ACTIONetExperiment:::is.sparseMatrix(S)) {
-    mat <- C_computeGroupedMeansSparse(S, sample_assignments = group_vec, axis = dim)
+.groupedMatMeans <- function(X, group_vec, dim, return_sparse = FALSE) {
+  if (ACTIONetExperiment:::is.sparseMatrix(X)) {
+    if(return_sparse) {
+      mat <- C_computeGroupedMeansSparse2(X, sample_assignments = group_vec, axis = dim)
+    } else {
+      mat <- C_computeGroupedMeansSparse(X, sample_assignments = group_vec, axis = dim)
+    }
   } else {
-    mat <- C_computeGroupedMeansDense(S, sample_assignments = group_vec, axis = dim)
+    mat <- C_computeGroupedMeansDense(X, sample_assignments = group_vec, axis = dim)
   }
   return(mat)
 }
 
 
-.groupedMatVars <- function(S, group_vec, dim) {
-  if (ACTIONetExperiment:::is.sparseMatrix(S)) {
-    mat <- C_computeGroupedVarsSparse(S, sample_assignments = group_vec, axis = dim)
+.groupedMatVars <- function(X, group_vec, dim, return_sparse = FALSE) {
+  if (ACTIONetExperiment:::is.sparseMatrix(X)) {
+    if(return_sparse) {
+      mat <- C_computeGroupedVarsSparse2(X, sample_assignments = group_vec, axis = dim)
+    } else {
+      mat <- C_computeGroupedVarsSparse(X, sample_assignments = group_vec, axis = dim)
+    }
   } else {
-    mat <- C_computeGroupedVarsDense(S, sample_assignments = group_vec, axis = dim)
+    mat <- C_computeGroupedVarsDense(X, sample_assignments = group_vec, axis = dim)
   }
   return(mat)
 }
 
 
 #' @export
-aggregateMatrix <- function(S,
+aggregateMatrix <- function(X,
                             group_vec,
                             dim = c(1, 2),
-                            method = c("sum", "mean", "var")) {
+                            method = c("sum", "mean", "var"),
+                            return_sparse = FALSE) {
   method <- match.arg(method, several.ok = FALSE)
 
-  if(!dim %in% c(1,2)){
+  if(!dim %in% c(1, 2)){
     err <- sprintf("'dim' must be either 1 (rows) or 2 (columns).")
     stop(err)
   }
-  dim <- dim - 1 # convert to 0-based indexing
 
   if (any(is.na(group_vec))) {
     err <- sprintf("'NA' values in 'group_vec'.\n")
     stop(err)
   }
 
-  lf <- factor(.validate_attr(
-    S,
-    attr = group_vec,
-    obj_name = "S",
-    attr_name = "group_vec"
-  ))
+  if(length(group_vec) != rev(dim(X))[dim]) {
+    err <- sprintf("Length of 'group_vec' (%d) does not match the number of %s (%d) in 'X'.\n",
+                   length(group_vec),
+                   ifelse(dim == 1, "columns", "rows"),
+                   rev(dim(X))[dim])
+    stop(err)
+  }
+
+  lf <- factor(group_vec)
   labels <- as.numeric(lf)
   keys <- levels(lf)
 
-  if (ACTIONetExperiment:::is.sparseMatrix(S) &&
-    !is(S, "dMatrix")) {
-    S <- as(S, "dMatrix")
+  if (ACTIONetExperiment:::is.sparseMatrix(X) &&
+    !is(X, "dMatrix")) {
+    X <- as(X, "dMatrix")
   }
 
+  d <- dim - 1 # convert to 0-based indexing
   if (method == "sum") {
-    mat <- .groupedMatSums(S, labels, dim)
+    mat <- .groupedMatSums(X, labels, d, return_sparse)
   } else if (method == "mean") {
-    mat <- .groupedMatMeans(S, labels, dim)
+    mat <- .groupedMatMeans(X, labels, d, return_sparse)
   } else if (method == "var") {
-    mat <- .groupedMatVars(S, labels, dim)
+    mat <- .groupedMatVars(X, labels, d, return_sparse)
   }
 
-  colnames(mat) <- keys
-  rownames(mat) <- rownames(S)
+  if (dim == 1) {
+    colnames(mat) <- keys
+    rownames(mat) <- rownames(X)
+  } else {
+    rownames(mat) <- keys
+    colnames(mat) <- colnames(X)
+  }
+
   return(mat)
 }
 

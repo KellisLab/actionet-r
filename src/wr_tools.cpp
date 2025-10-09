@@ -105,6 +105,12 @@ arma::mat C_computeGroupedSumsSparse(arma::sp_mat& S, arma::vec& sample_assignme
 }
 
 // [[Rcpp::export]]
+arma::sp_mat C_computeGroupedSumsSparse2(arma::sp_mat& S, arma::vec& sample_assignments, int axis = 0) {
+    arma::sp_mat pb = actionet::computeGroupedSums2(S, sample_assignments, axis);
+    return pb;
+}
+
+// [[Rcpp::export]]
 arma::mat C_computeGroupedSumsDense(arma::mat& S, arma::vec& sample_assignments, int axis = 0) {
     arma::mat pb = actionet::computeGroupedSums(S, sample_assignments, axis);
     return pb;
@@ -124,6 +130,12 @@ arma::mat C_computeGroupedMeansSparse(arma::sp_mat& S, arma::vec& sample_assignm
 }
 
 // [[Rcpp::export]]
+arma::sp_mat C_computeGroupedMeansSparse2(arma::sp_mat& S, arma::vec& sample_assignments, int axis = 0) {
+    arma::sp_mat pb = actionet::computeGroupedMeans2(S, sample_assignments, axis);
+    return pb;
+}
+
+// [[Rcpp::export]]
 arma::mat C_computeGroupedMeansDense(arma::mat& S, arma::vec& sample_assignments, int axis = 0) {
     arma::mat pb = actionet::computeGroupedMeans(S, sample_assignments, axis);
     return pb;
@@ -139,6 +151,12 @@ arma::mat C_computeGroupedMeansDense(arma::mat& S, arma::vec& sample_assignments
 // [[Rcpp::export]]
 arma::mat C_computeGroupedVarsSparse(arma::sp_mat& S, arma::vec& sample_assignments, int axis = 0) {
     arma::mat pb = actionet::computeGroupedVars(S, sample_assignments, axis);
+    return pb;
+}
+
+// [[Rcpp::export]]
+arma::sp_mat C_computeGroupedVarsSparse2(arma::sp_mat& S, arma::vec& sample_assignments, int axis = 0) {
+    arma::sp_mat pb = actionet::computeGroupedVars2(S, sample_assignments, axis);
     return pb;
 }
 

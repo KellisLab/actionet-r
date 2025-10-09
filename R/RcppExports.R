@@ -368,6 +368,10 @@ C_computeGroupedSumsSparse <- function(S, sample_assignments, axis = 0L) {
     .Call(`_actionet_C_computeGroupedSumsSparse`, S, sample_assignments, axis)
 }
 
+C_computeGroupedSumsSparse2 <- function(S, sample_assignments, axis = 0L) {
+    .Call(`_actionet_C_computeGroupedSumsSparse2`, S, sample_assignments, axis)
+}
+
 C_computeGroupedSumsDense <- function(S, sample_assignments, axis = 0L) {
     .Call(`_actionet_C_computeGroupedSumsDense`, S, sample_assignments, axis)
 }
@@ -383,6 +387,10 @@ C_computeGroupedMeansSparse <- function(S, sample_assignments, axis = 0L) {
     .Call(`_actionet_C_computeGroupedMeansSparse`, S, sample_assignments, axis)
 }
 
+C_computeGroupedMeansSparse2 <- function(S, sample_assignments, axis = 0L) {
+    .Call(`_actionet_C_computeGroupedMeansSparse2`, S, sample_assignments, axis)
+}
+
 C_computeGroupedMeansDense <- function(S, sample_assignments, axis = 0L) {
     .Call(`_actionet_C_computeGroupedMeansDense`, S, sample_assignments, axis)
 }
@@ -396,6 +404,10 @@ C_computeGroupedMeansDense <- function(S, sample_assignments, axis = 0L) {
 #'
 C_computeGroupedVarsSparse <- function(S, sample_assignments, axis = 0L) {
     .Call(`_actionet_C_computeGroupedVarsSparse`, S, sample_assignments, axis)
+}
+
+C_computeGroupedVarsSparse2 <- function(S, sample_assignments, axis = 0L) {
+    .Call(`_actionet_C_computeGroupedVarsSparse2`, S, sample_assignments, axis)
 }
 
 C_computeGroupedVarsDense <- function(S, sample_assignments, axis = 0L) {
