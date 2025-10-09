@@ -323,7 +323,7 @@ networkAutocorrelation <- function(
     obj_name = "obj"
   )
 
-  if (!is.sparseMatrix(G)) {
+  if (!ACTIONetExperiment::is.sparseMatrix(G)) {
     G <- as(G, "sparseMatrix")
   }
 

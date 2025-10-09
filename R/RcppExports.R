@@ -357,42 +357,49 @@ C_assess_enrichment <- function(scores, associations, thread_no = 0L) {
     .Call(`_actionet_C_assess_enrichment`, scores, associations, thread_no)
 }
 
-#' Aggregate matrix within groups
+#' Aggregate matrix within groups (rowwise or columnwise)
 #'
 #' @param S matrix of type "dMatrix"
-#' @param sample_assignments Vector of column groupings. Group labels must be continuous integers or coercible to such.
+#' @param sample_assignments Vector of groupings. Group labels must be continuous integers or coercible to such.
+#' @param axis 0 for rowwise (default), 1 for columnwise
+#' @return Aggregated matrix
 #'
-#' @return S matrix with columns of values aggregated within each group of sample_assignments
-#'
-C_computeGroupedRowSumsSparse <- function(S, sample_assignments) {
-    .Call(`_actionet_C_computeGroupedRowSumsSparse`, S, sample_assignments)
+C_computeGroupedSumsSparse <- function(S, sample_assignments, axis = 0L) {
+    .Call(`_actionet_C_computeGroupedSumsSparse`, S, sample_assignments, axis)
 }
 
-C_computeGroupedRowSumsDense <- function(S, sample_assignments) {
-    .Call(`_actionet_C_computeGroupedRowSumsDense`, S, sample_assignments)
+C_computeGroupedSumsDense <- function(S, sample_assignments, axis = 0L) {
+    .Call(`_actionet_C_computeGroupedSumsDense`, S, sample_assignments, axis)
 }
 
-#' Average matrix within groups
+#' Average matrix within groups (rowwise or columnwise)
 #'
 #' @param S matrix
-#' @param sample_assignments Vector of column groupings. Group labels must be continuous integers or coercible to such.
+#' @param sample_assignments Vector of groupings. Group labels must be continuous integers or coercible to such.
+#' @param axis 0 for rowwise (default), 1 for columnwise
+#' @return Averaged matrix
 #'
-#' @return S matrix with columns of values average within each group of sample_assignments
+C_computeGroupedMeansSparse <- function(S, sample_assignments, axis = 0L) {
+    .Call(`_actionet_C_computeGroupedMeansSparse`, S, sample_assignments, axis)
+}
+
+C_computeGroupedMeansDense <- function(S, sample_assignments, axis = 0L) {
+    .Call(`_actionet_C_computeGroupedMeansDense`, S, sample_assignments, axis)
+}
+
+#' Variance matrix within groups (rowwise or columnwise)
 #'
-C_computeGroupedRowMeansSparse <- function(S, sample_assignments) {
-    .Call(`_actionet_C_computeGroupedRowMeansSparse`, S, sample_assignments)
+#' @param S matrix
+#' @param sample_assignments Vector of groupings. Group labels must be continuous integers or coercible to such.
+#' @param axis 0 for rowwise (default), 1 for columnwise
+#' @return Variance matrix
+#'
+C_computeGroupedVarsSparse <- function(S, sample_assignments, axis = 0L) {
+    .Call(`_actionet_C_computeGroupedVarsSparse`, S, sample_assignments, axis)
 }
 
-C_computeGroupedRowMeansDense <- function(S, sample_assignments) {
-    .Call(`_actionet_C_computeGroupedRowMeansDense`, S, sample_assignments)
-}
-
-C_computeGroupedRowVarsSparse <- function(S, sample_assignments) {
-    .Call(`_actionet_C_computeGroupedRowVarsSparse`, S, sample_assignments)
-}
-
-C_computeGroupedRowVarsDense <- function(S, sample_assignments) {
-    .Call(`_actionet_C_computeGroupedRowVarsDense`, S, sample_assignments)
+C_computeGroupedVarsDense <- function(S, sample_assignments, axis = 0L) {
+    .Call(`_actionet_C_computeGroupedVarsDense`, S, sample_assignments, axis)
 }
 
 C_normalizeMatrixSparse <- function(X, p = 1L, dim = 0L) {

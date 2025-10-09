@@ -91,59 +91,60 @@ Rcpp::List C_assess_enrichment(arma::mat& scores, arma::sp_mat& associations, in
 
 // matrix_aggregate =========================================================================================================
 
-//' Aggregate matrix within groups
+//' Aggregate matrix within groups (rowwise or columnwise)
 //'
 //' @param S matrix of type "dMatrix"
-//' @param sample_assignments Vector of column groupings. Group labels must be continuous integers or coercible to such.
-//'
-//' @return S matrix with columns of values aggregated within each group of sample_assignments
+//' @param sample_assignments Vector of groupings. Group labels must be continuous integers or coercible to such.
+//' @param axis 0 for rowwise (default), 1 for columnwise
+//' @return Aggregated matrix
 //'
 // [[Rcpp::export]]
-arma::mat C_computeGroupedRowSumsSparse(arma::sp_mat& S, arma::vec& sample_assignments) {
-    arma::mat pb = actionet::computeGroupedRowSums(S, sample_assignments);
-
+arma::mat C_computeGroupedSumsSparse(arma::sp_mat& S, arma::vec& sample_assignments, int axis = 0) {
+    arma::mat pb = actionet::computeGroupedSums(S, sample_assignments, axis);
     return pb;
 }
 
 // [[Rcpp::export]]
-arma::mat C_computeGroupedRowSumsDense(arma::mat& S, arma::vec& sample_assignments) {
-    arma::mat pb = actionet::computeGroupedRowSums(S, sample_assignments);
-
+arma::mat C_computeGroupedSumsDense(arma::mat& S, arma::vec& sample_assignments, int axis = 0) {
+    arma::mat pb = actionet::computeGroupedSums(S, sample_assignments, axis);
     return pb;
 }
 
-//' Average matrix within groups
+//' Average matrix within groups (rowwise or columnwise)
 //'
 //' @param S matrix
-//' @param sample_assignments Vector of column groupings. Group labels must be continuous integers or coercible to such.
+//' @param sample_assignments Vector of groupings. Group labels must be continuous integers or coercible to such.
+//' @param axis 0 for rowwise (default), 1 for columnwise
+//' @return Averaged matrix
 //'
-//' @return S matrix with columns of values average within each group of sample_assignments
+// [[Rcpp::export]]
+arma::mat C_computeGroupedMeansSparse(arma::sp_mat& S, arma::vec& sample_assignments, int axis = 0) {
+    arma::mat pb = actionet::computeGroupedMeans(S, sample_assignments, axis);
+    return pb;
+}
+
+// [[Rcpp::export]]
+arma::mat C_computeGroupedMeansDense(arma::mat& S, arma::vec& sample_assignments, int axis = 0) {
+    arma::mat pb = actionet::computeGroupedMeans(S, sample_assignments, axis);
+    return pb;
+}
+
+//' Variance matrix within groups (rowwise or columnwise)
+//'
+//' @param S matrix
+//' @param sample_assignments Vector of groupings. Group labels must be continuous integers or coercible to such.
+//' @param axis 0 for rowwise (default), 1 for columnwise
+//' @return Variance matrix
 //'
 // [[Rcpp::export]]
-arma::mat C_computeGroupedRowMeansSparse(arma::sp_mat& S, arma::vec& sample_assignments) {
-    arma::mat pb = actionet::computeGroupedRowMeans(S, sample_assignments);
-
+arma::mat C_computeGroupedVarsSparse(arma::sp_mat& S, arma::vec& sample_assignments, int axis = 0) {
+    arma::mat pb = actionet::computeGroupedVars(S, sample_assignments, axis);
     return pb;
 }
 
 // [[Rcpp::export]]
-arma::mat C_computeGroupedRowMeansDense(arma::mat& S, arma::vec& sample_assignments) {
-    arma::mat pb = actionet::computeGroupedRowMeans(S, sample_assignments);
-
-    return pb;
-}
-
-// [[Rcpp::export]]
-arma::mat C_computeGroupedRowVarsSparse(arma::sp_mat& S, arma::vec& sample_assignments) {
-    arma::mat pb = actionet::computeGroupedRowVars(S, sample_assignments);
-
-    return pb;
-}
-
-// [[Rcpp::export]]
-arma::mat C_computeGroupedRowVarsDense(arma::mat& S, arma::vec& sample_assignments) {
-    arma::mat pb = actionet::computeGroupedRowVars(S, sample_assignments);
-
+arma::mat C_computeGroupedVarsDense(arma::mat& S, arma::vec& sample_assignments, int axis = 0) {
+    arma::mat pb = actionet::computeGroupedVars(S, sample_assignments, axis);
     return pb;
 }
 

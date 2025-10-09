@@ -1,28 +1,28 @@
-.groupedRowSums <- function(S, group_vec) {
+.groupedMatSums <- function(S, group_vec, dim) {
   if (ACTIONetExperiment:::is.sparseMatrix(S)) {
-    mat <- C_computeGroupedRowSumsSparse(S, sample_assignments = group_vec)
+    mat <- C_computeGroupedSumsSparse(S, sample_assignments = group_vec, axis = dim)
   } else {
-    mat <- C_computeGroupedRowSumsDense(S, sample_assignments = group_vec)
+    mat <- C_computeGroupedSumsDense(S, sample_assignments = group_vec, axis = dim)
   }
   return(mat)
 }
 
 
-.groupedRowMeans <- function(S, group_vec) {
+.groupedMatMeans <- function(S, group_vec, dim) {
   if (ACTIONetExperiment:::is.sparseMatrix(S)) {
-    mat <- C_computeGroupedRowMeansSparse(S, sample_assignments = group_vec)
+    mat <- C_computeGroupedMeansSparse(S, sample_assignments = group_vec, axis = dim)
   } else {
-    mat <- C_computeGroupedRowMeansDense(S, sample_assignments = group_vec)
+    mat <- C_computeGroupedMeansDense(S, sample_assignments = group_vec, axis = dim)
   }
   return(mat)
 }
 
 
-.groupedRowVars <- function(S, group_vec) {
+.groupedMatVars <- function(S, group_vec, dim) {
   if (ACTIONetExperiment:::is.sparseMatrix(S)) {
-    mat <- C_computeGroupedRowVarsSparse(S, sample_assignments = group_vec)
+    mat <- C_computeGroupedVarsSparse(S, sample_assignments = group_vec, axis = dim)
   } else {
-    mat <- C_computeGroupedRowVarsDense(S, sample_assignments = group_vec)
+    mat <- C_computeGroupedVarsDense(S, sample_assignments = group_vec, axis = dim)
   }
   return(mat)
 }
@@ -31,8 +31,15 @@
 #' @export
 aggregateMatrix <- function(S,
                             group_vec,
+                            dim = c(1, 2),
                             method = c("sum", "mean", "var")) {
   method <- match.arg(method, several.ok = FALSE)
+
+  if(!dim %in% c(1,2)){
+    err <- sprintf("'dim' must be either 1 (rows) or 2 (columns).")
+    stop(err)
+  }
+  dim <- dim - 1 # convert to 0-based indexing
 
   if (any(is.na(group_vec))) {
     err <- sprintf("'NA' values in 'group_vec'.\n")
@@ -54,11 +61,11 @@ aggregateMatrix <- function(S,
   }
 
   if (method == "sum") {
-    mat <- .groupedRowSums(S, labels)
+    mat <- .groupedMatSums(S, labels, dim)
   } else if (method == "mean") {
-    mat <- .groupedRowMeans(S, labels)
+    mat <- .groupedMatMeans(S, labels, dim)
   } else if (method == "var") {
-    mat <- .groupedRowVars(S, labels)
+    mat <- .groupedMatVars(S, labels, dim)
   }
 
   colnames(mat) <- keys

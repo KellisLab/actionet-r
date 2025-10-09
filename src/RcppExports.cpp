@@ -496,75 +496,81 @@ BEGIN_RCPP
     return rcpp_result_gen;
 END_RCPP
 }
-// C_computeGroupedRowSumsSparse
-arma::mat C_computeGroupedRowSumsSparse(arma::sp_mat& S, arma::vec& sample_assignments);
-RcppExport SEXP _actionet_C_computeGroupedRowSumsSparse(SEXP SSEXP, SEXP sample_assignmentsSEXP) {
+// C_computeGroupedSumsSparse
+arma::mat C_computeGroupedSumsSparse(arma::sp_mat& S, arma::vec& sample_assignments, int axis);
+RcppExport SEXP _actionet_C_computeGroupedSumsSparse(SEXP SSEXP, SEXP sample_assignmentsSEXP, SEXP axisSEXP) {
 BEGIN_RCPP
     Rcpp::RObject rcpp_result_gen;
     Rcpp::RNGScope rcpp_rngScope_gen;
     Rcpp::traits::input_parameter< arma::sp_mat& >::type S(SSEXP);
     Rcpp::traits::input_parameter< arma::vec& >::type sample_assignments(sample_assignmentsSEXP);
-    rcpp_result_gen = Rcpp::wrap(C_computeGroupedRowSumsSparse(S, sample_assignments));
+    Rcpp::traits::input_parameter< int >::type axis(axisSEXP);
+    rcpp_result_gen = Rcpp::wrap(C_computeGroupedSumsSparse(S, sample_assignments, axis));
     return rcpp_result_gen;
 END_RCPP
 }
-// C_computeGroupedRowSumsDense
-arma::mat C_computeGroupedRowSumsDense(arma::mat& S, arma::vec& sample_assignments);
-RcppExport SEXP _actionet_C_computeGroupedRowSumsDense(SEXP SSEXP, SEXP sample_assignmentsSEXP) {
+// C_computeGroupedSumsDense
+arma::mat C_computeGroupedSumsDense(arma::mat& S, arma::vec& sample_assignments, int axis);
+RcppExport SEXP _actionet_C_computeGroupedSumsDense(SEXP SSEXP, SEXP sample_assignmentsSEXP, SEXP axisSEXP) {
 BEGIN_RCPP
     Rcpp::RObject rcpp_result_gen;
     Rcpp::RNGScope rcpp_rngScope_gen;
     Rcpp::traits::input_parameter< arma::mat& >::type S(SSEXP);
     Rcpp::traits::input_parameter< arma::vec& >::type sample_assignments(sample_assignmentsSEXP);
-    rcpp_result_gen = Rcpp::wrap(C_computeGroupedRowSumsDense(S, sample_assignments));
+    Rcpp::traits::input_parameter< int >::type axis(axisSEXP);
+    rcpp_result_gen = Rcpp::wrap(C_computeGroupedSumsDense(S, sample_assignments, axis));
     return rcpp_result_gen;
 END_RCPP
 }
-// C_computeGroupedRowMeansSparse
-arma::mat C_computeGroupedRowMeansSparse(arma::sp_mat& S, arma::vec& sample_assignments);
-RcppExport SEXP _actionet_C_computeGroupedRowMeansSparse(SEXP SSEXP, SEXP sample_assignmentsSEXP) {
+// C_computeGroupedMeansSparse
+arma::mat C_computeGroupedMeansSparse(arma::sp_mat& S, arma::vec& sample_assignments, int axis);
+RcppExport SEXP _actionet_C_computeGroupedMeansSparse(SEXP SSEXP, SEXP sample_assignmentsSEXP, SEXP axisSEXP) {
 BEGIN_RCPP
     Rcpp::RObject rcpp_result_gen;
     Rcpp::RNGScope rcpp_rngScope_gen;
     Rcpp::traits::input_parameter< arma::sp_mat& >::type S(SSEXP);
     Rcpp::traits::input_parameter< arma::vec& >::type sample_assignments(sample_assignmentsSEXP);
-    rcpp_result_gen = Rcpp::wrap(C_computeGroupedRowMeansSparse(S, sample_assignments));
+    Rcpp::traits::input_parameter< int >::type axis(axisSEXP);
+    rcpp_result_gen = Rcpp::wrap(C_computeGroupedMeansSparse(S, sample_assignments, axis));
     return rcpp_result_gen;
 END_RCPP
 }
-// C_computeGroupedRowMeansDense
-arma::mat C_computeGroupedRowMeansDense(arma::mat& S, arma::vec& sample_assignments);
-RcppExport SEXP _actionet_C_computeGroupedRowMeansDense(SEXP SSEXP, SEXP sample_assignmentsSEXP) {
+// C_computeGroupedMeansDense
+arma::mat C_computeGroupedMeansDense(arma::mat& S, arma::vec& sample_assignments, int axis);
+RcppExport SEXP _actionet_C_computeGroupedMeansDense(SEXP SSEXP, SEXP sample_assignmentsSEXP, SEXP axisSEXP) {
 BEGIN_RCPP
     Rcpp::RObject rcpp_result_gen;
     Rcpp::RNGScope rcpp_rngScope_gen;
     Rcpp::traits::input_parameter< arma::mat& >::type S(SSEXP);
     Rcpp::traits::input_parameter< arma::vec& >::type sample_assignments(sample_assignmentsSEXP);
-    rcpp_result_gen = Rcpp::wrap(C_computeGroupedRowMeansDense(S, sample_assignments));
+    Rcpp::traits::input_parameter< int >::type axis(axisSEXP);
+    rcpp_result_gen = Rcpp::wrap(C_computeGroupedMeansDense(S, sample_assignments, axis));
     return rcpp_result_gen;
 END_RCPP
 }
-// C_computeGroupedRowVarsSparse
-arma::mat C_computeGroupedRowVarsSparse(arma::sp_mat& S, arma::vec& sample_assignments);
-RcppExport SEXP _actionet_C_computeGroupedRowVarsSparse(SEXP SSEXP, SEXP sample_assignmentsSEXP) {
+// C_computeGroupedVarsSparse
+arma::mat C_computeGroupedVarsSparse(arma::sp_mat& S, arma::vec& sample_assignments, int axis);
+RcppExport SEXP _actionet_C_computeGroupedVarsSparse(SEXP SSEXP, SEXP sample_assignmentsSEXP, SEXP axisSEXP) {
 BEGIN_RCPP
     Rcpp::RObject rcpp_result_gen;
     Rcpp::RNGScope rcpp_rngScope_gen;
     Rcpp::traits::input_parameter< arma::sp_mat& >::type S(SSEXP);
     Rcpp::traits::input_parameter< arma::vec& >::type sample_assignments(sample_assignmentsSEXP);
-    rcpp_result_gen = Rcpp::wrap(C_computeGroupedRowVarsSparse(S, sample_assignments));
+    Rcpp::traits::input_parameter< int >::type axis(axisSEXP);
+    rcpp_result_gen = Rcpp::wrap(C_computeGroupedVarsSparse(S, sample_assignments, axis));
     return rcpp_result_gen;
 END_RCPP
 }
-// C_computeGroupedRowVarsDense
-arma::mat C_computeGroupedRowVarsDense(arma::mat& S, arma::vec& sample_assignments);
-RcppExport SEXP _actionet_C_computeGroupedRowVarsDense(SEXP SSEXP, SEXP sample_assignmentsSEXP) {
+// C_computeGroupedVarsDense
+arma::mat C_computeGroupedVarsDense(arma::mat& S, arma::vec& sample_assignments, int axis);
+RcppExport SEXP _actionet_C_computeGroupedVarsDense(SEXP SSEXP, SEXP sample_assignmentsSEXP, SEXP axisSEXP) {
 BEGIN_RCPP
     Rcpp::RObject rcpp_result_gen;
     Rcpp::RNGScope rcpp_rngScope_gen;
     Rcpp::traits::input_parameter< arma::mat& >::type S(SSEXP);
     Rcpp::traits::input_parameter< arma::vec& >::type sample_assignments(sample_assignmentsSEXP);
-    rcpp_result_gen = Rcpp::wrap(C_computeGroupedRowVarsDense(S, sample_assignments));
+    Rcpp::traits::input_parameter< int >::type axis(axisSEXP);
+    rcpp_result_gen = Rcpp::wrap(C_computeGroupedVarsDense(S, sample_assignments, axis));
     return rcpp_result_gen;
 END_RCPP
 }
@@ -766,12 +772,12 @@ static const R_CallMethodDef CallEntries[] = {
     {"_actionet_C_autocorrelation_Geary", (DL_FUNC) &_actionet_C_autocorrelation_Geary, 5},
     {"_actionet_C_computeGraphLabelEnrichment", (DL_FUNC) &_actionet_C_computeGraphLabelEnrichment, 3},
     {"_actionet_C_assess_enrichment", (DL_FUNC) &_actionet_C_assess_enrichment, 3},
-    {"_actionet_C_computeGroupedRowSumsSparse", (DL_FUNC) &_actionet_C_computeGroupedRowSumsSparse, 2},
-    {"_actionet_C_computeGroupedRowSumsDense", (DL_FUNC) &_actionet_C_computeGroupedRowSumsDense, 2},
-    {"_actionet_C_computeGroupedRowMeansSparse", (DL_FUNC) &_actionet_C_computeGroupedRowMeansSparse, 2},
-    {"_actionet_C_computeGroupedRowMeansDense", (DL_FUNC) &_actionet_C_computeGroupedRowMeansDense, 2},
-    {"_actionet_C_computeGroupedRowVarsSparse", (DL_FUNC) &_actionet_C_computeGroupedRowVarsSparse, 2},
-    {"_actionet_C_computeGroupedRowVarsDense", (DL_FUNC) &_actionet_C_computeGroupedRowVarsDense, 2},
+    {"_actionet_C_computeGroupedSumsSparse", (DL_FUNC) &_actionet_C_computeGroupedSumsSparse, 3},
+    {"_actionet_C_computeGroupedSumsDense", (DL_FUNC) &_actionet_C_computeGroupedSumsDense, 3},
+    {"_actionet_C_computeGroupedMeansSparse", (DL_FUNC) &_actionet_C_computeGroupedMeansSparse, 3},
+    {"_actionet_C_computeGroupedMeansDense", (DL_FUNC) &_actionet_C_computeGroupedMeansDense, 3},
+    {"_actionet_C_computeGroupedVarsSparse", (DL_FUNC) &_actionet_C_computeGroupedVarsSparse, 3},
+    {"_actionet_C_computeGroupedVarsDense", (DL_FUNC) &_actionet_C_computeGroupedVarsDense, 3},
     {"_actionet_C_normalizeMatrixSparse", (DL_FUNC) &_actionet_C_normalizeMatrixSparse, 3},
     {"_actionet_C_normalizeMatrixDense", (DL_FUNC) &_actionet_C_normalizeMatrixDense, 3},
     {"_actionet_C_scaleMatrixDense", (DL_FUNC) &_actionet_C_scaleMatrixDense, 3},
