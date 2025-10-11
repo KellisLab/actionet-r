@@ -1,37 +1,25 @@
 #' @export
 normalize.ace <- function(
     ace,
-    norm_method = c("default", "multiBatchNorm"),
-    batch_attr = NULL,
     assay_name = "counts",
     assay_out = "logcounts",
+    pseudocount = 1,
     scale_param = stats::median,
-    trans_func = base::log2,
-    BPPARAM = SerialParam()) {
-  norm_method <- match.arg(norm_method)
+    trans_func = base::log2) {
 
-  if (is.null(norm_method)) {
+  S <- SummarizedExperiment::assays(ace)[[assay_name]]
+  S <- normalize.matrix(
+    S,
+    dim = 2,
+    pseudocount = pseudocount,
+    scale_param = scale_param,
+    trans_func = trans_func)
+  rownames(S) <- rownames(ace)
+  colnames(S) <- colnames(ace)
+  SummarizedExperiment::assays(ace)[[assay_out]] <- S
+  return(ace)
 
-  } else if (norm_method == "multiBatchNorm") {
-    ace <- normalize.multiBatchNorm(
-      ace = ace,
-      batch_attr = batch_attr,
-      assay_name = assay_name,
-      assay_out = assay_out,
-      BPPARAM = BPPARAM
-    )
-  } else {
-    ace <- .normalize.default(
-      ace = ace,
-      assay_name = assay_name,
-      assay_out = assay_out,
-      scale_param = scale_param,
-      trans_func = trans_func
-    )
-    norm_method <- "default"
-  }
-
-  metadata(ace)$norm_method <- norm_method
+  metadata(ace)$norm_method <- "default"
 
   return(ace)
 }
@@ -64,6 +52,7 @@ normalize.multiBatchNorm <- function(ace,
   )
 
   SummarizedExperiment::assays(ace)[[assay_out]] <- SummarizedExperiment::assays(sce_temp)[["logcounts"]]
+  metadata(ace)$norm_method <- "multiBatchNorm"
 
   return(ace)
 }
@@ -72,6 +61,7 @@ normalize.multiBatchNorm <- function(ace,
 #' @export
 normalize.matrix <- function(S,
                              dim = 2,
+                             pseudocount = 0,
                              scale_param = NULL,
                              trans_func = NULL) {
   if (!is.matrix(S) && !ACTIONetExperiment:::is.sparseMatrix(S)) {
@@ -117,30 +107,14 @@ normalize.matrix <- function(S,
 
   if (!is.null(trans_func)) {
     if (ACTIONetExperiment:::is.sparseMatrix(S)) {
-      S@x <- trans_func(S@x + 1)
+      S@x <- trans_func(S@x + pseudocount)
     } else {
-      S <- trans_func(S + 1)
+      S <- trans_func(S + pseudocount)
     }
   }
 
   return(S)
 }
-
-
-.normalize.default <- function(
-    ace,
-    assay_name = "counts",
-    assay_out = "logcounts",
-    scale_param = NULL,
-    trans_func = NULL) {
-  S <- SummarizedExperiment::assays(ace)[[assay_name]]
-  S <- normalize.matrix(S, dim = 2, scale_param = scale_param, trans_func = trans_func)
-  rownames(S) <- rownames(ace)
-  colnames(S) <- colnames(ace)
-  SummarizedExperiment::assays(ace)[[assay_out]] <- S
-  return(ace)
-}
-
 
 .scale.matrix <- function(X, dim, scale_fac = NULL) {
   dn <- dimnames(X)
