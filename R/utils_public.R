@@ -43,7 +43,7 @@
 #' @export
 aggregateMatrix <- function(X,
                             group_vec,
-                            dim = c(1, 2),
+                            dim = 1,
                             method = c("sum", "mean", "var"),
                             return_sparse = FALSE) {
   method <- match.arg(method, several.ok = FALSE)
