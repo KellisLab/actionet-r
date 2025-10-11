@@ -3,7 +3,6 @@ normalize.ace <- function(
     ace,
     assay_name = "counts",
     assay_out = "logcounts",
-    pseudocount = 1,
     scale_param = stats::median,
     trans_func = base::log2) {
 
@@ -11,7 +10,6 @@ normalize.ace <- function(
   S <- normalize.matrix(
     S,
     dim = 2,
-    pseudocount = pseudocount,
     scale_param = scale_param,
     trans_func = trans_func)
   rownames(S) <- rownames(ace)
@@ -61,7 +59,6 @@ normalize.multiBatchNorm <- function(ace,
 #' @export
 normalize.matrix <- function(S,
                              dim = 2,
-                             pseudocount = 0,
                              scale_param = NULL,
                              trans_func = NULL) {
   if (!is.matrix(S) && !ACTIONetExperiment:::is.sparseMatrix(S)) {
@@ -107,9 +104,9 @@ normalize.matrix <- function(S,
 
   if (!is.null(trans_func)) {
     if (ACTIONetExperiment:::is.sparseMatrix(S)) {
-      S@x <- trans_func(S@x + pseudocount)
+      S@x <- trans_func(S@x)
     } else {
-      S <- trans_func(S + pseudocount)
+      S[S != 0] <- trans_func(S[S != 0])
     }
   }
 
