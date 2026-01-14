@@ -13,6 +13,7 @@
 **/.DS_Store
 pybind11/
 .vscode/
+.idea/
 *.code-workspace
 build_test/
 build/
