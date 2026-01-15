@@ -4,8 +4,13 @@ set -e  # Exit on first error
 
 echo "Starting configure -------------------------------------------"
 
-# Detect platform and CPU count
+# ============================================================================
+# PLATFORM DETECTION
+# ============================================================================
+
+# Detect platform
 UNAME=$(uname -s)
+
 case "${UNAME}" in
     Linux)
         echo "configure: Configuring for Linux"
@@ -36,79 +41,196 @@ CFLAGS=$("${R_HOME}/bin/R" CMD config CFLAGS)
 CXXFLAGS=$("${R_HOME}/bin/R" CMD config CXXFLAGS)
 FFLAGS=$("${R_HOME}/bin/R" CMD config FFLAGS)
 
+# ============================================================================
+# macOS ARCHITECTURE DETECTION (for Rosetta compatibility)
+# ============================================================================
 
-# Detect and link CHOLMOD library
+OSX_ARCH=""
+if [ "${UNAME}" = "Darwin" ]; then
+    # Use R's detected architecture, not uname -m (which may be wrong under Rosetta)
+    OSX_ARCH=$("${R_HOME}/bin/Rscript" -e 'cat(R.version[["arch"]])' 2>/dev/null | tr -d '[:space:]')
+    if [ -z "${OSX_ARCH}" ]; then
+        echo "Warning: Could not detect R architecture, will use system default"
+    else
+        echo "Detected R target architecture: ${OSX_ARCH}"
+        # Normalize architecture name
+        case "${OSX_ARCH}" in
+            aarch64)
+                OSX_ARCH="arm64"
+                echo "  Normalized to: ${OSX_ARCH}"
+                ;;
+        esac
+    fi
+fi
+
+# ============================================================================
+# DEPENDENCY DETECTION: CHOLMOD
+# ============================================================================
+
 echo "Searching for CHOLMOD library..."
 CHOLMOD_LIBS=""
 CHOLMOD_INCLUDE=""
 
-# Prefer pkg-config for accurate detection
+# First attempt: pkg-config (most reliable)
 if command -v pkg-config >/dev/null 2>&1; then
     if pkg-config --exists cholmod 2>/dev/null; then
         CHOLMOD_LIBS=$(pkg-config --libs cholmod 2>/dev/null)
         CHOLMOD_INCLUDE=$(pkg-config --cflags cholmod 2>/dev/null)
-        echo "Found CHOLMOD via pkg-config"
-        echo "  CHOLMOD_LIBS: ${CHOLMOD_LIBS}"
-        echo "  CHOLMOD_INCLUDE: ${CHOLMOD_INCLUDE}"
+        echo "  Found CHOLMOD via pkg-config"
+        echo "    CHOLMOD_LIBS: ${CHOLMOD_LIBS}"
+        [ -n "${CHOLMOD_INCLUDE}" ] && echo "    CHOLMOD_INCLUDE: ${CHOLMOD_INCLUDE}"
     fi
 fi
 
-# If pkg-config didn't work, try common library locations
+# Second attempt: Manual search with architecture-aware paths on macOS
 if [ -z "${CHOLMOD_LIBS}" ]; then
-    echo "pkg-config not available or CHOLMOD not registered, searching standard locations..."
-    for libdir in /usr/local/lib /opt/homebrew/lib /usr/lib64 /usr/lib /opt/local/lib; do
+    echo "  pkg-config unavailable/unsuccessful, searching standard locations..."
+    
+    if [ "${UNAME}" = "Darwin" ] && [ -n "${OSX_ARCH}" ]; then
+        # macOS: Use R's target architecture for Homebrew path selection
+        case "${OSX_ARCH}" in
+            arm64)
+                # Apple Silicon target: native Homebrew at /opt/homebrew
+                search_paths="/opt/homebrew/lib /opt/homebrew/opt/suite-sparse/lib"
+                ;;
+            x86_64)
+                # Intel target: Homebrew at /usr/local
+                search_paths="/usr/local/lib /usr/local/opt/suite-sparse/lib"
+                ;;
+            *)
+                # Unknown: search both
+                search_paths="/opt/homebrew/lib /usr/local/lib /opt/local/lib"
+                ;;
+        esac
+    else
+        # Linux and other platforms: standard system paths
+        search_paths="/usr/lib /usr/lib64 /usr/local/lib /usr/local/lib64 /opt/local/lib"
+    fi
+    
+    for libdir in ${search_paths}; do
         if [ -f "${libdir}/libcholmod.a" ] || [ -f "${libdir}/libcholmod.so" ] || [ -f "${libdir}/libcholmod.dylib" ]; then
-            echo "Found CHOLMOD library in ${libdir}"
+            echo "  Found CHOLMOD library in ${libdir}"
             CHOLMOD_LIBS="-L${libdir} -lcholmod"
+            
+            # Try to find corresponding include directory
+            includedir="${libdir%/lib}/include"
+            if [ -f "${includedir}/cholmod.h" ]; then
+                CHOLMOD_INCLUDE="-I${includedir}"
+            fi
             break
         fi
     done
 fi
 
-# Final fallback - rely on system default library path
+# Final fallback: rely on system library path
 if [ -z "${CHOLMOD_LIBS}" ]; then
-    echo "Warning: CHOLMOD library path not found. Using -lcholmod (assuming system default path)"
+    echo "  Warning: CHOLMOD library not found in standard locations"
+    echo "  Using -lcholmod (assuming system default search path)"
     CHOLMOD_LIBS="-lcholmod"
 fi
 
-echo "Final CHOLMOD_LIBS: ${CHOLMOD_LIBS}"
-echo "Final CHOLMOD_INCLUDE: ${CHOLMOD_INCLUDE}"
+echo "  Final CHOLMOD_LIBS: ${CHOLMOD_LIBS}"
+[ -n "${CHOLMOD_INCLUDE}" ] && echo "  Final CHOLMOD_INCLUDE: ${CHOLMOD_INCLUDE}"
+# ============================================================================
+# DEPENDENCY DETECTION: OPENMP
+# ============================================================================
 
+echo "Detecting OpenMP library..."
+OPENMP_LIBS=""
 
-# Detect macOS architecture if needed
-OSX_ARCH=""
 if [ "${UNAME}" = "Darwin" ]; then
-    OSX_ARCH=$("${R_HOME}/bin/Rscript" -e 'cat(R.version[["arch"]])' 2>/dev/null | tr -d '[:space:]')
-    if [ -z "${OSX_ARCH}" ]; then
-        echo "Warning: Could not detect macOS architecture, will use system default"
-    else
-        echo "Detected R architecture: ${OSX_ARCH}"
-        # Translate aarch64 to arm64 for macOS clang
-        if [ "${OSX_ARCH}" = "aarch64" ]; then
-            OSX_ARCH="arm64"
-            echo "Translated to macOS architecture: ${OSX_ARCH}"
+    # macOS: Use LLVM's libomp with R's target architecture for path selection
+    
+    # First attempt: pkg-config
+    if command -v pkg-config >/dev/null 2>&1; then
+        if pkg-config --exists openmp 2>/dev/null; then
+            OPENMP_LIBS=$(pkg-config --libs openmp 2>/dev/null)
+            echo "  Found OpenMP via pkg-config"
         fi
     fi
+    
+    # Second attempt: Manual search with architecture-aware paths
+    if [ -z "${OPENMP_LIBS}" ] && [ -n "${OSX_ARCH}" ]; then
+        case "${OSX_ARCH}" in
+            arm64)
+                # Apple Silicon target: native Homebrew at /opt/homebrew
+                search_paths="/opt/homebrew/opt/libomp/lib /opt/homebrew/lib"
+                ;;
+            x86_64)
+                # Intel target: /usr/local
+                search_paths="/usr/local/opt/libomp/lib /usr/local/lib"
+                ;;
+            *)
+                # Unknown: search both
+                search_paths="/opt/homebrew/opt/libomp/lib /usr/local/opt/libomp/lib /opt/homebrew/lib /usr/local/lib"
+                ;;
+        esac
+        
+        for libdir in ${search_paths}; do
+            if [ -f "${libdir}/libomp.dylib" ] || [ -f "${libdir}/libomp.a" ]; then
+                echo "  Found libomp in ${libdir}"
+                OPENMP_LIBS="-L${libdir} -lomp"
+                break
+            fi
+        done
+    fi
+    
+    # Final fallback: Let compiler handle it
+    if [ -z "${OPENMP_LIBS}" ]; then
+        echo "  Warning: libomp not found in standard locations"
+        echo "  Relying on compiler/linker defaults for OpenMP"
+        OPENMP_LIBS="-lomp"
+    fi
+    
+elif [ "${UNAME}" = "Linux" ]; then
+    # Linux: GNU OpenMP (libgomp) or LLVM OpenMP
+    
+    # First attempt: pkg-config
+    if command -v pkg-config >/dev/null 2>&1; then
+        if pkg-config --exists openmp 2>/dev/null; then
+            OPENMP_LIBS=$(pkg-config --libs openmp 2>/dev/null)
+            echo "  Found OpenMP via pkg-config"
+        fi
+    fi
+    
+    # Fallback: Use GNU libgomp
+    if [ -z "${OPENMP_LIBS}" ]; then
+        OPENMP_LIBS="-lgomp"
+        echo "  Using GNU OpenMP (libgomp)"
+    fi
+    
+else
+    # Other platforms: Default to GNU OpenMP
+    OPENMP_LIBS="-lgomp"
+    echo "  Using default OpenMP (-lgomp)"
 fi
 
-# Compute absolute path for libactionet.a - will be created during CMake build
-ACTIONET_LIB_PATH="$(cd src && pwd)/lib/libactionet.a"
+echo "  Final OPENMP_LIBS: ${OPENMP_LIBS}"
 
+# ============================================================================
+# BUILD CONFIGURATION
+# ============================================================================
+
+# Compute absolute path for libactionet.a
+ACTIONET_LIB_PATH="$(cd src && pwd)/lib/libactionet.a"
 echo "libactionet will be built at: ${ACTIONET_LIB_PATH}"
 
-
 # Generate Makevars from template
-echo "Generating src/Makevars from Makevars.in..."
+echo "Generating src/Makevars from template..."
 cd src
 sed \
     -e "s|@CHOLMOD_LIBS@|${CHOLMOD_LIBS}|g" \
     -e "s|@CHOLMOD_INCLUDE@|${CHOLMOD_INCLUDE}|g" \
+    -e "s|@OPENMP_LIBS@|${OPENMP_LIBS}|g" \
     -e "s|@ACTIONET_LIB_PATH@|${ACTIONET_LIB_PATH}|g" \
     -e "s|@NPROC@|${NPROC}|g" \
     Makevars.in > Makevars
 
-echo "Generated src/Makevars successfully"
+echo "Generated Makevars successfully"
 
+# ============================================================================
+# CMAKE BUILD OF libactionet
+# ============================================================================
 
 # Locate cmake
 CMAKE_BIN=""
@@ -125,23 +247,26 @@ if [ -z "${CMAKE_BIN}" ]; then
 fi
 echo "Using cmake: ${CMAKE_BIN}"
 
-# Build libactionet with CMake
+# Build libactionet
 echo "Building libactionet static library..."
 BUILD_DIR="lib"
 mkdir -p "${BUILD_DIR}" && cd "${BUILD_DIR}" || exit 1
 
 # Prepare CMake flags
-CMAKE_COMMON_FLAGS="-DCMAKE_BUILD_TYPE=Release -DBUILD_SHARED_LIBS:bool=OFF -DCMAKE_POSITION_INDEPENDENT_CODE:bool=ON -DLIBACTIONET_BUILD_R=1 -DR_HOME='${R_HOME}'"
+CMAKE_FLAGS="-DCMAKE_BUILD_TYPE=Release"
+CMAKE_FLAGS="${CMAKE_FLAGS} -DBUILD_SHARED_LIBS:bool=OFF"
+CMAKE_FLAGS="${CMAKE_FLAGS} -DCMAKE_POSITION_INDEPENDENT_CODE:bool=ON"
+CMAKE_FLAGS="${CMAKE_FLAGS} -DLIBACTIONET_BUILD_R=1"
+CMAKE_FLAGS="${CMAKE_FLAGS} -DR_HOME='${R_HOME}'"
 
-# Add architecture flag for macOS
+# Add macOS architecture flag if detected
 if [ "${UNAME}" = "Darwin" ] && [ -n "${OSX_ARCH}" ]; then
-    CMAKE_COMMON_FLAGS="${CMAKE_COMMON_FLAGS} -DCMAKE_OSX_ARCHITECTURES=${OSX_ARCH}"
+    CMAKE_FLAGS="${CMAKE_FLAGS} -DCMAKE_OSX_ARCHITECTURES=${OSX_ARCH}"
 fi
 
-# Run CMake configuration
-${CMAKE_BIN} -S ../libactionet ${CMAKE_COMMON_FLAGS}
-
-echo "Building libactionet with ${NPROC} processors..."
+# Configure and build
+${CMAKE_BIN} -S ../libactionet ${CMAKE_FLAGS}
+echo "Building with ${NPROC} processors..."
 make -j"${NPROC}"
 
 echo "Build complete!"

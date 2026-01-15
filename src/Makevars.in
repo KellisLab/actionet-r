@@ -1,25 +1,39 @@
 $(info Starting Makevars -------------------------------------------)
 
-# Platform detection and configuration
+# ============================================================================
+# R PACKAGE BUILD CONFIGURATION
+# ============================================================================
+
+# Platform detection
 UNAME=$(shell uname -s)
 
-# Compiler standard and flags
+# ============================================================================
+# COMPILER SETTINGS
+# ============================================================================
+
 CXX_STD=CXX17
 PKG_CPPFLAGS=-I"../inst/include" -I"libactionet/include" -DARMA_64BIT_WORD @CHOLMOD_INCLUDE@
 PKG_CXXFLAGS=$(SHLIB_OPENMP_CXXFLAGS) -std=c++17
 
-# Linker configuration - use relative path constructed at configure time
-# On macOS: use -Wl,-force_load to ensure all symbols are included
-# On Linux: use --whole-archive / --no-whole-archive for the same effect
+# ============================================================================
+# LINKER SETTINGS - PLATFORM SPECIFIC
+# ============================================================================
+
+# Use whole-archive/force_load to ensure all symbols from static library are included
 ifeq ($(UNAME),Darwin)
-    PKG_LIBS=-Wl,-force_load,@ACTIONET_LIB_PATH@ @CHOLMOD_LIBS@ $(LAPACK_LIBS) $(BLAS_LIBS) $(FLIBS)
+    # macOS: Use -force_load to include all symbols from static library
+    PKG_LIBS=-Wl,-force_load,@ACTIONET_LIB_PATH@ @CHOLMOD_LIBS@ @OPENMP_LIBS@ $(LAPACK_LIBS) $(BLAS_LIBS) $(FLIBS)
 else ifeq ($(UNAME),Linux)
-    PKG_LIBS=-Wl,--whole-archive @ACTIONET_LIB_PATH@ -Wl,--no-whole-archive @CHOLMOD_LIBS@ $(LAPACK_LIBS) $(BLAS_LIBS) $(FLIBS)
+    # Linux: Use --whole-archive / --no-whole-archive
+    PKG_LIBS=-Wl,--whole-archive @ACTIONET_LIB_PATH@ -Wl,--no-whole-archive @CHOLMOD_LIBS@ @OPENMP_LIBS@ $(LAPACK_LIBS) $(BLAS_LIBS) $(FLIBS)
 else
-    # Fallback for other platforms (BSD, etc.)
-    PKG_LIBS=@ACTIONET_LIB_PATH@ @CHOLMOD_LIBS@ $(LAPACK_LIBS) $(BLAS_LIBS) $(FLIBS)
+    # Other platforms: Standard linking (may have missing symbols if static lib not fully linked)
+    PKG_LIBS=@ACTIONET_LIB_PATH@ @CHOLMOD_LIBS@ @OPENMP_LIBS@ $(LAPACK_LIBS) $(BLAS_LIBS) $(FLIBS)
 endif
 
-# Parallel make using configured processor count from configure script
-# Note: Only applied to R package Makefile targets, not nested CMake builds
+# ============================================================================
+# BUILD PARALLELISM
+# ============================================================================
+
+# Use processor count detected at configure time
 MAKEFLAGS+=-j @NPROC@
