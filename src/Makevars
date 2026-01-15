@@ -1,25 +1,25 @@
 $(info Starting Makevars -------------------------------------------)
 
+# Platform detection and configuration
 UNAME=$(shell uname -s)
-ifeq ($(UNAME),Linux)
-    $(info Using Linux configurations)
-    NPROC=$${shell nproc}
-else ifeq ($(UNAME),Darwin)
-    $(info Using Mac OS configurations)
-    NPROC=$(shell sysctl -n hw.logicalcpu)
-endif
 
+# Compiler standard and flags
 CXX_STD=CXX17
-PKG_CPPFLAGS=-I"../inst/include" -I"libactionet/include" -DARMA_64BIT_WORD
+PKG_CPPFLAGS=-I"../inst/include" -I"libactionet/include" -DARMA_64BIT_WORD 
 PKG_CXXFLAGS=$(SHLIB_OPENMP_CXXFLAGS) -std=c++17
 
-# Library paths and libraries - will be substituted by configure script
-# On macOS, use -Wl,-force_load with ABSOLUTE path to ensure all symbols are included
-# On Linux, use --whole-archive / --no-whole-archive
+# Linker configuration - use relative path constructed at configure time
+# On macOS: use -Wl,-force_load to ensure all symbols are included
+# On Linux: use --whole-archive / --no-whole-archive for the same effect
 ifeq ($(UNAME),Darwin)
     PKG_LIBS=-Wl,-force_load,/Users/sebastian/Documents/git_projects/actionet-r/src/lib/libactionet.a -L/usr/local/lib -lcholmod $(LAPACK_LIBS) $(BLAS_LIBS) $(FLIBS)
-else
+else ifeq ($(UNAME),Linux)
     PKG_LIBS=-Wl,--whole-archive /Users/sebastian/Documents/git_projects/actionet-r/src/lib/libactionet.a -Wl,--no-whole-archive -L/usr/local/lib -lcholmod $(LAPACK_LIBS) $(BLAS_LIBS) $(FLIBS)
+else
+    # Fallback for other platforms (BSD, etc.)
+    PKG_LIBS=/Users/sebastian/Documents/git_projects/actionet-r/src/lib/libactionet.a -L/usr/local/lib -lcholmod $(LAPACK_LIBS) $(BLAS_LIBS) $(FLIBS)
 endif
 
-MAKEFLAGS+=-j $${NPROC}
+# Parallel make using configured processor count from configure script
+# Note: Only applied to R package Makefile targets, not nested CMake builds
+MAKEFLAGS+=-j 14

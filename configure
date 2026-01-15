@@ -1,112 +1,147 @@
 #!/bin/sh
 
+set -e  # Exit on first error
+
 echo "Starting configure -------------------------------------------"
+
+# Detect platform and CPU count
 UNAME=$(uname -s)
-if [ ${UNAME} = "Linux" ]
-then
-    echo "configure: Configuring for Linux"
-    NPROC=$(nproc)
-elif [ ${UNAME} = "Darwin" ]
-then
-    echo "configure: Configuring for macOS"
-    NPROC=$(sysctl -n hw.logicalcpu)
-fi
+case "${UNAME}" in
+    Linux)
+        echo "configure: Configuring for Linux"
+        NPROC=$(nproc 2>/dev/null || echo 1)
+        ;;
+    Darwin)
+        echo "configure: Configuring for macOS"
+        NPROC=$(sysctl -n hw.logicalcpu 2>/dev/null || echo 1)
+        ;;
+    *)
+        echo "Warning: Unknown platform ${UNAME}, using single processor"
+        NPROC=1
+        ;;
+esac
 
-: "${R_HOME=`R RHOME`}"
+# Ensure R_HOME is set
+: "${R_HOME=$(R RHOME 2>/dev/null)}"
 if test -z "${R_HOME}"; then
-  echo "Could not find R_HOME"
-  exit 1
+    echo "ERROR: Could not find R_HOME. Please ensure R is installed and in PATH."
+    exit 1
 fi
+echo "Using R_HOME: ${R_HOME}"
 
-# Automatically passed to cmake
+# Get R compiler settings
 CC=$("${R_HOME}/bin/R" CMD config CC)
 CXX=$("${R_HOME}/bin/R" CMD config CXX)
 CFLAGS=$("${R_HOME}/bin/R" CMD config CFLAGS)
 CXXFLAGS=$("${R_HOME}/bin/R" CMD config CXXFLAGS)
 FFLAGS=$("${R_HOME}/bin/R" CMD config FFLAGS)
 
-# Find CHOLMOD library for linking
+
+# Detect and link CHOLMOD library
 echo "Searching for CHOLMOD library..."
 CHOLMOD_LIBS=""
+CHOLMOD_INCLUDE=""
 
-# Try common locations
-for libdir in /usr/local/lib /opt/homebrew/lib /usr/lib /opt/local/lib; do
-    if [ -f "${libdir}/libcholmod.dylib" ] || [ -f "${libdir}/libcholmod.so" ] || [ -f "${libdir}/libcholmod.a" ]; then
-        echo "Found CHOLMOD in ${libdir}"
-        CHOLMOD_LIBS="-L${libdir} -lcholmod"
-        break
+# Prefer pkg-config for accurate detection
+if command -v pkg-config >/dev/null 2>&1; then
+    if pkg-config --exists cholmod 2>/dev/null; then
+        CHOLMOD_LIBS=$(pkg-config --libs cholmod 2>/dev/null)
+        CHOLMOD_INCLUDE=$(pkg-config --cflags cholmod 2>/dev/null)
+        echo "Found CHOLMOD via pkg-config"
+        echo "  CHOLMOD_LIBS: ${CHOLMOD_LIBS}"
+        echo "  CHOLMOD_INCLUDE: ${CHOLMOD_INCLUDE}"
     fi
-done
+fi
 
-# If not found in standard locations, try pkg-config
+# If pkg-config didn't work, try common library locations
 if [ -z "${CHOLMOD_LIBS}" ]; then
-    if command -v pkg-config >/dev/null 2>&1; then
-        if pkg-config --exists cholmod 2>/dev/null; then
-            CHOLMOD_LIBS=$(pkg-config --libs cholmod 2>/dev/null || echo "")
+    echo "pkg-config not available or CHOLMOD not registered, searching standard locations..."
+    for libdir in /usr/local/lib /opt/homebrew/lib /usr/lib64 /usr/lib /opt/local/lib; do
+        if [ -f "${libdir}/libcholmod.a" ] || [ -f "${libdir}/libcholmod.so" ] || [ -f "${libdir}/libcholmod.dylib" ]; then
+            echo "Found CHOLMOD library in ${libdir}"
+            CHOLMOD_LIBS="-L${libdir} -lcholmod"
+            break
+        fi
+    done
+fi
+
+# Final fallback - rely on system default library path
+if [ -z "${CHOLMOD_LIBS}" ]; then
+    echo "Warning: CHOLMOD library path not found. Using -lcholmod (assuming system default path)"
+    CHOLMOD_LIBS="-lcholmod"
+fi
+
+echo "Final CHOLMOD_LIBS: ${CHOLMOD_LIBS}"
+echo "Final CHOLMOD_INCLUDE: ${CHOLMOD_INCLUDE}"
+
+
+# Detect macOS architecture if needed
+OSX_ARCH=""
+if [ "${UNAME}" = "Darwin" ]; then
+    OSX_ARCH=$("${R_HOME}/bin/Rscript" -e 'cat(R.version[["arch"]])' 2>/dev/null | tr -d '[:space:]')
+    if [ -z "${OSX_ARCH}" ]; then
+        echo "Warning: Could not detect macOS architecture, will use system default"
+    else
+        echo "Detected R architecture: ${OSX_ARCH}"
+        # Translate aarch64 to arm64 for macOS clang
+        if [ "${OSX_ARCH}" = "aarch64" ]; then
+            OSX_ARCH="arm64"
+            echo "Translated to macOS architecture: ${OSX_ARCH}"
         fi
     fi
 fi
 
-# Last resort: just try -lcholmod and hope it's in the library path
-if [ -z "${CHOLMOD_LIBS}" ]; then
-    echo "Warning: Could not find CHOLMOD library path, using -lcholmod"
-    CHOLMOD_LIBS="-lcholmod"
-fi
+# Compute absolute path for libactionet.a - will be created during CMake build
+ACTIONET_LIB_PATH="$(cd src && pwd)/lib/libactionet.a"
 
-echo "CHOLMOD_LIBS: ${CHOLMOD_LIBS}"
+echo "libactionet will be built at: ${ACTIONET_LIB_PATH}"
 
-# Detect R architecture on macOS
-if [ ${UNAME} = "Darwin" ]; then
-    echo "Detecting R architecture..."
-    OSX_ARCH=$("${R_HOME}/bin/Rscript" -e 'cat(R.version[["arch"]])' 2>/dev/null | tr -d '[:space:]')
-    echo "R architecture: ${OSX_ARCH}"
 
-    # Translate aarch64 to arm64 for macOS clang
-    if [ "${OSX_ARCH}" = "aarch64" ]; then
-        OSX_ARCH="arm64"
-        echo "Translated to macOS architecture: ${OSX_ARCH}"
-    fi
-fi
-
-# Get absolute path for libactionet.a (will be created later)
-ACTIONET_LIB_PATH=`pwd`/src/lib/libactionet.a
-
-# Generate Makevars from Makevars.in
-echo "Generating src/Makevars..."
+# Generate Makevars from template
+echo "Generating src/Makevars from Makevars.in..."
 cd src
-sed -e "s|@CHOLMOD_LIBS@|${CHOLMOD_LIBS}|g" -e "s|@ACTIONET_LIB_PATH@|${ACTIONET_LIB_PATH}|g" Makevars.in > Makevars
+sed \
+    -e "s|@CHOLMOD_LIBS@|${CHOLMOD_LIBS}|g" \
+    -e "s|@CHOLMOD_INCLUDE@|${CHOLMOD_INCLUDE}|g" \
+    -e "s|@ACTIONET_LIB_PATH@|${ACTIONET_LIB_PATH}|g" \
+    -e "s|@NPROC@|${NPROC}|g" \
+    Makevars.in > Makevars
 
-# Find cmake
-if command -v cmake >/dev/null 2>&1; then
-    CMAKE_BIN=cmake
-elif [ -f /opt/homebrew/bin/cmake ]; then
-    CMAKE_BIN=/opt/homebrew/bin/cmake
-elif [ -f /usr/local/bin/cmake ]; then
-    CMAKE_BIN=/usr/local/bin/cmake
-else
-    echo "Error: cmake not found"
+echo "Generated src/Makevars successfully"
+
+
+# Locate cmake
+CMAKE_BIN=""
+for cmake_path in cmake /opt/homebrew/bin/cmake /usr/local/bin/cmake; do
+    if command -v "${cmake_path}" >/dev/null 2>&1; then
+        CMAKE_BIN="${cmake_path}"
+        break
+    fi
+done
+
+if [ -z "${CMAKE_BIN}" ]; then
+    echo "ERROR: cmake not found in PATH or common locations"
     exit 1
 fi
 echo "Using cmake: ${CMAKE_BIN}"
 
-# Build libactionet
-BUILD_DIR=lib
-mkdir -p ${BUILD_DIR} && cd ${BUILD_DIR} || exit
+# Build libactionet with CMake
+echo "Building libactionet static library..."
+BUILD_DIR="lib"
+mkdir -p "${BUILD_DIR}" && cd "${BUILD_DIR}" || exit 1
 
-# Set CMake architecture flag for macOS
-if [ ${UNAME} = "Darwin" ] && [ -n "${OSX_ARCH}" ]; then
-    CMAKE_ARCH_FLAG="-DCMAKE_OSX_ARCHITECTURES=${OSX_ARCH}"
-else
-    CMAKE_ARCH_FLAG=""
+# Prepare CMake flags
+CMAKE_COMMON_FLAGS="-DCMAKE_BUILD_TYPE=Release -DBUILD_SHARED_LIBS:bool=OFF -DCMAKE_POSITION_INDEPENDENT_CODE:bool=ON -DLIBACTIONET_BUILD_R=1 -DR_HOME='${R_HOME}'"
+
+# Add architecture flag for macOS
+if [ "${UNAME}" = "Darwin" ] && [ -n "${OSX_ARCH}" ]; then
+    CMAKE_COMMON_FLAGS="${CMAKE_COMMON_FLAGS} -DCMAKE_OSX_ARCHITECTURES=${OSX_ARCH}"
 fi
 
-${CMAKE_BIN} -S ../libactionet \
-  -DCMAKE_BUILD_TYPE=Release \
-  ${CMAKE_ARCH_FLAG} \
-  -DBUILD_SHARED_LIBS:bool=OFF \
-  -DCMAKE_POSITION_INDEPENDENT_CODE:bool=ON \
-  -DLIBACTIONET_BUILD_R=1 \
-  -DR_HOME="${R_HOME}"
+# Run CMake configuration
+${CMAKE_BIN} -S ../libactionet ${CMAKE_COMMON_FLAGS}
 
-echo "Starting make -------------------------------------------"
-${MAKE} -j${NPROC}
+echo "Building libactionet with ${NPROC} processors..."
+make -j"${NPROC}"
+
+echo "Build complete!"
