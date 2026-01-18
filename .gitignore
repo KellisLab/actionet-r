@@ -18,3 +18,4 @@ build_test/
 build/
 lib/
 testing*/
+.idea/
