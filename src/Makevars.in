@@ -12,6 +12,7 @@ UNAME=$(shell uname -s)
 # ============================================================================
 
 CXX_STD=CXX17
+## `DARMA_64BIT_WORD` likely needed for Rcpp code. Not propagated from libactionet_config. Symbol collision.
 PKG_CPPFLAGS=-I"../inst/include" -I"libactionet/include" -DARMA_64BIT_WORD @CHOLMOD_INCLUDE@
 PKG_CXXFLAGS=$(SHLIB_OPENMP_CXXFLAGS) -std=c++17
 
