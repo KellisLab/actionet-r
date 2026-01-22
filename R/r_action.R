@@ -15,7 +15,7 @@
 #' @export
 reduceKernel <- function(
     obj,
-    k = 50,
+    k = 30,
     algorithm = c("irlb", "halko", "feng"),
     max_it = NULL,
     seed = 0,
