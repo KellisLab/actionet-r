@@ -132,80 +132,83 @@ fi
 echo "  Final CHOLMOD_LIBS: ${CHOLMOD_LIBS}"
 [ -n "${CHOLMOD_INCLUDE}" ] && echo "  Final CHOLMOD_INCLUDE: ${CHOLMOD_INCLUDE}"
 # ============================================================================
-# DEPENDENCY DETECTION: OPENMP
+# OPENMP CONFIGURATION (from R)
 # ============================================================================
 
-echo "Detecting OpenMP library..."
-OPENMP_LIBS=""
+echo "Using OpenMP flags from R..."
+R_OPENMP_CXXFLAGS=$("${R_HOME}/bin/R" CMD config SHLIB_OPENMP_CXXFLAGS 2>/dev/null || true)
+R_OPENMP_LDFLAGS=$("${R_HOME}/bin/R" CMD config SHLIB_OPENMP_LDFLAGS 2>/dev/null || true)
 
-if [ "${UNAME}" = "Darwin" ]; then
-    # macOS: Use LLVM's libomp with R's target architecture for path selection
+case "${R_OPENMP_CXXFLAGS}" in
+    ERROR:*|*no\ information\ for\ variable*)
+        R_OPENMP_CXXFLAGS=""
+        ;;
+esac
+case "${R_OPENMP_LDFLAGS}" in
+    ERROR:*|*no\ information\ for\ variable*)
+        R_OPENMP_LDFLAGS=""
+        ;;
+esac
+
+# Fallback: check user Makevars for OpenMP flags
+if [ -z "${R_OPENMP_CXXFLAGS}" ] && [ -z "${R_OPENMP_LDFLAGS}" ]; then
+    R_MAKEVARS_USER_PATH="${R_MAKEVARS_USER:-$("${R_HOME}/bin/R" CMD config R_MAKEVARS_USER 2>/dev/null || true)}"
     
-    # First attempt: pkg-config
-    if command -v pkg-config >/dev/null 2>&1; then
-        if pkg-config --exists openmp 2>/dev/null; then
-            OPENMP_LIBS=$(pkg-config --libs openmp 2>/dev/null)
-            echo "  Found OpenMP via pkg-config"
-        fi
+    # Handle ERROR output from R CMD config
+    case "${R_MAKEVARS_USER_PATH}" in
+        ERROR:*|*no\ information\ for\ variable*)
+            R_MAKEVARS_USER_PATH=""
+            ;;
+    esac
+    
+    if [ -z "${R_MAKEVARS_USER_PATH}" ]; then
+        R_MAKEVARS_USER_PATH="${HOME}/.R/Makevars"
     fi
-    
-    # Second attempt: Manual search with architecture-aware paths
-    if [ -z "${OPENMP_LIBS}" ] && [ -n "${OSX_ARCH}" ]; then
-        case "${OSX_ARCH}" in
-            arm64)
-                # Apple Silicon target: native Homebrew at /opt/homebrew
-                search_paths="/opt/homebrew/opt/libomp/lib /opt/homebrew/lib"
-                ;;
-            x86_64)
-                # Intel target: /usr/local
-                search_paths="/usr/local/opt/libomp/lib /usr/local/lib"
-                ;;
-            *)
-                # Unknown: search both
-                search_paths="/opt/homebrew/opt/libomp/lib /usr/local/opt/libomp/lib /opt/homebrew/lib /usr/local/lib"
-                ;;
-        esac
+
+    case "${R_MAKEVARS_USER_PATH}" in
+        "~/"*)
+            R_MAKEVARS_USER_PATH="${HOME}/${R_MAKEVARS_USER_PATH#~/}"
+            ;;
+    esac
+
+    if [ -f "${R_MAKEVARS_USER_PATH}" ]; then
+        echo "  Checking user Makevars at: ${R_MAKEVARS_USER_PATH}"
         
-        for libdir in ${search_paths}; do
-            if [ -f "${libdir}/libomp.dylib" ] || [ -f "${libdir}/libomp.a" ]; then
-                echo "  Found libomp in ${libdir}"
-                OPENMP_LIBS="-L${libdir} -lomp"
-                break
-            fi
-        done
-    fi
-    
-    # Final fallback: Let compiler handle it
-    if [ -z "${OPENMP_LIBS}" ]; then
-        echo "  Warning: libomp not found in standard locations"
-        echo "  Relying on compiler/linker defaults for OpenMP"
-        OPENMP_LIBS="-lomp"
-    fi
-    
-elif [ "${UNAME}" = "Linux" ]; then
-    # Linux: GNU OpenMP (libgomp) or LLVM OpenMP
-    
-    # First attempt: pkg-config
-    if command -v pkg-config >/dev/null 2>&1; then
-        if pkg-config --exists openmp 2>/dev/null; then
-            OPENMP_LIBS=$(pkg-config --libs openmp 2>/dev/null)
-            echo "  Found OpenMP via pkg-config"
+        # Parse Makevars directly using grep/sed (more reliable than make-based approach)
+        # Extract SHLIB_OPENMP_CXXFLAGS value (handle both = and := assignments)
+        R_OPENMP_CXXFLAGS=$(grep -E "^SHLIB_OPENMP_CXXFLAGS[[:space:]]*[:?]?=" "${R_MAKEVARS_USER_PATH}" 2>/dev/null | \
+                            sed -E 's/^SHLIB_OPENMP_CXXFLAGS[[:space:]]*[:?]?=[[:space:]]*//' | \
+                            head -1 || true)
+        
+        # Extract SHLIB_OPENMP_LDFLAGS value
+        R_OPENMP_LDFLAGS=$(grep -E "^SHLIB_OPENMP_LDFLAGS[[:space:]]*[:?]?=" "${R_MAKEVARS_USER_PATH}" 2>/dev/null | \
+                           sed -E 's/^SHLIB_OPENMP_LDFLAGS[[:space:]]*[:?]?=[[:space:]]*//' | \
+                           head -1 || true)
+        
+        # Strip any trailing comments
+        R_OPENMP_CXXFLAGS=$(echo "${R_OPENMP_CXXFLAGS}" | sed 's/#.*//' | sed 's/[[:space:]]*$//')
+        R_OPENMP_LDFLAGS=$(echo "${R_OPENMP_LDFLAGS}" | sed 's/#.*//' | sed 's/[[:space:]]*$//')
+        
+        if [ -n "${R_OPENMP_CXXFLAGS}" ] || [ -n "${R_OPENMP_LDFLAGS}" ]; then
+            echo "  Found OpenMP flags in user Makevars:"
+            [ -n "${R_OPENMP_CXXFLAGS}" ] && echo "    SHLIB_OPENMP_CXXFLAGS: ${R_OPENMP_CXXFLAGS}"
+            [ -n "${R_OPENMP_LDFLAGS}" ] && echo "    SHLIB_OPENMP_LDFLAGS: ${R_OPENMP_LDFLAGS}"
         fi
     fi
-    
-    # Fallback: Use GNU libgomp
-    if [ -z "${OPENMP_LIBS}" ]; then
-        OPENMP_LIBS="-lgomp"
-        echo "  Using GNU OpenMP (libgomp)"
-    fi
-    
-else
-    # Other platforms: Default to GNU OpenMP
-    OPENMP_LIBS="-lgomp"
-    echo "  Using default OpenMP (-lgomp)"
 fi
 
-echo "  Final OPENMP_LIBS: ${OPENMP_LIBS}"
+echo "  SHLIB_OPENMP_CXXFLAGS: ${R_OPENMP_CXXFLAGS}"
+echo "  SHLIB_OPENMP_LDFLAGS: ${R_OPENMP_LDFLAGS}"
+
+if [ -z "${R_OPENMP_CXXFLAGS}" ] && [ -z "${R_OPENMP_LDFLAGS}" ]; then
+    echo "  OpenMP disabled by R configuration"
+elif [ -n "${R_OPENMP_CXXFLAGS}" ] && [ -z "${R_OPENMP_LDFLAGS}" ]; then
+    echo "  Warning: SHLIB_OPENMP_LDFLAGS is empty. Add -L<libomp>/lib -lomp to link OpenMP on macOS."
+fi
+
+# Convert flags into CMake-friendly lists (semicolon-delimited)
+R_OPENMP_CXXFLAGS_LIST=$(printf "%s" "${R_OPENMP_CXXFLAGS}" | tr ' \t' ';')
+R_OPENMP_LDFLAGS_LIST=$(printf "%s" "${R_OPENMP_LDFLAGS}" | tr ' \t' ';')
 
 # ============================================================================
 # BUILD CONFIGURATION
@@ -221,7 +224,6 @@ cd src
 sed \
     -e "s|@CHOLMOD_LIBS@|${CHOLMOD_LIBS}|g" \
     -e "s|@CHOLMOD_INCLUDE@|${CHOLMOD_INCLUDE}|g" \
-    -e "s|@OPENMP_LIBS@|${OPENMP_LIBS}|g" \
     -e "s|@ACTIONET_LIB_PATH@|${ACTIONET_LIB_PATH}|g" \
     -e "s|@NPROC@|${NPROC}|g" \
     Makevars.in > Makevars
@@ -258,6 +260,12 @@ CMAKE_FLAGS="${CMAKE_FLAGS} -DBUILD_SHARED_LIBS:bool=OFF"
 CMAKE_FLAGS="${CMAKE_FLAGS} -DCMAKE_POSITION_INDEPENDENT_CODE:bool=ON"
 CMAKE_FLAGS="${CMAKE_FLAGS} -DLIBACTIONET_BUILD_R=1"
 CMAKE_FLAGS="${CMAKE_FLAGS} -DR_HOME='${R_HOME}'"
+if [ -n "${R_OPENMP_CXXFLAGS_LIST}" ]; then
+    CMAKE_FLAGS="${CMAKE_FLAGS} -DLIBACTIONET_OPENMP_CXXFLAGS=${R_OPENMP_CXXFLAGS_LIST}"
+fi
+if [ -n "${R_OPENMP_LDFLAGS_LIST}" ]; then
+    CMAKE_FLAGS="${CMAKE_FLAGS} -DLIBACTIONET_OPENMP_LDFLAGS=${R_OPENMP_LDFLAGS_LIST}"
+fi
 
 # Add macOS architecture flag if detected
 if [ "${UNAME}" = "Darwin" ] && [ -n "${OSX_ARCH}" ]; then
