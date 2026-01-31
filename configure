@@ -153,6 +153,14 @@ esac
 # Fallback: check user Makevars for OpenMP flags
 if [ -z "${R_OPENMP_CXXFLAGS}" ] && [ -z "${R_OPENMP_LDFLAGS}" ]; then
     R_MAKEVARS_USER_PATH="${R_MAKEVARS_USER:-$("${R_HOME}/bin/R" CMD config R_MAKEVARS_USER 2>/dev/null || true)}"
+    
+    # Handle ERROR output from R CMD config
+    case "${R_MAKEVARS_USER_PATH}" in
+        ERROR:*|*no\ information\ for\ variable*)
+            R_MAKEVARS_USER_PATH=""
+            ;;
+    esac
+    
     if [ -z "${R_MAKEVARS_USER_PATH}" ]; then
         R_MAKEVARS_USER_PATH="${HOME}/.R/Makevars"
     fi
@@ -163,21 +171,29 @@ if [ -z "${R_OPENMP_CXXFLAGS}" ] && [ -z "${R_OPENMP_LDFLAGS}" ]; then
             ;;
     esac
 
-    if [ -f "${R_MAKEVARS_USER_PATH}" ] && command -v make >/dev/null 2>&1; then
-        makevars_eval() {
-            _file="$1"
-            _var="$2"
-            make -s -f - VAR="${_var}" MAKEVARS_FILE="${_file}" print-var 2>/dev/null <<'EOF'
-include $(MAKEVARS_FILE)
-print-var:
-	@echo $($(VAR))
-EOF
-        }
-
-        R_OPENMP_CXXFLAGS=$(makevars_eval "${R_MAKEVARS_USER_PATH}" "SHLIB_OPENMP_CXXFLAGS")
-        R_OPENMP_LDFLAGS=$(makevars_eval "${R_MAKEVARS_USER_PATH}" "SHLIB_OPENMP_LDFLAGS")
-        echo "  SHLIB_OPENMP_CXXFLAGS (Makevars): ${R_OPENMP_CXXFLAGS}"
-        echo "  SHLIB_OPENMP_LDFLAGS (Makevars): ${R_OPENMP_LDFLAGS}"
+    if [ -f "${R_MAKEVARS_USER_PATH}" ]; then
+        echo "  Checking user Makevars at: ${R_MAKEVARS_USER_PATH}"
+        
+        # Parse Makevars directly using grep/sed (more reliable than make-based approach)
+        # Extract SHLIB_OPENMP_CXXFLAGS value (handle both = and := assignments)
+        R_OPENMP_CXXFLAGS=$(grep -E "^SHLIB_OPENMP_CXXFLAGS[[:space:]]*[:?]?=" "${R_MAKEVARS_USER_PATH}" 2>/dev/null | \
+                            sed -E 's/^SHLIB_OPENMP_CXXFLAGS[[:space:]]*[:?]?=[[:space:]]*//' | \
+                            head -1 || true)
+        
+        # Extract SHLIB_OPENMP_LDFLAGS value
+        R_OPENMP_LDFLAGS=$(grep -E "^SHLIB_OPENMP_LDFLAGS[[:space:]]*[:?]?=" "${R_MAKEVARS_USER_PATH}" 2>/dev/null | \
+                           sed -E 's/^SHLIB_OPENMP_LDFLAGS[[:space:]]*[:?]?=[[:space:]]*//' | \
+                           head -1 || true)
+        
+        # Strip any trailing comments
+        R_OPENMP_CXXFLAGS=$(echo "${R_OPENMP_CXXFLAGS}" | sed 's/#.*//' | sed 's/[[:space:]]*$//')
+        R_OPENMP_LDFLAGS=$(echo "${R_OPENMP_LDFLAGS}" | sed 's/#.*//' | sed 's/[[:space:]]*$//')
+        
+        if [ -n "${R_OPENMP_CXXFLAGS}" ] || [ -n "${R_OPENMP_LDFLAGS}" ]; then
+            echo "  Found OpenMP flags in user Makevars:"
+            [ -n "${R_OPENMP_CXXFLAGS}" ] && echo "    SHLIB_OPENMP_CXXFLAGS: ${R_OPENMP_CXXFLAGS}"
+            [ -n "${R_OPENMP_LDFLAGS}" ] && echo "    SHLIB_OPENMP_LDFLAGS: ${R_OPENMP_LDFLAGS}"
+        fi
     fi
 fi
 
