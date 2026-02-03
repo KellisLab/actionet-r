@@ -63,74 +63,7 @@ if [ "${UNAME}" = "Darwin" ]; then
     fi
 fi
 
-# ============================================================================
-# DEPENDENCY DETECTION: CHOLMOD
-# ============================================================================
-
-echo "Searching for CHOLMOD library..."
-CHOLMOD_LIBS=""
-CHOLMOD_INCLUDE=""
-
-# First attempt: pkg-config (most reliable)
-if command -v pkg-config >/dev/null 2>&1; then
-    if pkg-config --exists cholmod 2>/dev/null; then
-        CHOLMOD_LIBS=$(pkg-config --libs cholmod 2>/dev/null)
-        CHOLMOD_INCLUDE=$(pkg-config --cflags cholmod 2>/dev/null)
-        echo "  Found CHOLMOD via pkg-config"
-        echo "    CHOLMOD_LIBS: ${CHOLMOD_LIBS}"
-        [ -n "${CHOLMOD_INCLUDE}" ] && echo "    CHOLMOD_INCLUDE: ${CHOLMOD_INCLUDE}"
-    fi
-fi
-
-# Second attempt: Manual search with architecture-aware paths on macOS
-if [ -z "${CHOLMOD_LIBS}" ]; then
-    echo "  pkg-config unavailable/unsuccessful, searching standard locations..."
-    
-    if [ "${UNAME}" = "Darwin" ] && [ -n "${OSX_ARCH}" ]; then
-        # macOS: Use R's target architecture for Homebrew path selection
-        case "${OSX_ARCH}" in
-            arm64)
-                # Apple Silicon target: native Homebrew at /opt/homebrew
-                search_paths="/opt/homebrew/lib /opt/homebrew/opt/suite-sparse/lib"
-                ;;
-            x86_64)
-                # Intel target: Homebrew at /usr/local
-                search_paths="/usr/local/lib /usr/local/opt/suite-sparse/lib"
-                ;;
-            *)
-                # Unknown: search both
-                search_paths="/opt/homebrew/lib /usr/local/lib /opt/local/lib"
-                ;;
-        esac
-    else
-        # Linux and other platforms: standard system paths
-        search_paths="/usr/lib /usr/lib64 /usr/local/lib /usr/local/lib64 /opt/local/lib"
-    fi
-    
-    for libdir in ${search_paths}; do
-        if [ -f "${libdir}/libcholmod.a" ] || [ -f "${libdir}/libcholmod.so" ] || [ -f "${libdir}/libcholmod.dylib" ]; then
-            echo "  Found CHOLMOD library in ${libdir}"
-            CHOLMOD_LIBS="-L${libdir} -lcholmod"
-            
-            # Try to find corresponding include directory
-            includedir="${libdir%/lib}/include"
-            if [ -f "${includedir}/cholmod.h" ]; then
-                CHOLMOD_INCLUDE="-I${includedir}"
-            fi
-            break
-        fi
-    done
-fi
-
-# Final fallback: rely on system library path
-if [ -z "${CHOLMOD_LIBS}" ]; then
-    echo "  Warning: CHOLMOD library not found in standard locations"
-    echo "  Using -lcholmod (assuming system default search path)"
-    CHOLMOD_LIBS="-lcholmod"
-fi
-
-echo "  Final CHOLMOD_LIBS: ${CHOLMOD_LIBS}"
-[ -n "${CHOLMOD_INCLUDE}" ] && echo "  Final CHOLMOD_INCLUDE: ${CHOLMOD_INCLUDE}"
+# CHOLMOD dependency removed - library now uses native Armadillo implementations
 # ============================================================================
 # OPENMP CONFIGURATION (from R)
 # ============================================================================
@@ -222,8 +155,6 @@ echo "libactionet will be built at: ${ACTIONET_LIB_PATH}"
 echo "Generating src/Makevars from template..."
 cd src
 sed \
-    -e "s|@CHOLMOD_LIBS@|${CHOLMOD_LIBS}|g" \
-    -e "s|@CHOLMOD_INCLUDE@|${CHOLMOD_INCLUDE}|g" \
     -e "s|@ACTIONET_LIB_PATH@|${ACTIONET_LIB_PATH}|g" \
     -e "s|@NPROC@|${NPROC}|g" \
     Makevars.in > Makevars
