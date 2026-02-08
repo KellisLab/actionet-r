@@ -251,61 +251,6 @@ propagateLabels <- function(
 }
 
 
-#' @export
-correct.cell.labels <- function(
-    ace,
-    label_attr,
-    algorithm = "LPA",
-    iters = 3,
-    lambda = 0,
-    sig_th = 3,
-    net_slot = "actionet",
-    thread_no = 0) {
-  initial_labels <- ACTIONetExperiment::get.data.or.split(ace, attr = label_attr, to_return = "data")
-  labels <- propagateLabels(
-    obj = ace,
-    label_attr = initial_labels,
-    fixed_samples = NULL,
-    algorithm = algorithm,
-    lambda = lambda,
-    iters = iters,
-    sig_th = sig_th,
-    net_slot = net_slot,
-    thread_no = thread_no
-  )
-
-  return(labels)
-}
-
-#' @export
-infer.missing.cell.labels <- function(
-    ace,
-    label_attr,
-    algorithm = "LPA",
-    iters = 3,
-    lambda = 0,
-    sig_th = 3,
-    net_slot = "actionet",
-    thread_no = 0) {
-  initial_labels <- ACTIONetExperiment::get.data.or.split(ace, attr = label_attr, to_return = "data")
-  fixed_samples <- which(!is.na(initial_labels))
-
-  labels <- propagateLabels(
-    obj = ace,
-    label_attr = initial_labels,
-    fixed_samples = fixed_samples,
-    algorithm = algorithm,
-    lambda = lambda,
-    iters = iters,
-    sig_th = sig_th,
-    net_slot = net_slot,
-    thread_no = thread_no
-  )
-
-  return(labels)
-}
-
-
 networkAutocorrelation <- function(
     obj,
     scores = NULL,
