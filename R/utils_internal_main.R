@@ -96,7 +96,7 @@ smoothKernel <- function(
   .validate_ace(ace, allow_se_like = FALSE, return_elem = FALSE, error_on_fail = TRUE)
 
   vars <- list(
-    V = ACTIONetExperiment::rowMaps(ace)[[sprintf("%s_V", reduction_slot)]],
+    U = ACTIONetExperiment::rowMaps(ace)[[sprintf("%s_U", reduction_slot)]],
     A = ACTIONetExperiment::rowMaps(ace)[[sprintf("%s_A", reduction_slot)]],
     B = ACTIONetExperiment::colMaps(ace)[[sprintf("%s_B", reduction_slot)]],
     sigma = S4Vectors::metadata(ace)[[sprintf("%s_sigma", reduction_slot)]]
@@ -122,13 +122,13 @@ smoothKernel <- function(
     force_type = TRUE,
   )
 
-  V <- vars$V
+  U <- vars$U
   A <- vars$A
   B <- vars$B
   sigma <- vars$sigma
 
-  U <- as.matrix(S_r %*% Matrix::Diagonal(length(sigma), 1.0 / sigma))
-  SVD.out <- C_perturbedSVD(V, sigma, U, -A, B)
+  U_right <- as.matrix(S_r %*% Matrix::Diagonal(length(sigma), 1.0 / sigma))
+  SVD.out <- C_perturbedSVD(U, sigma, U_right, -A, B)
   V.smooth <- networkDiffusion(
     obj = G,
     scores = SVD.out$v,

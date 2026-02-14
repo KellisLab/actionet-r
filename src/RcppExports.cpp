@@ -234,70 +234,70 @@ BEGIN_RCPP
 END_RCPP
 }
 // C_orthogonalizeBatchEffect
-Rcpp::List C_orthogonalizeBatchEffect(arma::sp_mat& S, arma::mat& old_S_r, arma::mat& old_V, arma::mat& old_A, arma::mat& old_B, arma::vec& old_sigma, arma::mat& design);
-RcppExport SEXP _actionet_C_orthogonalizeBatchEffect(SEXP SSEXP, SEXP old_S_rSEXP, SEXP old_VSEXP, SEXP old_ASEXP, SEXP old_BSEXP, SEXP old_sigmaSEXP, SEXP designSEXP) {
+Rcpp::List C_orthogonalizeBatchEffect(arma::sp_mat& S, arma::mat& old_S_r, arma::mat& old_U, arma::mat& old_A, arma::mat& old_B, arma::vec& old_sigma, arma::mat& design);
+RcppExport SEXP _actionet_C_orthogonalizeBatchEffect(SEXP SSEXP, SEXP old_S_rSEXP, SEXP old_USEXP, SEXP old_ASEXP, SEXP old_BSEXP, SEXP old_sigmaSEXP, SEXP designSEXP) {
 BEGIN_RCPP
     Rcpp::RObject rcpp_result_gen;
     Rcpp::RNGScope rcpp_rngScope_gen;
     Rcpp::traits::input_parameter< arma::sp_mat& >::type S(SSEXP);
     Rcpp::traits::input_parameter< arma::mat& >::type old_S_r(old_S_rSEXP);
-    Rcpp::traits::input_parameter< arma::mat& >::type old_V(old_VSEXP);
+    Rcpp::traits::input_parameter< arma::mat& >::type old_U(old_USEXP);
     Rcpp::traits::input_parameter< arma::mat& >::type old_A(old_ASEXP);
     Rcpp::traits::input_parameter< arma::mat& >::type old_B(old_BSEXP);
     Rcpp::traits::input_parameter< arma::vec& >::type old_sigma(old_sigmaSEXP);
     Rcpp::traits::input_parameter< arma::mat& >::type design(designSEXP);
-    rcpp_result_gen = Rcpp::wrap(C_orthogonalizeBatchEffect(S, old_S_r, old_V, old_A, old_B, old_sigma, design));
+    rcpp_result_gen = Rcpp::wrap(C_orthogonalizeBatchEffect(S, old_S_r, old_U, old_A, old_B, old_sigma, design));
     return rcpp_result_gen;
 END_RCPP
 }
 // C_orthogonalizeBatchEffect_full
-Rcpp::List C_orthogonalizeBatchEffect_full(arma::mat& S, arma::mat& old_S_r, arma::mat& old_V, arma::mat& old_A, arma::mat& old_B, arma::vec& old_sigma, arma::mat& design);
-RcppExport SEXP _actionet_C_orthogonalizeBatchEffect_full(SEXP SSEXP, SEXP old_S_rSEXP, SEXP old_VSEXP, SEXP old_ASEXP, SEXP old_BSEXP, SEXP old_sigmaSEXP, SEXP designSEXP) {
+Rcpp::List C_orthogonalizeBatchEffect_full(arma::mat& S, arma::mat& old_S_r, arma::mat& old_U, arma::mat& old_A, arma::mat& old_B, arma::vec& old_sigma, arma::mat& design);
+RcppExport SEXP _actionet_C_orthogonalizeBatchEffect_full(SEXP SSEXP, SEXP old_S_rSEXP, SEXP old_USEXP, SEXP old_ASEXP, SEXP old_BSEXP, SEXP old_sigmaSEXP, SEXP designSEXP) {
 BEGIN_RCPP
     Rcpp::RObject rcpp_result_gen;
     Rcpp::RNGScope rcpp_rngScope_gen;
     Rcpp::traits::input_parameter< arma::mat& >::type S(SSEXP);
     Rcpp::traits::input_parameter< arma::mat& >::type old_S_r(old_S_rSEXP);
-    Rcpp::traits::input_parameter< arma::mat& >::type old_V(old_VSEXP);
+    Rcpp::traits::input_parameter< arma::mat& >::type old_U(old_USEXP);
     Rcpp::traits::input_parameter< arma::mat& >::type old_A(old_ASEXP);
     Rcpp::traits::input_parameter< arma::mat& >::type old_B(old_BSEXP);
     Rcpp::traits::input_parameter< arma::vec& >::type old_sigma(old_sigmaSEXP);
     Rcpp::traits::input_parameter< arma::mat& >::type design(designSEXP);
-    rcpp_result_gen = Rcpp::wrap(C_orthogonalizeBatchEffect_full(S, old_S_r, old_V, old_A, old_B, old_sigma, design));
+    rcpp_result_gen = Rcpp::wrap(C_orthogonalizeBatchEffect_full(S, old_S_r, old_U, old_A, old_B, old_sigma, design));
     return rcpp_result_gen;
 END_RCPP
 }
 // C_orthogonalizeBasal
-Rcpp::List C_orthogonalizeBasal(arma::sp_mat& S, arma::mat& old_S_r, arma::mat& old_V, arma::mat& old_A, arma::mat& old_B, arma::vec& old_sigma, arma::mat& basal);
-RcppExport SEXP _actionet_C_orthogonalizeBasal(SEXP SSEXP, SEXP old_S_rSEXP, SEXP old_VSEXP, SEXP old_ASEXP, SEXP old_BSEXP, SEXP old_sigmaSEXP, SEXP basalSEXP) {
+Rcpp::List C_orthogonalizeBasal(arma::sp_mat& S, arma::mat& old_S_r, arma::mat& old_U, arma::mat& old_A, arma::mat& old_B, arma::vec& old_sigma, arma::mat& basal);
+RcppExport SEXP _actionet_C_orthogonalizeBasal(SEXP SSEXP, SEXP old_S_rSEXP, SEXP old_USEXP, SEXP old_ASEXP, SEXP old_BSEXP, SEXP old_sigmaSEXP, SEXP basalSEXP) {
 BEGIN_RCPP
     Rcpp::RObject rcpp_result_gen;
     Rcpp::RNGScope rcpp_rngScope_gen;
     Rcpp::traits::input_parameter< arma::sp_mat& >::type S(SSEXP);
     Rcpp::traits::input_parameter< arma::mat& >::type old_S_r(old_S_rSEXP);
-    Rcpp::traits::input_parameter< arma::mat& >::type old_V(old_VSEXP);
+    Rcpp::traits::input_parameter< arma::mat& >::type old_U(old_USEXP);
     Rcpp::traits::input_parameter< arma::mat& >::type old_A(old_ASEXP);
     Rcpp::traits::input_parameter< arma::mat& >::type old_B(old_BSEXP);
     Rcpp::traits::input_parameter< arma::vec& >::type old_sigma(old_sigmaSEXP);
     Rcpp::traits::input_parameter< arma::mat& >::type basal(basalSEXP);
-    rcpp_result_gen = Rcpp::wrap(C_orthogonalizeBasal(S, old_S_r, old_V, old_A, old_B, old_sigma, basal));
+    rcpp_result_gen = Rcpp::wrap(C_orthogonalizeBasal(S, old_S_r, old_U, old_A, old_B, old_sigma, basal));
     return rcpp_result_gen;
 END_RCPP
 }
 // C_orthogonalizeBasal_full
-Rcpp::List C_orthogonalizeBasal_full(arma::mat& S, arma::mat& old_S_r, arma::mat& old_V, arma::mat& old_A, arma::mat& old_B, arma::vec& old_sigma, arma::mat& basal);
-RcppExport SEXP _actionet_C_orthogonalizeBasal_full(SEXP SSEXP, SEXP old_S_rSEXP, SEXP old_VSEXP, SEXP old_ASEXP, SEXP old_BSEXP, SEXP old_sigmaSEXP, SEXP basalSEXP) {
+Rcpp::List C_orthogonalizeBasal_full(arma::mat& S, arma::mat& old_S_r, arma::mat& old_U, arma::mat& old_A, arma::mat& old_B, arma::vec& old_sigma, arma::mat& basal);
+RcppExport SEXP _actionet_C_orthogonalizeBasal_full(SEXP SSEXP, SEXP old_S_rSEXP, SEXP old_USEXP, SEXP old_ASEXP, SEXP old_BSEXP, SEXP old_sigmaSEXP, SEXP basalSEXP) {
 BEGIN_RCPP
     Rcpp::RObject rcpp_result_gen;
     Rcpp::RNGScope rcpp_rngScope_gen;
     Rcpp::traits::input_parameter< arma::mat& >::type S(SSEXP);
     Rcpp::traits::input_parameter< arma::mat& >::type old_S_r(old_S_rSEXP);
-    Rcpp::traits::input_parameter< arma::mat& >::type old_V(old_VSEXP);
+    Rcpp::traits::input_parameter< arma::mat& >::type old_U(old_USEXP);
     Rcpp::traits::input_parameter< arma::mat& >::type old_A(old_ASEXP);
     Rcpp::traits::input_parameter< arma::mat& >::type old_B(old_BSEXP);
     Rcpp::traits::input_parameter< arma::vec& >::type old_sigma(old_sigmaSEXP);
     Rcpp::traits::input_parameter< arma::mat& >::type basal(basalSEXP);
-    rcpp_result_gen = Rcpp::wrap(C_orthogonalizeBasal_full(S, old_S_r, old_V, old_A, old_B, old_sigma, basal));
+    rcpp_result_gen = Rcpp::wrap(C_orthogonalizeBasal_full(S, old_S_r, old_U, old_A, old_B, old_sigma, basal));
     return rcpp_result_gen;
 END_RCPP
 }

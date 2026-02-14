@@ -66,10 +66,10 @@ reduceKernel <- function(
     colMaps(obj)[[reduction_slot]] <- Matrix::t(S_r)
     colMapTypes(obj)[[reduction_slot]] <- "reduction"
 
-    V <- out$V
-    colnames(V) <- paste0("V", seq_len(NCOL(V)))
-    rowMaps(obj)[[sprintf("%s_V", reduction_slot)]] <- V
-    rowMapTypes(obj)[[sprintf("%s_V", reduction_slot)]] <- "internal"
+    V <- out$U
+    colnames(V) <- paste0("U", seq_len(NCOL(V)))
+    rowMaps(obj)[[sprintf("%s_U", reduction_slot)]] <- V
+    rowMapTypes(obj)[[sprintf("%s_U", reduction_slot)]] <- "internal"
 
     A <- out$A
     colnames(A) <- paste0("A", seq_len(NCOL(A)))
