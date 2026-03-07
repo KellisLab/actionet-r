@@ -34,6 +34,14 @@ if test -z "${R_HOME}"; then
 fi
 echo "Using R_HOME: ${R_HOME}"
 
+escape_sed_replacement() {
+    printf "%s" "$1" | sed -e 's/[&|]/\\&/g'
+}
+
+normalize_flags() {
+    printf "%s" "$1" | tr '\n' ' ' | sed -e 's/[[:space:]]\+/ /g' -e 's/^ //' -e 's/ $//'
+}
+
 # Get R compiler settings
 CC=$("${R_HOME}/bin/R" CMD config CC)
 CXX=$("${R_HOME}/bin/R" CMD config CXX)
@@ -144,18 +152,67 @@ R_OPENMP_CXXFLAGS_LIST=$(printf "%s" "${R_OPENMP_CXXFLAGS}" | tr ' \t' ';')
 R_OPENMP_LDFLAGS_LIST=$(printf "%s" "${R_OPENMP_LDFLAGS}" | tr ' \t' ';')
 
 # ============================================================================
+# HDF5 CONFIGURATION (for final R shared library link)
+# ============================================================================
+
+echo "Detecting HDF5 flags for R shared library..."
+ACTIONET_HDF5_CFLAGS=$(normalize_flags "${ACTIONET_HDF5_CFLAGS}")
+ACTIONET_HDF5_LIBS=$(normalize_flags "${ACTIONET_HDF5_LIBS}")
+
+if [ -n "${ACTIONET_HDF5_CFLAGS}" ] || [ -n "${ACTIONET_HDF5_LIBS}" ]; then
+    echo "  Using ACTIONET_HDF5_* environment overrides"
+else
+    if command -v pkg-config >/dev/null 2>&1; then
+        for hdf5_pkg in hdf5 hdf5-serial; do
+            if pkg-config --exists "${hdf5_pkg}" 2>/dev/null; then
+                ACTIONET_HDF5_CFLAGS=$(normalize_flags "$(pkg-config --cflags "${hdf5_pkg}" 2>/dev/null || true)")
+                ACTIONET_HDF5_LIBS=$(normalize_flags "$(pkg-config --libs "${hdf5_pkg}" 2>/dev/null || true)")
+                if [ -n "${ACTIONET_HDF5_LIBS}" ]; then
+                    echo "  Found HDF5 flags via pkg-config (${hdf5_pkg})"
+                    break
+                fi
+            fi
+        done
+    fi
+
+    if [ -z "${ACTIONET_HDF5_LIBS}" ] && command -v h5cc >/dev/null 2>&1; then
+        H5CC_SHOW=$(h5cc -show 2>/dev/null || true)
+        ACTIONET_HDF5_CFLAGS=$(normalize_flags "$(printf "%s\n" "${H5CC_SHOW}" | awk '{for (i = 1; i <= NF; ++i) if ($i ~ /^-I/) printf "%s ", $i}')")
+        ACTIONET_HDF5_LIBS=$(normalize_flags "$(printf "%s\n" "${H5CC_SHOW}" | awk '{for (i = 1; i <= NF; ++i) if ($i ~ /^-L/ || $i ~ /^-l/ || $i ~ /^-Wl,/ || $i ~ /^-pthread$/ || $i ~ /^\/.*\.(a|so|dylib)$/) printf "%s ", $i}')")
+        if [ -n "${ACTIONET_HDF5_LIBS}" ]; then
+            echo "  Found HDF5 flags via h5cc"
+        fi
+    fi
+fi
+
+if [ -z "${ACTIONET_HDF5_LIBS}" ]; then
+    echo "ERROR: Could not determine HDF5 link flags for actionet.so"
+    echo "Please install the HDF5 development package or set ACTIONET_HDF5_CFLAGS / ACTIONET_HDF5_LIBS."
+    exit 1
+fi
+
+echo "  ACTIONET_HDF5_CFLAGS: ${ACTIONET_HDF5_CFLAGS}"
+echo "  ACTIONET_HDF5_LIBS: ${ACTIONET_HDF5_LIBS}"
+
+# ============================================================================
 # BUILD CONFIGURATION
 # ============================================================================
 
 # Compute absolute path for libactionet.a
 ACTIONET_LIB_PATH="$(cd src && pwd)/lib/libactionet.a"
+ACTIONET_HDF5_CFLAGS_ESCAPED=$(escape_sed_replacement "${ACTIONET_HDF5_CFLAGS}")
+ACTIONET_HDF5_LIBS_ESCAPED=$(escape_sed_replacement "${ACTIONET_HDF5_LIBS}")
 echo "libactionet will be built at: ${ACTIONET_LIB_PATH}"
 
 # Generate Makevars from template
 echo "Generating src/Makevars from template..."
 cd src
+echo "Removing stale R package build artifacts..."
+rm -f ./*.o ./*.so ./*.dll ./*.dylib
 sed \
     -e "s|@ACTIONET_LIB_PATH@|${ACTIONET_LIB_PATH}|g" \
+    -e "s|@ACTIONET_HDF5_CFLAGS@|${ACTIONET_HDF5_CFLAGS_ESCAPED}|g" \
+    -e "s|@ACTIONET_HDF5_LIBS@|${ACTIONET_HDF5_LIBS_ESCAPED}|g" \
     -e "s|@NPROC@|${NPROC}|g" \
     Makevars.in > Makevars
 
