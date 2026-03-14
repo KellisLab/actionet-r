@@ -271,7 +271,7 @@ C_perturbedSVD <- function(u, d, v, A, B) {
 #' @examples
 #' prune.out = collectArchetypes(ACTION.out$C, ACTION.out$H)
 #'	G = buildNetwork(prune.out$H_stacked)
-C_buildNetwork <- function(H, algorithm = "k*nn", distance_metric = "jsd", density = 1.0, thread_no = 0L, M = 16, ef_construction = 200, ef = 50, mutual_edges_only = TRUE, k = 10L) {
+C_buildNetwork <- function(H, algorithm = "k*nn", distance_metric = "jsd", density = 1.0, thread_no = 0L, M = 16, ef_construction = 200, ef = 200, mutual_edges_only = TRUE, k = 10L) {
     .Call(`_actionet_C_buildNetwork`, H, algorithm, distance_metric, density, thread_no, M, ef_construction, ef, mutual_edges_only, k)
 }
 

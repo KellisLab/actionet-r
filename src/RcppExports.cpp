@@ -349,12 +349,12 @@ BEGIN_RCPP
 END_RCPP
 }
 // C_buildNetwork
-arma::sp_mat C_buildNetwork(const arma::mat& H, std::string algorithm, std::string distance_metric, double density, int thread_no, double M, double ef_construction, double ef, bool mutual_edges_only, int k);
+arma::sp_mat C_buildNetwork(Rcpp::NumericMatrix H, std::string algorithm, std::string distance_metric, double density, int thread_no, double M, double ef_construction, double ef, bool mutual_edges_only, int k);
 RcppExport SEXP _actionet_C_buildNetwork(SEXP HSEXP, SEXP algorithmSEXP, SEXP distance_metricSEXP, SEXP densitySEXP, SEXP thread_noSEXP, SEXP MSEXP, SEXP ef_constructionSEXP, SEXP efSEXP, SEXP mutual_edges_onlySEXP, SEXP kSEXP) {
 BEGIN_RCPP
     Rcpp::RObject rcpp_result_gen;
     Rcpp::RNGScope rcpp_rngScope_gen;
-    Rcpp::traits::input_parameter< const arma::mat& >::type H(HSEXP);
+    Rcpp::traits::input_parameter< Rcpp::NumericMatrix >::type H(HSEXP);
     Rcpp::traits::input_parameter< std::string >::type algorithm(algorithmSEXP);
     Rcpp::traits::input_parameter< std::string >::type distance_metric(distance_metricSEXP);
     Rcpp::traits::input_parameter< double >::type density(densitySEXP);
