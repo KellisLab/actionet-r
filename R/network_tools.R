@@ -7,8 +7,8 @@ buildNetwork <- function(
     thread_no = 0,
     mutual_edges_only = TRUE,
     M = 16,
-    ef_construction = 200, # metric "knn" only
-    ef = 200, # metric "knn" only
+    ef_construction = 200,
+    ef = 200,
     k = 10, # metric "knn" only
     map_slot = "H_stacked",
     net_slot_out = "actionet",
