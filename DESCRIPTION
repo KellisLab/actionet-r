@@ -16,5 +16,5 @@ Depends: R (>= 4.0.0), ACTIONetExperiment, Matrix
 Imports: Rcpp (>= 1.0.12), RcppArmadillo, BiocParallel
 Suggests: igraph, ggplot2, ggrepel, gplots, plotly, colorspace
 LinkingTo: Rcpp, RcppArmadillo
-RoxygenNote: 7.3.2
+RoxygenNote: 7.3.3
 Encoding: UTF-8

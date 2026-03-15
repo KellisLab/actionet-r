@@ -12,7 +12,7 @@ C_buildNetwork(
   thread_no = 0L,
   M = 16,
   ef_construction = 200,
-  ef = 50,
+  ef = 200,
   mutual_edges_only = TRUE,
   k = 10L
 )

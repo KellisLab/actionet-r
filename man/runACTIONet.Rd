@@ -17,6 +17,8 @@ runACTIONet(
   network_metric = "jsd",
   network_algorithm = "k*nn",
   network_density = 1,
+  network_ef_construction = 200,
+  network_ef = 200,
   mutual_edges_only = TRUE,
   layout_method = c("umap", "tumap", "largevis"),
   layout_epochs = 100,
@@ -54,6 +56,10 @@ The larger the value, the more archetypes will be filtered out. (default=-3)}
 \item{network_algorithm}{Algorithm to use for network construction. Options are k-nearest neighbors ('knn') and k*-nearest neighbors ('k*nn'). (default='k*nn')}
 
 \item{network_density}{Density factor of ACTIONet graph. (default=1)}
+
+\item{network_ef_construction}{HNSW construction search breadth for network construction. For `network_algorithm="k*nn"`, the effective value is `max(network_ef_construction, kNN)`. (default=200)}
+
+\item{network_ef}{HNSW query search breadth for network construction. For `network_algorithm="k*nn"`, the effective value is `max(network_ef, kNN)`. (default=200)}
 
 \item{mutual_edges_only}{Whether to enforce edges to be mutually-nearest-neighbors. (default=TRUE)}
 
