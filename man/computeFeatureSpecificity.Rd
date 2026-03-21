@@ -5,14 +5,16 @@
 \title{Computes feature specificity scores for each cluster.}
 \usage{
 computeFeatureSpecificity(
-  obj,
+  adata = NULL,
   labels,
   labels_use = NULL,
-  assay_name = "logcounts",
+  layer = "logcounts",
   map_out_prefix = "cluster",
   return_lower = FALSE,
   thread_no = 0,
-  return_raw = FALSE
+  return_raw = FALSE,
+  assay_name = NULL,
+  obj = NULL
 )
 }
 \description{

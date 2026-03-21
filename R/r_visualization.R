@@ -1,9 +1,9 @@
 #' @export
 layoutNetwork <- function(
-    obj,
+    adata = NULL,
     initial_coordinates = NULL,
     net_slot = "actionet",
-    assay_name = "logcounts",
+    layer = "logcounts",
     method = c("umap", "tumap", "largevis"),
     n_components = 2,
     spread = 1.0,
@@ -27,7 +27,17 @@ layoutNetwork <- function(
     beta2 = 0.9,
     eps = 1e-7,
     map_slot_out = NULL,
-    return_raw = FALSE) {
+    return_raw = FALSE,
+    assay_name = NULL,
+    obj = NULL) {
+    adata <- .resolve_container_arg(adata = adata, obj = obj)
+    layer <- .resolve_layer_arg(
+        layer = layer,
+        assay_name = assay_name,
+        default = "logcounts",
+        layer_missing = missing(layer),
+        assay_name_missing = missing(assay_name)
+    )
     force(alpha)
     method <- tolower(method)
     method <- match.arg(method, several.ok = TRUE)[1]
@@ -35,9 +45,9 @@ layoutNetwork <- function(
     opt_method <- tolower(opt_method)
     opt_method <- match.arg(opt_method, several.ok = TRUE)[1]
 
-    is_ace <- .validate_ace(obj, error_on_fail = FALSE, return_elem = FALSE)
+    is_ace <- .validate_ace(adata, allow_se_like = TRUE, error_on_fail = FALSE, return_elem = FALSE)
     G <- .ace_or_net(
-        obj = obj,
+        obj = adata,
         net_slot = net_slot,
         matrix_type = "sparse",
         sparse_type = "CsparseMatrix",
@@ -55,7 +65,7 @@ layoutNetwork <- function(
             )
         } else if (is_ace) {
             initial_coordinates <- .validate_map(
-                obj,
+                adata,
                 map_slot = initial_coordinates,
                 matrix_type = "dense",
                 force_type = TRUE,
@@ -77,7 +87,7 @@ layoutNetwork <- function(
             msg <- sprintf("Computing initial coordinates from assay '%s'", assay_name)
             message(msg)
             svd.out <- runSVD(
-                X = .validate_assay(obj, assay_name = assay_name, return_elem = TRUE),
+                X = .validate_assay(adata, assay_name = layer, return_elem = TRUE),
                 k = base::max(3, n_components),
                 seed = seed,
                 verbose = verbose
@@ -86,8 +96,8 @@ layoutNetwork <- function(
         }
     }
 
-    if (NROW(initial_coordinates) != NCOL(obj)) {
-        err <- sprintf("'NROW(initial_coordinates)' (%d) does not match 'NCOL(obj)' (%d)", NROW(initial_coordinates), NCOL(obj))
+    if (NROW(initial_coordinates) != .actionet_ncol(adata)) {
+        err <- sprintf("'NROW(initial_coordinates)' (%d) does not match number of cells in object (%d)", NROW(initial_coordinates), .actionet_ncol(adata))
         stop(err)
     }
 
@@ -133,28 +143,30 @@ layoutNetwork <- function(
     )
 
     if (is_ace && !return_raw) {
-        rownames(embedding) <- colnames(obj)
+        rownames(embedding) <- .actionet_colnames(adata)
         if (is.null(map_slot_out)) {
             map_slot_out <- sprintf("%s_%dd_%s", method, n_components, net_slot)
         }
-        colMaps(obj)[[map_slot_out]] <- embedding
-        colMapTypes(obj)[[map_slot_out]] <- "embedding"
-        return(obj)
+        colMaps(adata)[[map_slot_out]] <- embedding
+        colMapTypes(adata)[[map_slot_out]] <- "embedding"
+        return(adata)
     }
     return(embedding)
 }
 
 #' @export
 computeNodeColors <- function(
-    obj,
+    adata = NULL,
     embedding_slot = "umap_3d_actionet",
     color_slot_out = NULL,
     thread_no = 1,
-    return_raw = FALSE) {
-    is_ace <- .validate_ace(obj, error_on_fail = FALSE, return_elem = FALSE)
+    return_raw = FALSE,
+    obj = NULL) {
+    adata <- .resolve_container_arg(adata = adata, obj = obj)
+    is_ace <- .validate_ace(adata, allow_se_like = TRUE, error_on_fail = FALSE, return_elem = FALSE)
 
     coordinates <- .ace_or_map(
-        obj = obj,
+        obj = adata,
         map_slot = embedding_slot,
         matrix_type = "dense",
         force_type = TRUE,
@@ -168,8 +180,8 @@ computeNodeColors <- function(
         if (is.null(color_slot_out)) {
             color_slot_out <- sprintf("colors_%s", embedding_slot)
         }
-        colMaps(obj)[[color_slot_out]] <- colors
-        return(obj)
+        colMaps(adata)[[color_slot_out]] <- colors
+        return(adata)
     }
     return(colors)
 }

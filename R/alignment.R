@@ -38,11 +38,11 @@ compute.pairwise.alignment <- function(reference_profile,
     reference_profile.deflated <- reference_profile + reference_profile.red$A %*%
       Matrix::t(reference_profile.red$B)
 
-    query_profile_centered <- ACTIONetExperiment:::.tscalet(query_profile.deflated, scale = FALSE)
-    reference_profile_centered <- ACTIONetExperiment:::.tscalet(reference_profile.deflated, scale = FALSE)
+    query_profile_centered <- .tscalet(query_profile.deflated, scale = FALSE)
+    reference_profile_centered <- .tscalet(reference_profile.deflated, scale = FALSE)
   } else {
-    query_profile_centered <- ACTIONetExperiment:::.tscalet(query_profile, scale = FALSE)
-    reference_profile_centered <- ACTIONetExperiment:::.tscalet(reference_profile, scale = FALSE)
+    query_profile_centered <- .tscalet(query_profile, scale = FALSE)
+    reference_profile_centered <- .tscalet(reference_profile, scale = FALSE)
   }
 
   reduced_dim <- min(min(min(dim(query_profile)), min(dim(reference_profile))) -
@@ -203,7 +203,7 @@ annotate_cells_from_alignment <- function(ace,
 
   M <- as(MWM_hungarian(newLabels.annot$Enrichment), "dgTMatrix")
 
-  newLabels.CPal <- colorspace::lighten(grDevices::rgb(metadata(ace)$backbone$colors[M@i +
+  newLabels.CPal <- colorspace::lighten(grDevices::rgb(.get_uns(ace)$backbone$colors[M@i +
     1, ]), 0.25)
   names(newLabels.CPal) <- colnames(newLabels.annot$Enrichment)[M@j + 1]
 

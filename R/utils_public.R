@@ -1,5 +1,5 @@
 .groupedMatSums <- function(X, group_vec, dim, return_sparse = FALSE) {
-  if (ACTIONetExperiment:::is.sparseMatrix(X)) {
+  if (.is_sparse_matrix(X)) {
     if(return_sparse) {
       mat <- C_computeGroupedSumsSparse2(X, sample_assignments = group_vec, axis = dim)
     } else {
@@ -13,7 +13,7 @@
 
 
 .groupedMatMeans <- function(X, group_vec, dim, return_sparse = FALSE) {
-  if (ACTIONetExperiment:::is.sparseMatrix(X)) {
+  if (.is_sparse_matrix(X)) {
     if(return_sparse) {
       mat <- C_computeGroupedMeansSparse2(X, sample_assignments = group_vec, axis = dim)
     } else {
@@ -27,7 +27,7 @@
 
 
 .groupedMatVars <- function(X, group_vec, dim, return_sparse = FALSE) {
-  if (ACTIONetExperiment:::is.sparseMatrix(X)) {
+  if (.is_sparse_matrix(X)) {
     if(return_sparse) {
       mat <- C_computeGroupedVarsSparse2(X, sample_assignments = group_vec, axis = dim)
     } else {
@@ -70,7 +70,7 @@ aggregateMatrix <- function(X,
   labels <- as.numeric(lf)
   keys <- levels(lf)
 
-  if (ACTIONetExperiment:::is.sparseMatrix(X) &&
+  if (.is_sparse_matrix(X) &&
     !is(X, "dMatrix")) {
     X <- as(X, "dMatrix")
   }
@@ -104,13 +104,15 @@ warnifnot <- function(cond) {
 }
 
 verify_aces <- function(ace1, ace2) {
+  ace1 <- .validate_ace(ace1, allow_se_like = TRUE, as_ace = TRUE, return_elem = TRUE)
+  ace2 <- .validate_ace(ace2, allow_se_like = TRUE, as_ace = TRUE, return_elem = TRUE)
   ###############################################################
   ###############################################################
   ################ Check ACTION reduction #######################
   ###############################################################
   ###############################################################
-  A1 <- ace1$ACTION
-  A2 <- ace2$ACTION
+  A1 <- colMaps(ace1)[["action"]]
+  A2 <- colMaps(ace2)[["action"]]
 
   deltaA <- sum(abs(A1 - A2)) / length(A1)
   warnifnot(deltaA < 1e-5)
@@ -160,9 +162,9 @@ verify_aces <- function(ace1, ace2) {
   warnifnot(deltaC < 1e-5)
   print(sprintf("Delta C (multi-resolution) = %.2e", deltaC))
 
-  archs1 <- ace1$assigned_archetype
-  archs2 <- ace2$assigned_archetype
-  mismatch_perc <- 100 * sum(archs1 != archs2) / ncol(ace1)
+  archs1 <- .get_obs_data(ace1)[["assigned_archetype"]]
+  archs2 <- .get_obs_data(ace2)[["assigned_archetype"]]
+  mismatch_perc <- 100 * sum(archs1 != archs2) / .actionet_ncol(ace1)
   warnifnot(mismatch_perc < 0.5)
   print(sprintf("%.02f %% archetype assignment mismatch", mismatch_perc))
 
@@ -172,8 +174,8 @@ verify_aces <- function(ace1, ace2) {
   ########## Check archetype feature specificity  ###############
   ###############################################################
   ###############################################################
-  spec1 <- round(ace1$arch_feat_spec, 3)
-  spec2 <- round(ace2$arch_feat_spec, 3)
+  spec1 <- round(rowMaps(ace1)[["archetype_feat_specificity_upper"]], 3)
+  spec2 <- round(rowMaps(ace2)[["archetype_feat_specificity_upper"]], 3)
 
   deltaSpec <- sum(abs(spec1 - spec2)) / length(spec1)
   warnifnot(deltaSpec < 1e-3)
@@ -185,8 +187,8 @@ verify_aces <- function(ace1, ace2) {
   ############## Check network construction #####################
   ###############################################################
   ###############################################################
-  net1 <- round(ace1$ACTIONet, 3)
-  net2 <- round(ace2$ACTIONet, 3)
+  net1 <- round(colNets(ace1)[["actionet"]], 3)
+  net2 <- round(colNets(ace2)[["actionet"]], 3)
 
   mismatch.edges <- 100 * sum(net1 != net2) / length((net1@i))
   warnifnot(mismatch.edges < 0.5)
@@ -199,8 +201,8 @@ verify_aces <- function(ace1, ace2) {
   ###############################################################
   ###############################################################
   ## 2D
-  coor2D1 <- round(ace1$ACTIONet2D, 1)
-  coor2D2 <- round(ace2$ACTIONet2D, 1)
+  coor2D1 <- round(colMaps(ace1)[["umap_2d_actionet"]], 1)
+  coor2D2 <- round(colMaps(ace2)[["umap_2d_actionet"]], 1)
 
   mismatch.2D <- 100 * sum(coor2D1 != coor2D2) / length(coor2D1)
   warnifnot(mismatch.2D < 0.5)
@@ -208,16 +210,16 @@ verify_aces <- function(ace1, ace2) {
 
 
   ## 3D
-  coor3D1 <- round(ace1$ACTIONet3D, 1)
-  coor3D2 <- round(ace2$ACTIONet3D, 1)
+  coor3D1 <- round(colMaps(ace1)[["umap_3d_actionet"]], 1)
+  coor3D2 <- round(colMaps(ace2)[["umap_3d_actionet"]], 1)
 
   mismatch.3D <- 100 * sum(coor3D1 != coor3D2) / length(coor3D1)
   warnifnot(mismatch.3D < 0.5)
   print(sprintf("%.02f %% 3D mismatch", mismatch.3D))
 
   ## Colors
-  colors1 <- round(ace1$colors_actionet, 1)
-  colors2 <- round(ace2$colors_actionet, 1)
+  colors1 <- round(colMaps(ace1)[["colors_actionet"]], 1)
+  colors2 <- round(colMaps(ace2)[["colors_actionet"]], 1)
 
   mismatch.colors <- 100 * sum(colors1 != colors2) / length(colors1)
   warnifnot(mismatch.colors < 0.5)
@@ -225,13 +227,21 @@ verify_aces <- function(ace1, ace2) {
 }
 
 export_minimal_sce <- function(ace, export_logcounts = FALSE) {
+  ace <- .validate_ace(ace, allow_se_like = TRUE, as_ace = TRUE, return_elem = TRUE)
   if (export_logcounts) {
-    sce <- SingleCellExperiment(assays = list(counts = counts(ace), logcounts = logcounts(ace)))
+    sce <- SingleCellExperiment::SingleCellExperiment(
+      assays = list(
+        counts = .validate_assay(ace, assay_name = "counts", return_elem = TRUE),
+        logcounts = .validate_assay(ace, assay_name = "logcounts", return_elem = TRUE)
+      )
+    )
   } else {
-    sce <- SingleCellExperiment(assays = list(counts = counts(ace)))
+    sce <- SingleCellExperiment::SingleCellExperiment(
+      assays = list(counts = .validate_assay(ace, assay_name = "counts", return_elem = TRUE))
+    )
   }
-  colData(sce) <- colData(ace)
-  rowData(sce) <- rowData(ace)
+  SummarizedExperiment::colData(sce) <- .get_obs_data(ace)
+  SummarizedExperiment::rowData(sce) <- .get_feature_data(ace)
 
   return(sce)
 }

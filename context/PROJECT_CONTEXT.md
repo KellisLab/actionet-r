@@ -9,12 +9,14 @@ This work aims to develop a multi-language computational biology data analysis t
 - C++ core library: `KellisLab/libactionet`
 - R front-end: `KellisLab/actionet-r` (Rcpp)
 - Python front-end: `KellisLab/actionet-python` (pybind11)
-- R data container: `shmohammadi86/ACTIONetExperiment` (Rcpp)
+- Shared in-memory container contract: AnnData
+- R compatibility container: `shmohammadi86/ACTIONetExperiment` (optional migration path)
 
 ## Dependency Graph
 
 - `libactionet` is a core dependency for both `actionet-r` and `actionet-python`
-- `ACTIONetExperiment` is a core dependency of both `actionet-r`. It provides AnnData-like data storage and manupulaton in R.
+- `anndataR` is the primary container dependency for `actionet-r`
+- `ACTIONetExperiment` is an optional compatibility dependency used only for migration and conversion
 - Both front-end packages are typically used for interactive and iterative data processing and analysis
 - `actionet-python` is often used in non-permissive and headless HPC environments (e.g. conda, SGE, slurm) for data processing pipelines
 
@@ -25,7 +27,7 @@ This work aims to develop a multi-language computational biology data analysis t
   - libactionet: Optmize and add critical features
   - actionet-python: Port and test core R functions
   - actionet-r: Modernize and consolidate codebase. Improve build system. Fix bugs
-  - ACTIONetExperiment: Either modernize or deprecate. Successor implementation undecided
+  - ACTIONetExperiment: Maintain compatibility conversions while AnnData becomes the primary container
   - all: Document
 
 ## Build/Binding Stack

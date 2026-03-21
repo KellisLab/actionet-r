@@ -101,7 +101,7 @@ annotateCells <- function(
 }
 
 .preprocess_annotation_markers <- function(markers, feature_set) {
-  if (is.matrix(markers) || ACTIONetExperiment:::is.sparseMatrix(markers)) {
+  if (is.matrix(markers) || .is_sparse_matrix(markers)) {
     common_features <- sort(unique(intersect(feature_set, rownames(markers))))
     row_idx <- match(common_features, rownames(markers))
     X <- markers[row_idx, ]
@@ -176,7 +176,7 @@ annotate.archetypes.using.labels <- function(ace,
                                              archetype.slot = "H_merged", algorithm = "ttest") {
   Labels <- .preprocess_annotation_labels(labels, ace)
 
-  if (is.matrix(ace) | ACTIONetExperiment:::is.sparseMatrix(ace)) {
+  if (is.matrix(ace) | .is_sparse_matrix(ace)) {
     profile <- as.matrix(ace)
   } else {
     profile <- Matrix::t(colMaps(ace)[[archetype.slot]])
@@ -200,8 +200,8 @@ annotate.archetypes.using.labels <- function(ace,
         return(rep(0, nrow(profile)))
       }
 
-      mu.class <- ACTIONetExperiment:::fastRowMeans(class.profile)
-      mu.null <- ACTIONetExperiment:::fastRowMeans(null.profile)
+      mu.class <- .fast_row_means(class.profile)
+      mu.null <- .fast_row_means(null.profile)
 
       sigma_sq.class <- apply(class.profile, 1, var)
       sigma_sq.null <- apply(null.profile, 1, var)
@@ -252,7 +252,7 @@ annotate.archetypes.using.labels <- function(ace,
 annotate.archetypes.using.markers <- function(ace,
                                               markers,
                                               features_use = NULL,
-                                              significance_slot = "arch_feat_spec") {
+                                              significance_slot = "archetype_feat_specificity_upper") {
   features_use <- .get_feature_vec(ace, features_use)
   marker_mat <- .preprocess_annotation_markers(markers, features_use)
 
@@ -273,7 +273,7 @@ annotate.archetypes.using.markers <- function(ace,
 }
 
 
-annotateArchetypes <- function(ace, markers = NULL, labels = NULL, scores = NULL, archetype_slot = "H_merged", archetype_specificity_slot = "arch_feat_spec") {
+annotateArchetypes <- function(ace, markers = NULL, labels = NULL, scores = NULL, archetype_slot = "H_merged", archetype_specificity_slot = "archetype_feat_specificity_upper") {
   annotations.count <- is.null(markers) + is.null(labels) + is.null(scores)
   if (annotations.count != 2) {
     stop("Exactly one of the `markers`, `labels`, or `scores` can be provided.")
@@ -294,7 +294,7 @@ annotateArchetypes <- function(ace, markers = NULL, labels = NULL, scores = NULL
     colnames(X1) <- paste("A", 1:ncol(X1), sep = "")
 
     if (length(labels) == 1) {
-      l2 <- colData(ace)[[labels]]
+      l2 <- .get_obs_data(ace)[[labels]]
     } else {
       l2 <- labels
     }
@@ -357,9 +357,9 @@ annotateClusters <- function(ace, markers = NULL, labels = NULL, scores = NULL, 
     rownames(cluster_enrichment) <- colnames(scores)
     colnames(cluster_enrichment) <- colnames(marker_mat)
   } else if (!is.null(labels)) {
-    l1 <- colData(ace)[[cluster_name]]
+    l1 <- .get_obs_data(ace)[[cluster_name]]
     if (length(labels) == 1) {
-      l2 <- colData(ace)[[labels]]
+      l2 <- .get_obs_data(ace)[[labels]]
     } else {
       l2 <- labels
     }
@@ -385,7 +385,7 @@ annotateClusters <- function(ace, markers = NULL, labels = NULL, scores = NULL, 
       X2 <- as.matrix(scores)
     }
 
-    l1 <- colData(ace)[[cluster_name]]
+    l1 <- .get_obs_data(ace)[[cluster_name]]
     f1 <- factor(l1)
     X1 <- model.matrix(~ .0 + f1)
 
@@ -527,7 +527,7 @@ annotate.clusters.using.markers <- function(ace,
     message(sprintf("%s does not exist in rowMaps(ace)", specificity.slot.name))
   }
 
-  if (is.matrix(marker.genes) | ACTIONetExperiment:::is.sparseMatrix(marker.genes)) {
+  if (is.matrix(marker.genes) | .is_sparse_matrix(marker.genes)) {
     marker.genes <- apply(marker.genes, 2, function(x) {
       rownames(marker.genes)[x >
         0]

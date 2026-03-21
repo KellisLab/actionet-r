@@ -1,5 +1,11 @@
 .is_se_like <- function(obj) {
-  allowed_classes <- c("ACTIONetExperiment", "SummarizedExperiment", "RangedSummarizedExperiment", "SingleCellExperiment")
+  allowed_classes <- c(
+    "AbstractAnnData",
+    "ACTIONetExperiment",
+    "SummarizedExperiment",
+    "RangedSummarizedExperiment",
+    "SingleCellExperiment"
+  )
 
   if (any(class(obj) %in% allowed_classes)) {
     return(TRUE)
@@ -22,41 +28,23 @@
     stop(err)
   }
 
-  if (any(class(obj) != "ACTIONetExperiment")) {
-    if (allow_se_like) {
-      if (!.is_se_like(obj)) {
-        if (error_on_fail) {
-          err <- sprintf("'%s' must be 'ACTIONetExperiment' or inherit from 'SummarizedExperiment'.\n", obj_name)
-          stop(err)
-        } else {
-          return(FALSE)
-        }
-      }
-    } else {
+  if (!.is_anndata(obj)) {
+    if (!.is_se_like(obj) || (!allow_se_like && !as_ace)) {
       if (error_on_fail) {
-        err <- sprintf("'%s' must be 'ACTIONetExperiment'.\n", obj_name)
+        err <- sprintf(
+          "'%s' must be an AnnData object%s.\n",
+          obj_name,
+          ifelse(allow_se_like || as_ace, " or coercible container", "")
+        )
         stop(err)
-      } else {
-        return(FALSE)
       }
+      return(FALSE)
     }
-    if (as_ace) {
-      obj <- as(obj, "ACTIONetExperiment")
-    }
+    obj <- toAnnData(obj)
   }
 
   if (fix_dimnames) {
-    if (is.null(rownames(obj))) {
-      rownames(obj) <- ACTIONetExperiment:::.default_rownames(NROW(obj))
-    } else {
-      rownames(obj) <- make.unique(rownames(obj), sep = "_")
-    }
-
-    if (is.null(colnames(obj))) {
-      colnames(obj) <- ACTIONetExperiment:::.default_colnames(NCOL(obj))
-    } else {
-      colnames(obj) <- make.unique(colnames(obj), sep = "_")
-    }
+    obj <- .ensure_unique_dimnames(obj)
   }
 
   if (return_elem == TRUE) {
@@ -75,30 +63,32 @@
     force_type = FALSE,
     error_on_fail = FALSE,
     return_elem = TRUE) {
-  .validate_ace(
+  ace <- .validate_ace(
     ace,
     as_ace = FALSE,
     allow_se_like = TRUE,
     allow_null = FALSE,
     obj_name = obj_name,
-    return_elem = FALSE,
+    return_elem = TRUE,
     error_on_fail = TRUE
   )
 
-  if (!(assay_name %in% names(assays(ace)))) {
+  if (!is.null(assay_name) && !(assay_name %in% .get_layer_names(ace))) {
     if (error_on_fail) {
-      err <- sprintf("'%s' is not an assay of '%s'.\n", assay_name, obj_name)
-      stop(err)
-    } else {
-      return(FALSE)
+      stop(sprintf("'%s' is not a layer of '%s'.\n", assay_name, obj_name))
     }
+    return(FALSE)
   }
-  x <- SummarizedExperiment::assays(ace)[[assay_name]]
+  x <- .get_layer_matrix(ace, layer = assay_name, transpose = TRUE)
 
   if (force_type == TRUE) {
     x <- .validate_matrix(
       x = x,
-      var_name = sprintf("assays(%s)$%s", obj_name, assay_name),
+      var_name = ifelse(
+        is.null(assay_name),
+        sprintf("%s$X", obj_name),
+        sprintf("%s$layers[['%s']]", obj_name, assay_name)
+      ),
       matrix_type = matrix_type,
       sparse_type = sparse_type,
       force_type = force_type,
@@ -121,24 +111,22 @@
     force_type = FALSE,
     row = FALSE,
     return_elem = TRUE) {
-  .validate_ace(
+  ace <- .validate_ace(
     ace,
     allow_null = FALSE,
     obj_name = obj_name,
-    return_elem = FALSE,
+    return_elem = TRUE,
     error_on_fail = TRUE
   )
 
   if (row == TRUE) {
     if (!(map_slot %in% names(rowMaps(ace)))) {
-      err <- sprintf("'%s' is not an attribute of 'rowMaps(%s)'.\n", map_slot, obj_name)
-      stop(err)
+      stop(sprintf("'%s' is not an attribute of 'rowMaps(%s)'.\n", map_slot, obj_name))
     }
     x <- rowMaps(ace)[[map_slot]]
   } else {
     if (!(map_slot %in% names(colMaps(ace)))) {
-      err <- sprintf("'%s' is not an attribute of 'colMaps(%s)'.\n", map_slot, obj_name)
-      stop(err)
+      stop(sprintf("'%s' is not an attribute of 'colMaps(%s)'.\n", map_slot, obj_name))
     }
     x <- colMaps(ace)[[map_slot]]
   }
@@ -146,7 +134,11 @@
   if (force_type == TRUE) {
     x <- .validate_matrix(
       x = x,
-      var_name = elseif(row, sprintf("rowMaps(%s)$%s", obj_name, map_slot), sprintf("colMaps(%s)$%s", obj_name, map_slot)),
+      var_name = ifelse(
+        row,
+        sprintf("rowMaps(%s)$%s", obj_name, map_slot),
+        sprintf("colMaps(%s)$%s", obj_name, map_slot)
+      ),
       matrix_type = matrix_type,
       force_type = force_type,
       return_elem = TRUE
@@ -170,24 +162,22 @@
     force_type = FALSE,
     row = FALSE,
     return_elem = TRUE) {
-  .validate_ace(
+  ace <- .validate_ace(
     ace,
     allow_null = FALSE,
     obj_name = obj_name,
-    return_elem = FALSE,
+    return_elem = TRUE,
     error_on_fail = TRUE
   )
 
   if (row == TRUE) {
     if (!(net_slot %in% names(rowNets(ace)))) {
-      err <- sprintf("'%s' is not an attribute of 'rowNets(%s)'.\n", net_slot, obj_name)
-      stop(err)
+      stop(sprintf("'%s' is not an attribute of 'rowNets(%s)'.\n", net_slot, obj_name))
     }
     x <- rowNets(ace)[[net_slot]]
   } else {
     if (!(net_slot %in% names(colNets(ace)))) {
-      err <- sprintf("'%s' is not an attribute of 'colNets(%s)'.\n", net_slot, obj_name)
-      stop(err)
+      stop(sprintf("'%s' is not an attribute of 'colNets(%s)'.\n", net_slot, obj_name))
     }
     x <- colNets(ace)[[net_slot]]
   }
@@ -195,7 +185,11 @@
   if (force_type == TRUE) {
     x <- .validate_matrix(
       x = x,
-      var_name = elseif(row, sprintf("rowNets(%s)$%s", obj_name, map_slot), sprintf("colNets(%s)$%s", obj_name, map_slot)),
+      var_name = ifelse(
+        row,
+        sprintf("rowNets(%s)$%s", obj_name, net_slot),
+        sprintf("colNets(%s)$%s", obj_name, net_slot)
+      ),
       matrix_type = matrix_type,
       sparse_type = sparse_type,
       force_type = force_type,
@@ -231,17 +225,25 @@
   }
 
   if (.is_se_like(obj)) {
-    attr <- ACTIONetExperiment::get.data.or.split(obj, attr = attr, to_return = return_type, d = dim)
+    attr <- .validate_vector_attr(
+      obj = obj,
+      attr = attr,
+      return_type = return_type,
+      dim = dim,
+      attr_name = attr_name,
+      obj_name = obj_name,
+      return_elem = TRUE
+    )
   } else {
     attr <- c(attr)
 
     if (match_row == TRUE) {
-      if (!(length(attr) == NROW(obj))) {
+      if (!(length(attr) == nrow(obj))) {
         err <- sprintf("'length(%s)' must equal 'NROW(%s)'.\n", attr_name, obj_name)
         stop(err)
       }
     } else {
-      if (!(length(attr) == NCOL(obj))) {
+      if (!(length(attr) == ncol(obj))) {
         err <- sprintf("'length(%s)' must equal 'NCOL(%s)'.\n", attr_name, obj_name)
         stop(err)
       }
@@ -271,21 +273,21 @@
 
   if (length(attr) == 1) {
     if (!.is_se_like(obj)) {
-      err <- sprintf("length(%s) must be %d for given object type", attr_name, dim(obj)[dim])
+      stop(sprintf("length(%s) must be %d for given object type", attr_name, .actionet_dim(obj)[dim]))
     }
     data_vec <- switch(dim,
-      SummarizedExperiment::rowData(obj)[[attr]],
-      SummarizedExperiment::colData(obj)[[attr]]
+      .get_feature_data(obj)[[attr]],
+      .get_obs_data(obj)[[attr]]
     )
   } else {
-    if (length(attr) != dim(obj)[dim]) {
+    if (length(attr) != .actionet_dim(obj)[dim]) {
       err <- sprintf(
         "length(%s) (%d) does not match %s(%s) (%d)",
         attr_name,
         length(attr),
         ifelse(dim == 1, "NROW", "NCOL"),
         obj_name,
-        dim(obj)[dim]
+        .actionet_dim(obj)[dim]
       )
       stop(err)
     }
@@ -303,7 +305,7 @@
       }
     }
   }
-  idx <- seq_len(dim(obj)[dim])
+  idx <- seq_len(.actionet_dim(obj)[dim])
   if (!is.null(groups_use)) {
     na_mask <- (!data_vec %in% groups_use)
     data_vec[na_mask] <- NA
@@ -343,7 +345,7 @@
   sparse_type <- match.arg(sparse_type, several.ok = TRUE)[1]
 
   if (matrix_type == "sparse") {
-    if (ACTIONetExperiment:::is.sparseMatrix(x)) {
+    if (.is_sparse_matrix(x)) {
       if (!is(x, sparse_type)) {
         x <- as(x, sparse_type)
       }
@@ -363,7 +365,7 @@
       }
     }
   } else {
-    if (ACTIONetExperiment:::is.sparseMatrix(x)) {
+    if (.is_sparse_matrix(x)) {
       if (!is(x, sparse_type)) {
         x <- as(x, sparse_type)
       }
@@ -425,7 +427,7 @@
     row = FALSE,
     transpose_map = FALSE,
     return_elem = TRUE) {
-  if (is(obj, "ACTIONetExperiment")) {
+  if (.is_se_like(obj)) {
     x <- .validate_map(
       ace = obj,
       map_slot = map_slot,
@@ -461,7 +463,7 @@
     obj_name = NULL,
     row = FALSE,
     return_elem = TRUE) {
-  if (is(obj, "ACTIONetExperiment")) {
+  if (.is_se_like(obj)) {
     x <- .validate_net(
       ace = obj,
       net_slot = net_slot,

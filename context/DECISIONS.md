@@ -13,13 +13,27 @@ This document records **deliberate architectural and operational decisions** for
 - `libactionet` (C++ core)
 - `actionet-r` (R front-end)
 - `actionet-python` (Python front-end)
-- `ACTIONetExperiment` (AnnData symmetric data container for `actionet-r`)
+- `ACTIONetExperiment` (optional R compatibility container for migration)
 
 **Rationale:**
 
 - Clear separation of concerns
 - Independent packaging and release cycles (C++ / CRAN-style / PyPI-style)
 - Avoids monorepo friction while preserving coordination via shared specs
+
+### Container contract
+
+**Decision:**
+
+- AnnData is the canonical data container contract across front-ends
+- `actionet-r` uses `anndataR` as its primary container implementation
+- `ACTIONetExperiment` remains supported only through optional compatibility converters and deprecated wrappers
+
+**Rationale:**
+
+- Reduces cross-language drift
+- Simplifies interoperability between R and Python front-ends
+- Removes duplicated container logic from `actionet-r`
 
 ---
 

@@ -17,7 +17,7 @@ assess.TF.activities.from.scores <- function(scores) {
   Enrichments <- lapply(1:length(ChEA3plusDB), function(i) {
     associations <- ChEA3plusDB[[i]]
     associations.mat <- as(sapply(associations, function(gs) {
-      as.numeric(rownames(ace) %in%
+      as.numeric(rownames(scores) %in%
         gs)
     }), "dMatrix")
     Enrichment <- assess_enrichment(scores, associations.mat)
@@ -39,15 +39,17 @@ assess.TF.activities.from.scores <- function(scores) {
 #' Compute the activity score of each TF based on the observed activity of its targets.
 #' (Similar to ChEA3; it is based on a meta-analysis using 4 separate datasets)
 #'
-#' @param ace ACTIONetExperiment (ACE) output object
+#' @param adata AnnData or compatible ACTIONet output object.
 #'
 #' @return Matrix of TF x archetypes indicating inferred TF activity scores
 #'
 #' @examples
-#' TF.scores <- assess.TF.activities.from.archetypes(ace)
+#' TF.scores <- assess.TF.activities.from.archetypes(adata)
 #' @export
-assess.TF.activities.from.archetypes <- function(ace) {
-  scores <- rowMaps(ace)$arch_feat_spec
+assess.TF.activities.from.archetypes <- function(adata = NULL, ace = NULL) {
+  adata <- .resolve_container_arg(adata = adata, ace = ace)
+  adata <- .validate_ace(adata, as_ace = TRUE, allow_se_like = TRUE, return_elem = TRUE)
+  scores <- rowMaps(adata)[["archetype_feat_specificity_upper"]]
   TF.scores <- assess.TF.activities.from.scores(scores)
 
   return(TF.scores)
@@ -89,7 +91,7 @@ assess.geneset.enrichment.from.scores <- function(scores, associations) {
 
 #' Performs geneset enrichment analysis on archetypes
 #'
-#' @param ace ACTIONetExperiment (ACE) output object
+#' @param adata AnnData or compatible ACTIONet output object.
 #' @param associations Either a genes x pathways membership matrix, or a set of genesets
 #' @param L Maximum length of the top-ranked genes to consider
 #'
@@ -98,17 +100,20 @@ assess.geneset.enrichment.from.scores <- function(scores, associations) {
 #' @examples
 #' data("gProfilerDB_human")
 #' associations <- gProfilerDB_human$SYMBOL$WP
-#' Geneset.enrichments <- assess.geneset.enrichment.from.archetypes(ace, associations)
+#' Geneset.enrichments <- assess.peakset.enrichment.from.archetypes(adata, associations)
 #' @export
-assess.peakset.enrichment.from.archetypes <- function(ace,
+assess.peakset.enrichment.from.archetypes <- function(adata = NULL,
                                                       associations,
                                                       min.counts = 0,
-                                                      specificity.slot = "arch_feat_spec") {
-  scores <- rowMaps(ace)[[specificity.slot]]
+                                                      specificity.slot = "archetype_feat_specificity_upper",
+                                                      ace = NULL) {
+  adata <- .resolve_container_arg(adata = adata, ace = ace)
+  adata <- .validate_ace(adata, as_ace = TRUE, allow_se_like = TRUE, return_elem = TRUE)
+  scores <- rowMaps(adata)[[specificity.slot]]
   if (max(scores) > 100) {
     scores <- log1p(scores)
   }
-  rownames(scores) <- rownames(ace)
+  rownames(scores) <- .actionet_rownames(adata)
 
   if (is.list(associations)) {
     associations <- sapply(associations, function(gs) {
@@ -117,19 +122,20 @@ assess.peakset.enrichment.from.archetypes <- function(ace,
     })
     rownames(associations) <- rownames(scores)
   }
-  common.features <- intersect(rownames(associations), rownames(ace))
+  common.features <- intersect(rownames(associations), .actionet_rownames(adata))
 
   rows <- match(common.features, rownames(associations))
-  associations <- as(associations[rows, ], "dMatrix")
+  associations <- as(associations[rows, , drop = FALSE], "dMatrix")
   scores <- scores[common.features, ]
 
-
-  associations <- as(associations[common.genes, ], "sparseMatrix")
+  associations <- as(associations[common.features, , drop = FALSE], "sparseMatrix")
 
 
   col.mask <- (Matrix::colSums(associations) > min.counts) # & (Matrix::colSums(associations) < nrow(associations)*0.1)
   associations <- associations[, col.mask]
-  associations <- associations[, -1]
+  if (ncol(associations) > 1) {
+    associations <- associations[, -1, drop = FALSE]
+  }
   enrichment.out <- assess_enrichment(scores, associations)
 
   rownames(enrichment.out$logPvals) <- colnames(associations)
@@ -159,7 +165,7 @@ assess.geneset.enrichment.gProfiler <- function(genes,
                                                 organism = "hsapiens",
                                                 top.terms = 10,
                                                 col = "tomato") {
-  ACTIONetExperiment:::.check_and_load_package(c("gprofiler2", "ggpubr"))
+  .check_and_load_package(c("gprofiler2", "ggpubr"))
 
   gp.out <- gprofiler2::gost(
     genes,
@@ -259,7 +265,7 @@ geneset.enrichment.gProfiler <- function(genes,
                                          col = "tomato",
                                          organism = "hsapiens",
                                          category = c("GO:BP", "REAC", "KEGG")) {
-  ACTIONetExperiment:::.check_and_load_package(c("gprofiler2", "ggpubr"))
+  .check_and_load_package(c("gprofiler2", "ggpubr"))
 
   gp.out <- gprofiler2::gost(
     genes,
@@ -323,7 +329,7 @@ assess.continuous.autocorrelation <- function(ace,
                                               perm.no = 100) {
   set.seed(0)
 
-  A <- ace$ACTIONet
+  A <- colNets(ace)[["actionet"]]
   degs <- Matrix::colSums(A)
   L <- -A
   diag(L) <- degs

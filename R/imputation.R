@@ -1,23 +1,23 @@
 #' Gene expression imputation using network diffusion.
 #'
-#' @param ace ACTIONetExperiment object containing output of 'run.ACTIONet()'.
-#' @param genes The list of genes to perform imputation on.
-#' @param features_use A vector of features of length NROW(ace) or the name of a column of rowData(ace) containing the genes given in 'genes'.
+#' @param adata AnnData or compatible container containing output of `runACTIONet()`.
+#' @param features The list of features to perform imputation on.
+#' @param features_use A vector of features of length `n_vars(adata)` or the name of a column of `adata$var` containing the features given in `features`.
 #' @param alpha Depth of diffusion between (0, 1).
 #' The larger it is, the deeper the diffusion, which results in less nonzeros (default = 0.85).
 #' @param thread_no Number of parallel threads
 #' @param diffusion_it Number of diffusion iterations (default = 5)
-#' @param assay_name Slot in the ace object with normalized counts.
+#' @param layer Layer in the container with normalized counts. `NULL` uses `adata$X`.
 #'
-#' @return Imputed gene expression matrix. Column names are set with imputed genes names and rows are cells.
+#' @return Imputed feature expression matrix. Column names are set with imputed feature names and rows are observations.
 #'
 #' @examples
-#' imputed.genes <- impute.genes.using.ACTIONet(ace, c("CD14", "CD19", "CD3G"))
-#' plot.ACTIONet.gradient(ace, imputed.genes[, 1])
+#' adata <- runACTIONet(adata)
+#' imputed.features <- imputeFeatures(adata, c("CD14", "CD19", "CD3G"))
 
 #' @export
 imputeFeatures <- function(
-    ace,
+    adata = NULL,
     features,
     algorithm = c("actionet", "pca"),
     features_use = NULL,
@@ -25,12 +25,22 @@ imputeFeatures <- function(
     norm_method = "pagerank_sym",
     thread_no = 0,
     max_it = 5,
-    assay_name = "logcounts",
+    layer = "logcounts",
     reduction_slot = "action",
-    net_slot = "actionet") {
+    net_slot = "actionet",
+    assay_name = NULL,
+    ace = NULL) {
     algorithm <- match.arg(algorithm)
+    adata <- .resolve_container_arg(adata = adata, ace = ace)
+    layer <- .resolve_layer_arg(
+      layer = layer,
+      assay_name = assay_name,
+      default = "logcounts",
+      layer_missing = missing(layer),
+      assay_name_missing = missing(assay_name)
+    )
 
-    features_use <- .get_features(ace, features_use = features_use, allow_empty = FALSE)
+    features_use <- .get_features(adata, features_use = features_use, allow_empty = FALSE)
     matched_feat <- intersect(unique(features), features_use)
     idx_feat <- match(matched_feat, features_use)
 
@@ -39,11 +49,11 @@ imputeFeatures <- function(
         stop(err)
     }
 
-    .validate_ace(ace, allow_se_like = FALSE, allow_null = FALSE, obj_name = "ace", return_elem = FALSE, error_on_fail = TRUE)
+    adata <- .validate_ace(adata, allow_se_like = FALSE, allow_null = FALSE, obj_name = "adata", as_ace = TRUE, return_elem = TRUE, error_on_fail = TRUE)
 
     X0 <- .ace_or_assay(
-        ace,
-        assay_name = assay_name,
+        adata,
+        assay_name = layer,
         allow_se_like = FALSE,
         return_elem = TRUE
     )[idx_feat, , drop = FALSE]
@@ -51,7 +61,7 @@ imputeFeatures <- function(
 
     if (algorithm == "pca") {
         pc_smooth <- smoothKernel(
-            ace = ace,
+            adata = adata,
             norm_method = norm_method,
             alpha = alpha,
             max_it = max_it,
@@ -86,7 +96,7 @@ imputeFeatures <- function(
         #     out <- W %*% Matrix::t(H)
     } else {
         out <- networkDiffusion(
-            obj = ace,
+            adata = adata,
             scores = Matrix::t(X0),
             norm_method = norm_method,
             alpha = alpha,
@@ -108,32 +118,35 @@ imputeFeatures <- function(
     out <- Matrix::t(as.matrix(D %*% out))
 
     colnames(out) <- matched_feat
-    rownames(out) <- colnames(ace)
+    rownames(out) <- .actionet_colnames(adata)
     return(out)
 }
 
 
 #' Imputing expression of genes by interpolating over archetype profile
 #'
-#' @param ace ACTIONet output
+#' @param adata AnnData or compatible ACTIONet output container.
 #' @param genes List of genes to impute
-#' @param features_use A vector of features of length NROW(ace) or the name of a column of rowData(ace) containing the genes given in 'genes'.
+#' @param features_use A vector of features of length `n_vars(adata)` or the name of a column of `adata$var` containing the genes given in `genes`.
 #'
 #' @return A matrix of imputed expression values
 #'
 #' @examples
-#' expression_imputed <- impute.genes.using.archetype(ace, genes)
+#' expression_imputed <- impute.genes.using.archetypes(adata, genes)
 #' @export
-impute.genes.using.archetypes <- function(ace, genes, features_use = NULL) {
-    features_use <- .get_feature_vec(ace, features_use = features_use)
+impute.genes.using.archetypes <- function(adata = NULL, genes, features_use = NULL, ace = NULL) {
+    adata <- .resolve_container_arg(adata = adata, ace = ace)
+    adata <- .validate_ace(adata, as_ace = TRUE, allow_se_like = TRUE, return_elem = TRUE)
+    features_use <- .get_feature_vec(adata, features_use = features_use)
     matched_feat <- intersect(unique(genes), features_use)
     idx_feat <- match(matched_feat, features_use)
 
-    Z <- rowMaps(ace)[["archetype_gene_profile"]][idx_feat, , drop = FALSE]
-    H <- Matrix::t(colMaps(ace)[["H_merged"]])
+    Z <- rowMaps(adata)[["archetype_feat_profile"]][idx_feat, , drop = FALSE]
+    H <- Matrix::t(colMaps(adata)[["H_merged"]])
 
     expression_imputed <- Matrix::t(Z %*% H)
     colnames(expression_imputed) <- matched_feat
+    rownames(expression_imputed) <- .actionet_colnames(adata)
 
     return(expression_imputed)
 }
@@ -141,25 +154,28 @@ impute.genes.using.archetypes <- function(ace, genes, features_use = NULL) {
 
 #' Imputing expression specificity of genes by interpolating over archetype profile
 #'
-#' @param ace ACTIONet output
+#' @param adata AnnData or compatible ACTIONet output container.
 #' @param genes List of genes to impute
-#' @param features_use A vector of features of length NROW(ace) or the name of a column of rowData(ace) containing the genes given in 'genes'.
+#' @param features_use A vector of features of length `n_vars(adata)` or the name of a column of `adata$var` containing the genes given in `genes`.
 #'
 #' @return A matrix of imputed expression values
 #'
 #' @examples
-#' expression_imputed <- impute.genes.using.archetype(ace, genes)
+#' expression_imputed <- impute.specific.genes.using.archetypes(adata, genes)
 #' @export
-impute.specific.genes.using.archetypes <- function(ace, genes, features_use = NULL) {
-    features_use <- .get_feature_vec(ace, features_use = features_use)
+impute.specific.genes.using.archetypes <- function(adata = NULL, genes, features_use = NULL, ace = NULL) {
+    adata <- .resolve_container_arg(adata = adata, ace = ace)
+    adata <- .validate_ace(adata, as_ace = TRUE, allow_se_like = TRUE, return_elem = TRUE)
+    features_use <- .get_feature_vec(adata, features_use = features_use)
     matched_feat <- intersect(unique(genes), features_use)
     idx_feat <- match(matched_feat, features_use)
 
-    Z <- log1p(rowMaps(ace)[["arch_feat_spec"]][idx_feat, , drop = FALSE])
-    H <- Matrix::t(colMaps(ace)[["H_merged"]])
+    Z <- log1p(rowMaps(adata)[["archetype_feat_specificity_upper"]][idx_feat, , drop = FALSE])
+    H <- Matrix::t(colMaps(adata)[["H_merged"]])
 
     expression_imputed <- Matrix::t(Z %*% H)
     colnames(expression_imputed) <- matched_feat
+    rownames(expression_imputed) <- .actionet_colnames(adata)
 
     return(expression_imputed)
 }

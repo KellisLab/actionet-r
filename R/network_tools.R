@@ -1,6 +1,6 @@
 #' @export
 buildNetwork <- function(
-    obj,
+    adata = NULL,
     algorithm = "k*nn",
     distance_metric = "jsd",
     density = 1.0,
@@ -12,11 +12,13 @@ buildNetwork <- function(
     k = 10, # metric "knn" only
     map_slot = "H_stacked",
     net_slot_out = "actionet",
-    return_raw = FALSE) {
-  is_ace <- .validate_ace(obj, error_on_fail = FALSE, return_elem = FALSE)
+    return_raw = FALSE,
+    obj = NULL) {
+  adata <- .resolve_container_arg(adata = adata, obj = obj)
+  is_ace <- .validate_ace(adata, allow_se_like = TRUE, error_on_fail = FALSE, return_elem = FALSE)
 
   H <- .ace_or_map(
-    obj = obj,
+    obj = adata,
     map_slot = map_slot,
     matrix_type = "dense",
     force_type = TRUE,
@@ -38,15 +40,15 @@ buildNetwork <- function(
   )
 
   if (is_ace && !return_raw) {
-    colNets(obj)[[net_slot_out]] <- G
-    return(obj)
+    colNets(adata)[[net_slot_out]] <- G
+    return(adata)
   }
   return(G)
 }
 
 #' @export
 networkDiffusion <- function(
-    obj,
+    adata = NULL,
     scores, ## `scores` must be castable to dense matrix.
     norm_method = c("pagerank", "pagerank_sym"),
     alpha = 0.85,
@@ -56,23 +58,25 @@ networkDiffusion <- function(
     tol = 1e-8,
     net_slot = "actionet",
     map_slot_out = NULL,
-    return_raw = FALSE) {
+    return_raw = FALSE,
+    obj = NULL) {
+  adata <- .resolve_container_arg(adata = adata, obj = obj)
   norm_method <- tolower(norm_method)
   norm_method <- match.arg(norm_method, several.ok = TRUE)[1]
 
-  is_ace <- .validate_ace(obj, error_on_fail = FALSE, return_elem = FALSE)
+  is_ace <- .validate_ace(adata, allow_se_like = TRUE, error_on_fail = FALSE, return_elem = FALSE)
 
   if (!is.matrix(scores)) {
     scores <- Matrix::as.matrix(scores)
   }
 
-  if (NROW(scores) != NCOL(obj)) {
+  if (NROW(scores) != .actionet_ncol(adata)) {
     err <- sprintf("`length(scores)` must equal `NCOL(obj)`.\n")
     stop(err)
   }
 
   G <- .ace_or_net(
-    obj = obj,
+    obj = adata,
     net_slot = net_slot,
     matrix_type = "sparse",
     force_type = TRUE,
@@ -99,8 +103,8 @@ networkDiffusion <- function(
     if (is.null(map_slot_out)) {
       map_slot_out <- sprintf("%s_%s", norm_method, net_slot)
     }
-    colMaps(obj)[[map_slot_out]] <- X
-    return(obj)
+    colMaps(adata)[[map_slot_out]] <- X
+    return(adata)
   }
 
   return(X)
@@ -109,7 +113,7 @@ networkDiffusion <- function(
 
 #' @export
 networkCentrality <- function(
-    obj,
+    adata = NULL,
     label_attr = NULL,
     algorithm = c("coreness", "pagerank", "local_coreness", "local_pagerank"),
     alpha = 0.9,
@@ -118,14 +122,16 @@ networkCentrality <- function(
     thread_no = 0,
     net_slot = "actionet",
     attr_out = NULL,
-    return_raw = FALSE) {
+    return_raw = FALSE,
+    obj = NULL) {
+  adata <- .resolve_container_arg(adata = adata, obj = obj)
   algorithm <- tolower(algorithm)
   algorithm <- match.arg(algorithm, several.ok = TRUE)[1]
 
-  is_ace <- .validate_ace(obj, error_on_fail = FALSE, return_elem = FALSE)
+  is_ace <- .validate_ace(adata, allow_se_like = TRUE, error_on_fail = FALSE, return_elem = FALSE)
 
   G <- .ace_or_net(
-    obj = obj,
+    obj = adata,
     net_slot = net_slot,
     matrix_type = "sparse",
     sparse_type = "CsparseMatrix",
@@ -149,7 +155,7 @@ networkCentrality <- function(
   }
 
   if (!is.null(label_attr)) {
-    label_attr <- .validate_attr(obj, attr = label_attr, obj_name = "obj", attr_name = "label_attr", return_elem = TRUE)
+    label_attr <- .validate_attr(adata, attr = label_attr, obj_name = "obj", attr_name = "label_attr", return_elem = TRUE)
     assignments <- as.numeric(factor(label_attr))
   }
 
@@ -157,7 +163,7 @@ networkCentrality <- function(
     centrality <- C_computeCoreness(G)
   } else if (algorithm == "pagerank") {
     centrality <- networkDiffusion(
-      obj = G,
+      adata = G,
       scores = rep(1 / NCOL(G), NCOL(G)),
       norm_method = "pagerank",
       alpha = alpha,
@@ -172,7 +178,7 @@ networkCentrality <- function(
     design.mat <- stats::model.matrix(~ 0 + as.factor(assignments))
     design.mat <- scale(design.mat, center = FALSE, scale = Matrix::colSums(design.mat))
     scores <- networkDiffusion(
-      obj = G,
+      adata = G,
       scores = design.mat,
       norm_method = "pagerank",
       alpha = alpha,
@@ -190,8 +196,10 @@ networkCentrality <- function(
     if (is.null(attr_out)) {
       attr_out <- sprintf("%s_%s", algorithm, net_slot)
     }
-    colData(obj)[[attr_out]] <- centrality
-    return(obj)
+    obs <- .get_obs_data(adata)
+    obs[[attr_out]] <- centrality
+    adata <- .set_obs_data(adata, obs)
+    return(adata)
   }
 
   return(centrality)
@@ -200,7 +208,7 @@ networkCentrality <- function(
 
 #' @export
 propagateLabels <- function(
-    obj,
+    adata = NULL,
     labels,
     which_fixed = NULL,
     algorithm = c("LPA"),
@@ -208,11 +216,13 @@ propagateLabels <- function(
     iters = 3,
     sig_th = 3,
     net_slot = "actionet",
-    thread_no = 0) {
+    thread_no = 0,
+    obj = NULL) {
+  adata <- .resolve_container_arg(adata = adata, obj = obj)
   algorithm <- match.arg(algorithm, several.ok = TRUE)[1]
 
   G <- .ace_or_net(
-    obj = obj,
+    obj = adata,
     net_slot = net_slot,
     matrix_type = "sparse",
     force_type = TRUE,
@@ -220,7 +230,7 @@ propagateLabels <- function(
   )
 
   lf <- .validate_vector_attr(
-    obj,
+    adata,
     attr = labels,
     return_type = "data",
     attr_name = "labels",
@@ -268,7 +278,7 @@ networkAutocorrelation <- function(
     obj_name = "obj"
   )
 
-  if (!ACTIONetExperiment::is.sparseMatrix(G)) {
+  if (!.is_sparse_matrix(G)) {
     G <- as(G, "sparseMatrix")
   }
 

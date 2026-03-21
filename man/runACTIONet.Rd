@@ -5,10 +5,10 @@
 \title{Run main ACTIONet pipeline}
 \usage{
 runACTIONet(
-  ace,
+  adata = NULL,
   k_min = 2,
   k_max = 30,
-  assay_name = "logcounts",
+  layer = "logcounts",
   reduction_slot = "action",
   net_slot_out = "actionet",
   min_obs = 2,
@@ -17,8 +17,10 @@ runACTIONet(
   network_metric = "jsd",
   network_algorithm = "k*nn",
   network_density = 1,
+  network_M = 16,
   network_ef_construction = 200,
   network_ef = 200,
+  network_k = 10,
   mutual_edges_only = TRUE,
   layout_method = c("umap", "tumap", "largevis"),
   layout_epochs = 100,
@@ -28,21 +30,23 @@ runACTIONet(
   layout_parallel = TRUE,
   compute_specificity_parallel = FALSE,
   thread_no = 0,
-  seed = 0
+  seed = 0,
+  assay_name = NULL,
+  ace = NULL
 )
 }
 \arguments{
-\item{ace}{`ACTIONetExperiment` containing an appropriate reduction in 'reduction_slot'.}
+\item{adata}{AnnData or compatible container containing an appropriate reduction in `reduction_slot`.}
 
 \item{k_min}{Minimum depth of decompositions. (default=2)}
 
 \item{k_max}{Maximum depth of decompositions. (default=30)}
 
-\item{assay_name}{Name of assay to be used. (default='logcounts')}
+\item{layer}{Layer to be used. `NULL` uses `adata$X`. (default='logcounts')}
 
-\item{reduction_slot}{Slot in colMaps(ace) containing reduced kernel. (default='ACTION')}
+\item{reduction_slot}{Entry in `adata$obsm` containing the reduced kernel. (default='action')}
 
-\item{net_slot_out}{Name of slot in colMaps(ace) to store ACTIONet adjacency matrix. (default='ACTIONet')}
+\item{net_slot_out}{Name of entry in `adata$obsp` to store the ACTIONet adjacency matrix. (default='actionet')}
 
 \item{min_obs}{Minimum number of observations required to construct an archetype. (default=2)}
 
@@ -57,9 +61,13 @@ The larger the value, the more archetypes will be filtered out. (default=-3)}
 
 \item{network_density}{Density factor of ACTIONet graph. (default=1)}
 
+\item{network_M}{HNSW graph connectivity parameter for network construction. (default=16)}
+
 \item{network_ef_construction}{HNSW construction search breadth for network construction. For `network_algorithm="k*nn"`, the effective value is `max(network_ef_construction, kNN)`. (default=200)}
 
 \item{network_ef}{HNSW query search breadth for network construction. For `network_algorithm="k*nn"`, the effective value is `max(network_ef, kNN)`. (default=200)}
+
+\item{network_k}{Number of nearest neighbors for `network_algorithm="knn"`. (default=10)}
 
 \item{mutual_edges_only}{Whether to enforce edges to be mutually-nearest-neighbors. (default=TRUE)}
 
@@ -74,13 +82,17 @@ The larger the value, the more archetypes will be filtered out. (default=-3)}
 \item{thread_no}{Number of parallel threads. (default=0)}
 
 \item{seed}{Seed for random initialization. (default=0)}
+
+\item{assay_name}{Deprecated alias for `layer`.}
+
+\item{ace}{Deprecated alias for `adata`.}
 }
 \value{
-An ACTIONetExperiment object
+An AnnData object populated with canonical ACTIONet outputs.
 }
 \description{
 Run main ACTIONet pipeline
 }
 \examples{
-ace <- runACTIONet(ace)
+adata <- runACTIONet(adata)
 }

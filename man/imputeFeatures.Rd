@@ -5,7 +5,7 @@
 \title{Gene expression imputation using network diffusion.}
 \usage{
 imputeFeatures(
-  ace,
+  adata = NULL,
   features,
   algorithm = c("actionet", "pca"),
   features_use = NULL,
@@ -13,34 +13,36 @@ imputeFeatures(
   norm_method = "pagerank_sym",
   thread_no = 0,
   max_it = 5,
-  assay_name = "logcounts",
+  layer = "logcounts",
   reduction_slot = "action",
-  net_slot = "actionet"
+  net_slot = "actionet",
+  assay_name = NULL,
+  ace = NULL
 )
 }
 \arguments{
-\item{ace}{ACTIONetExperiment object containing output of 'run.ACTIONet()'.}
+\item{adata}{AnnData or compatible container containing output of `runACTIONet()`.}
 
-\item{features_use}{A vector of features of length NROW(ace) or the name of a column of rowData(ace) containing the genes given in 'genes'.}
+\item{features}{The list of features to perform imputation on.}
+
+\item{features_use}{A vector of features of length `n_vars(adata)` or the name of a column of `adata$var` containing the features given in `features`.}
 
 \item{alpha}{Depth of diffusion between (0, 1).
 The larger it is, the deeper the diffusion, which results in less nonzeros (default = 0.85).}
 
 \item{thread_no}{Number of parallel threads}
 
-\item{assay_name}{Slot in the ace object with normalized counts.}
-
-\item{genes}{The list of genes to perform imputation on.}
+\item{layer}{Layer in the container with normalized counts. `NULL` uses `adata$X`.}
 
 \item{diffusion_it}{Number of diffusion iterations (default = 5)}
 }
 \value{
-Imputed gene expression matrix. Column names are set with imputed genes names and rows are cells.
+Imputed feature expression matrix. Column names are set with imputed feature names and rows are observations.
 }
 \description{
 Gene expression imputation using network diffusion.
 }
 \examples{
-imputed.genes <- impute.genes.using.ACTIONet(ace, c("CD14", "CD19", "CD3G"))
-plot.ACTIONet.gradient(ace, imputed.genes[, 1])
+adata <- runACTIONet(adata)
+imputed.features <- imputeFeatures(adata, c("CD14", "CD19", "CD3G"))
 }

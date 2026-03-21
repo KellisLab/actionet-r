@@ -1,3 +1,5 @@
 useDynLib(actionet, .registration=TRUE)
 importFrom(Rcpp, evalCpp)
+S3method(plot,AbstractAnnData)
+S3method(plot,InMemoryAnnData)
 exportPattern("^[[:alpha:]]+")

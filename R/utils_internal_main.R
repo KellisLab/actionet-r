@@ -77,7 +77,9 @@
     colMaps(ace)[[sprintf("C_%s", merged_suffix)]] <- as(unification.out$C_merged, "sparseMatrix")
     colMapTypes(ace)[[sprintf("C_%s", merged_suffix)]] <- "internal"
 
-    colData(ace)[[footprint_slot_name]] <- c(unification.out$assigned_archetype)
+    obs <- .get_obs_data(ace)
+    obs[[footprint_slot_name]] <- c(unification.out$assigned_archetype)
+    ace <- .set_obs_data(ace, obs)
 
     return(ace)
   }
@@ -85,21 +87,23 @@
 
 #' @export
 smoothKernel <- function(
-    ace,
+    adata = NULL,
     norm_method = "pagerank",
     alpha = 0.85,
     max_it = 5,
     reduction_slot = "action",
     net_slot = "actionet",
     thread_no = 0,
-    return_raw = FALSE) {
-  .validate_ace(ace, allow_se_like = FALSE, return_elem = FALSE, error_on_fail = TRUE)
+    return_raw = FALSE,
+    ace = NULL) {
+  adata <- .resolve_container_arg(adata = adata, ace = ace)
+  adata <- .validate_ace(adata, allow_se_like = TRUE, return_elem = TRUE, error_on_fail = TRUE)
 
   vars <- list(
-    U = ACTIONetExperiment::rowMaps(ace)[[sprintf("%s_U", reduction_slot)]],
-    A = ACTIONetExperiment::rowMaps(ace)[[sprintf("%s_A", reduction_slot)]],
-    B = ACTIONetExperiment::colMaps(ace)[[sprintf("%s_B", reduction_slot)]],
-    sigma = S4Vectors::metadata(ace)[[sprintf("%s_sigma", reduction_slot)]]
+    U = rowMaps(adata)[[sprintf("%s_U", reduction_slot)]],
+    A = rowMaps(adata)[[sprintf("%s_A", reduction_slot)]],
+    B = colMaps(adata)[[sprintf("%s_B", reduction_slot)]],
+    sigma = .get_uns(adata)[[sprintf("%s_params", reduction_slot)]][["sigma"]]
   )
 
   if (any(sapply(vars, is.null))) {
@@ -109,14 +113,14 @@ smoothKernel <- function(
   }
 
   S_r <- .validate_map(
-    ace,
+    adata,
     map_slot = reduction_slot,
     matrix_type = "dense",
     force_type = TRUE,
   )
 
   G <- .validate_net(
-    ace,
+    adata,
     net_slot = net_slot,
     matrix_type = "sparse",
     force_type = TRUE,
@@ -145,12 +149,12 @@ smoothKernel <- function(
     return(out)
   } else {
     W <- SVD.out$u
-    rownames(W) <- rownames(ace)
+    rownames(W) <- .actionet_rownames(adata)
     smooth_red_name <- sprintf("%s_smooth", reduction_slot)
     smooth_U_name <- sprintf("%s_U", reduction_slot)
-    rowMaps(ace)[[smooth_U_name]] <- W
-    colMaps(ace)[[smooth_red_name]] <- H
-    rowMapTypes(ace)[[smooth_U_name]] <- colMapTypes(ace)[[smooth_red_name]] <- "internal"
-    return(ace)
+    rowMaps(adata)[[smooth_U_name]] <- W
+    colMaps(adata)[[smooth_red_name]] <- H
+    rowMapTypes(adata)[[smooth_U_name]] <- colMapTypes(adata)[[smooth_red_name]] <- "internal"
+    return(adata)
   }
 }

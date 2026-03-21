@@ -5,12 +5,14 @@
 \title{Computes feature specificity scores for each archetype.}
 \usage{
 archetypeFeatureSpecificity(
-  ace,
-  assay_name = "logcounts",
+  adata = NULL,
+  layer = "logcounts",
   map_slot = "archetype_footprint",
   map_out_prefix = "archetype",
   thread_no = 0,
-  return_raw = FALSE
+  return_raw = FALSE,
+  assay_name = NULL,
+  ace = NULL
 )
 }
 \description{

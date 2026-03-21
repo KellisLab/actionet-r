@@ -26,13 +26,13 @@
       as.numeric(features_use %in% x)
     })
     X <- as(X, "CsparseMatrix")
-  } else if (is.matrix(markers) || ACTIONetExperiment:::is.sparseMatrix(markers)) {
+  } else if (is.matrix(markers) || .is_sparse_matrix(markers)) {
     if (any(!is.finite(markers))) {
       err <- sprintf("'markers' contains non-numeric values")
       stop(err)
     }
 
-    if (NROW(markers) != NROW(obj)) {
+    if (NROW(markers) != .actionet_nrow(obj)) {
       err <- sprintf("NROW(%s) does not match NROW(markers)", obj_name)
       stop(err)
     }

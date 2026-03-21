@@ -1,17 +1,33 @@
-#' Filter columns and rows of `ACTIONetExperiment` or `SummarizedExperiment`-like object.
+#' Filter rows and columns of an ACTIONet-compatible container.
+#'
+#' @param adata AnnData or compatible container.
+#' @param layer Layer to filter on. `NULL` uses `adata$X`.
+#' @param assay_name Deprecated alias for `layer`.
+#' @param ace Deprecated alias for `adata`.
 #' @export
-filter.ace <- function(
-    ace,
-    assay_name = "counts",
+filterActionet <- function(
+    adata = NULL,
+    layer = NULL,
     min_cells_per_feat = NULL,
     min_feats_per_cell = NULL,
     min_umis_per_cell = NULL,
     max_umis_per_cell = NULL,
-    return_fil_ace = TRUE) {
-  init_dim <- dim(ace)
-  init_dnames <- dimnames(ace)
+    return_fil_ace = TRUE,
+    assay_name = NULL,
+    ace = NULL) {
+  adata <- .resolve_container_arg(adata = adata, ace = ace)
+  layer <- .resolve_layer_arg(
+    layer = layer,
+    assay_name = assay_name,
+    default = NULL,
+    layer_missing = missing(layer),
+    assay_name_missing = missing(assay_name)
+  )
+  adata <- .validate_ace(adata, as_ace = TRUE, allow_se_like = TRUE, fix_dimnames = TRUE, return_elem = TRUE)
+  init_dim <- .actionet_dim(adata)
+  init_dnames <- list(.actionet_rownames(adata), .actionet_colnames(adata))
 
-  X <- .validate_assay(ace, assay_name = assay_name, sparse_type = "CsparseMatrix", return_elem = TRUE)
+  X <- .validate_assay(adata, assay_name = layer, sparse_type = "CsparseMatrix", return_elem = TRUE)
 
   dimnames(X) <- list(1:NROW(X), 1:NCOL(X))
 
@@ -52,14 +68,18 @@ filter.ace <- function(
       break
     }
   }
-  ace <- ace[as.numeric(rownames(X)), as.numeric(colnames(X))]
+  adata <- .subset_actionet_container(
+    adata,
+    features = as.numeric(rownames(X)),
+    cells = as.numeric(colnames(X))
+  )
   invisible(gc())
 
   if (return_fil_ace) {
-    return(ace)
+    return(adata)
   } else {
-    fil_cols_mask <- !(init_dnames[[2]] %in% colnames(ace))
-    fil_rows_mask <- !(init_dnames[[1]] %in% rownames(ace))
+    fil_cols_mask <- !(init_dnames[[2]] %in% .actionet_colnames(adata))
+    fil_rows_mask <- !(init_dnames[[1]] %in% .actionet_rownames(adata))
 
     fil_cols_list <- data.frame(
       name = init_dnames[[2]][fil_cols_mask],
@@ -81,33 +101,50 @@ filter.ace <- function(
 }
 
 
-#' Filter columns and rows of `ACTIONetExperiment` or `SummarizedExperiment` object by column attribute.
+#' Filter rows and columns of an ACTIONet-compatible container by observation attribute.
+#'
+#' @param adata AnnData or compatible container.
+#' @param by Observation attribute used to define groups before filtering.
+#' @param layer Layer to filter on. `NULL` uses `adata$X`.
+#' @param assay_name Deprecated alias for `layer`.
+#' @param ace Deprecated alias for `adata`.
 #' @export
-filter.ace.by.attr <- function(
-    ace,
+filterActionetByAttr <- function(
+    adata = NULL,
     by,
-    assay_name = "counts",
+    layer = NULL,
     min_cells_per_feat = NULL,
     min_feats_per_cell = NULL,
     min_umis_per_cell = NULL,
-    max_umis_per_cell = NULL) {
-  IDX <- ACTIONetExperiment::get.data.or.split(ace, attr = by, to_return = "split")
+    max_umis_per_cell = NULL,
+    assay_name = NULL,
+    ace = NULL) {
+  adata <- .resolve_container_arg(adata = adata, ace = ace)
+  layer <- .resolve_layer_arg(
+    layer = layer,
+    assay_name = assay_name,
+    default = NULL,
+    layer_missing = missing(layer),
+    assay_name_missing = missing(assay_name)
+  )
+  adata <- .validate_ace(adata, as_ace = TRUE, allow_se_like = TRUE, fix_dimnames = TRUE, return_elem = TRUE)
+  IDX <- .validate_vector_attr(adata, attr = by, return_type = "split", dim = 2)
 
-  if (any(duplicated(rownames(ace)))) {
+  if (any(duplicated(.actionet_rownames(adata)))) {
     msg <- sprintf("Adding suffix to duplicate rownames.\n")
     warning(msg)
-    rownames(ace) <- make.unique(rownames(ace))
+    adata <- .set_actionet_rownames(adata, make.unique(.actionet_rownames(adata)))
   }
-  if (any(duplicated(colnames(ace)))) {
+  if (any(duplicated(.actionet_colnames(adata)))) {
     msg <- sprintf("Adding suffix to duplicate colnames.\n")
     warning(msg)
-    colnames(ace) <- make.unique(colnames(ace))
+    adata <- .set_actionet_colnames(adata, make.unique(.actionet_colnames(adata)))
   }
 
   fil_names <- lapply(IDX, function(idx) {
-    fil_list <- filter.ace(
-      ace = ace[, idx],
-      assay_name = assay_name,
+    fil_list <- filterActionet(
+      adata = .subset_actionet_container(adata, cells = idx),
+      layer = layer,
       min_cells_per_feat = min_cells_per_feat,
       min_umis_per_cell = min_umis_per_cell,
       max_umis_per_cell = max_umis_per_cell,
@@ -125,13 +162,25 @@ filter.ace.by.attr <- function(
   fil_row <- lapply(fil_names, function(i) i[["rows_filtered"]]$name)
   fil_row <- Reduce(union, fil_row)
 
-  keep_row <- which(!(rownames(ace) %in% fil_row))
-  keep_col <- which(!(colnames(ace) %in% fil_col))
+  keep_row <- which(!(.actionet_rownames(adata) %in% fil_row))
+  keep_col <- which(!(.actionet_colnames(adata) %in% fil_col))
 
-  ace <- ace[keep_row, keep_col]
-  colData(ace) <- droplevels(colData(ace))
-  rowData(ace) <- droplevels(rowData(ace))
+  adata <- .subset_actionet_container(adata, features = keep_row, cells = keep_col)
+  adata <- .set_obs_data(adata, droplevels(.get_obs_data(adata)))
+  adata <- .set_feature_data(adata, droplevels(.get_feature_data(adata)))
 
   invisible(gc())
-  return(ace)
+  return(adata)
+}
+
+#' @export
+filter.ace <- function(...) {
+  .Deprecated("filterActionet")
+  filterActionet(...)
+}
+
+#' @export
+filter.ace.by.attr <- function(...) {
+  .Deprecated("filterActionetByAttr")
+  filterActionetByAttr(...)
 }

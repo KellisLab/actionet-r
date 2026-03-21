@@ -1,38 +1,50 @@
 #' Compute the reduced kernel matrix and decomposition
 #'
-#' @param obj ACTIONetExperiment, SummarizedExperiment, SingleCellExperiment or matrix.
+#' @param adata AnnData, `SummarizedExperiment`, `SingleCellExperiment`, or matrix-like input.
 #' @param k Dimension of reduced kernel matrix. Number of singular vectors to estimate. Passed to <code>runSVD()</code>.
 #' @param algorithm Singular value decomposition algorithm. Passed to <code>runSVD()</code>.
 #' @param max_it Number of SVD iterations. If `NULL`: 1000 for "ilrb", 5 otherwise.
 #' @param seed Random seed.
 #' @param verbose Print status messages.
-#' @param assay_name Name of assay to reduce.
-#' @param reduction_slot Slot of colMaps(ace) in which to stored reduced kernel matrix. Also the prefix of slots to in which to store output components of the decomposition. (ACTIONetExperiment output only).
-#' @param return_raw Return raw output regardless of 'obj' type.
+#' @param layer Layer to reduce. `NULL` uses `adata$X`.
+#' @param reduction_slot Entry in `adata$obsm` in which to store the reduced kernel matrix, and the prefix for related decomposition outputs.
+#' @param return_raw Return raw output regardless of container type.
+#' @param assay_name Deprecated alias for `layer`.
+#' @param obj Deprecated alias for `adata`.
 #'
-#' @return ACTIONetExperiment object with reduction in colMaps(ace).
+#' @return AnnData object with reduction stored in canonical ACTIONet slots, or the raw decomposition output when `return_raw = TRUE`.
 #'
 #' @export
 reduceKernel <- function(
-    obj,
+    adata = NULL,
     k = 30,
     algorithm = c("irlb", "halko", "feng"),
     max_it = NULL,
     seed = 0,
     verbose = TRUE,
-    assay_name = "logcounts",
+    layer = "logcounts",
     reduction_slot = "action",
-    return_raw = FALSE) {
+    return_raw = FALSE,
+    assay_name = NULL,
+    obj = NULL) {
+  adata <- .resolve_container_arg(adata = adata, obj = obj)
+  layer <- .resolve_layer_arg(
+    layer = layer,
+    assay_name = assay_name,
+    default = "logcounts",
+    layer_missing = missing(layer),
+    assay_name_missing = missing(assay_name)
+  )
 
-  is_ace <- .is_se_like(obj)
+  is_ace <- .is_se_like(adata)
 
   if (is_ace && !return_raw) {
-    obj <- .validate_ace(obj, as_ace = TRUE, allow_se_like = TRUE, fix_dimnames = TRUE, return_elem = TRUE, error_on_fail = TRUE)
+    adata <- .validate_ace(adata, as_ace = TRUE, allow_se_like = TRUE, fix_dimnames = TRUE, return_elem = TRUE, error_on_fail = TRUE)
   }
 
   X <- .ace_or_assay(
-    obj,
-    assay_name = assay_name,
+    adata,
+    assay_name = layer,
     sparse_type = "CsparseMatrix",
     allow_se_like = TRUE,
     return_elem = TRUE
@@ -56,34 +68,32 @@ reduceKernel <- function(
   }
 
   if (is_ace && !return_raw) {
-    if (any(class(obj) != "ACTIONetExperiment")) {
-      obj <- as(obj, "ACTIONetExperiment")
-    }
-
     S_r <- out$S_r
-    colnames(S_r) <- colnames(obj)
+    colnames(S_r) <- .actionet_colnames(adata)
     rownames(S_r) <- paste0("dim_", seq_len(NROW(S_r)))
-    colMaps(obj)[[reduction_slot]] <- Matrix::t(S_r)
-    colMapTypes(obj)[[reduction_slot]] <- "reduction"
+    colMaps(adata)[[reduction_slot]] <- Matrix::t(S_r)
+    colMapTypes(adata)[[reduction_slot]] <- "reduction"
 
     V <- out$U
     colnames(V) <- paste0("U", seq_len(NCOL(V)))
-    rowMaps(obj)[[sprintf("%s_U", reduction_slot)]] <- V
-    rowMapTypes(obj)[[sprintf("%s_U", reduction_slot)]] <- "internal"
+    rowMaps(adata)[[sprintf("%s_U", reduction_slot)]] <- V
+    rowMapTypes(adata)[[sprintf("%s_U", reduction_slot)]] <- "internal"
 
     A <- out$A
     colnames(A) <- paste0("A", seq_len(NCOL(A)))
-    rowMaps(obj)[[sprintf("%s_A", reduction_slot)]] <- A
-    rowMapTypes(obj)[[sprintf("%s_A", reduction_slot)]] <- "internal"
+    rowMaps(adata)[[sprintf("%s_A", reduction_slot)]] <- A
+    rowMapTypes(adata)[[sprintf("%s_A", reduction_slot)]] <- "internal"
 
     B <- out$B
     colnames(B) <- paste0("B", seq_len(NCOL(B)))
-    colMaps(obj)[[sprintf("%s_B", reduction_slot)]] <- B
-    colMapTypes(obj)[[sprintf("%s_B", reduction_slot)]] <- "internal"
+    colMaps(adata)[[sprintf("%s_B", reduction_slot)]] <- B
+    colMapTypes(adata)[[sprintf("%s_B", reduction_slot)]] <- "internal"
 
-    metadata(obj)[[sprintf("%s_sigma", reduction_slot)]] <- out$sigma
+    uns <- .get_uns(adata)
+    uns[[sprintf("%s_params", reduction_slot)]] <- c(.as_plain_list(uns[[sprintf("%s_params", reduction_slot)]]), list(sigma = out$sigma))
+    adata <- .set_uns(adata, uns)
 
-    return(obj)
+    return(adata)
   }
 
   return(out)
