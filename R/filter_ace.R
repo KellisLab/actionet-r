@@ -29,36 +29,38 @@ filterActionet <- function(
 
   X <- .validate_assay(adata, assay_name = layer, sparse_type = "CsparseMatrix", return_elem = TRUE)
 
-  dimnames(X) <- list(1:NROW(X), 1:NCOL(X))
+  # Assay is cells x genes: rows = cells, cols = genes.
+  dimnames(X) <- list(seq_len(NROW(X)), seq_len(NCOL(X)))
 
   i <- 0
   repeat {
     prev_dim <- dim(X)
-    rows_mask <- rep(TRUE, NROW(X))
-    cols_mask <- rep(TRUE, NCOL(X))
+    rows_mask <- rep(TRUE, NROW(X))  # cells (rows)
+    cols_mask <- rep(TRUE, NCOL(X))  # features (cols)
+
     if (!is.null(min_umis_per_cell)) {
-      umi_mask <- Matrix::colSums(X) >= min_umis_per_cell
-      cols_mask <- cols_mask & umi_mask
+      umi_mask <- Matrix::rowSums(X) >= min_umis_per_cell
+      rows_mask <- rows_mask & umi_mask
     }
 
     if (!is.null(max_umis_per_cell)) {
-      umi_mask <- Matrix::colSums(X) <= max_umis_per_cell
-      cols_mask <- cols_mask & umi_mask
+      umi_mask <- Matrix::rowSums(X) <= max_umis_per_cell
+      rows_mask <- rows_mask & umi_mask
     }
 
     if (!is.null(min_feats_per_cell)) {
-      feature_mask <- Matrix::colSums(.validate_matrix(X > 0)) >= min_feats_per_cell
-      cols_mask <- cols_mask & feature_mask
+      feature_mask <- Matrix::rowSums(.validate_matrix(X > 0)) >= min_feats_per_cell
+      rows_mask <- rows_mask & feature_mask
     }
 
     if (!is.null(min_cells_per_feat)) {
       if ((min_cells_per_feat < 1) & (min_cells_per_feat > 0)) {
-        min_fc <- ceiling(min_cells_per_feat * prev_dim[2])
+        min_fc <- ceiling(min_cells_per_feat * prev_dim[1])
       } else {
         min_fc <- min_cells_per_feat
       }
-      cell_count_mask <- Matrix::rowSums(.validate_matrix(X > 0)) >= min_fc
-      rows_mask <- rows_mask & cell_count_mask
+      cell_count_mask <- Matrix::colSums(.validate_matrix(X > 0)) >= min_fc
+      cols_mask <- cols_mask & cell_count_mask
     }
 
     X <- X[rows_mask, cols_mask]
@@ -68,10 +70,11 @@ filterActionet <- function(
       break
     }
   }
+  # rownames(X) = cell indices; colnames(X) = feature indices
   adata <- .subset_actionet_container(
     adata,
-    features = as.numeric(rownames(X)),
-    cells = as.numeric(colnames(X))
+    cells = as.numeric(rownames(X)),
+    features = as.numeric(colnames(X))
   )
   invisible(gc())
 

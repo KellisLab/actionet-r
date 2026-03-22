@@ -164,7 +164,7 @@ verify_aces <- function(ace1, ace2) {
 
   archs1 <- .get_obs_data(ace1)[["assigned_archetype"]]
   archs2 <- .get_obs_data(ace2)[["assigned_archetype"]]
-  mismatch_perc <- 100 * sum(archs1 != archs2) / .actionet_ncol(ace1)
+  mismatch_perc <- 100 * sum(archs1 != archs2) / .n_obs(ace1)
   warnifnot(mismatch_perc < 0.5)
   print(sprintf("%.02f %% archetype assignment mismatch", mismatch_perc))
 

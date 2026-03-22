@@ -235,14 +235,14 @@ runACTION <- function(
   if (prenormalize) {
     S_r <- normalize.matrix(
       S_r,
-      dim = 1, # obs are stored rows in colMaps()
+      dim = 1, # cells are rows in obsm (cells x k); normalize each cell vector
       scale_param = NULL,
       trans_func = NULL
     )
   }
 
   out <- C_runACTION(
-    S_r = Matrix::t(S_r),
+    S_r = S_r,
     k_min = k_min,
     k_max = k_max,
     max_it = max_it,
@@ -252,20 +252,20 @@ runACTION <- function(
     thread_no = thread_no
   )
 
-  colMaps(adata)[["H_stacked"]] <- Matrix::t(as(out$H_stacked, "sparseMatrix"))
+  colMaps(adata)[["H_stacked"]] <- as(out$H_stacked, "sparseMatrix")
   colMapTypes(adata)[["H_stacked"]] <- "internal"
 
   colMaps(adata)[["C_stacked"]] <- as(out$C_stacked, "sparseMatrix")
   colMapTypes(adata)[["C_stacked"]] <- "internal"
 
-  colMaps(adata)[[sprintf("H_%s", merged_suffix)]] <- as(Matrix::t(out$H_merged), "sparseMatrix")
+  colMaps(adata)[[sprintf("H_%s", merged_suffix)]] <- as(out$H_merged, "sparseMatrix")
   colMapTypes(adata)[[sprintf("H_%s", merged_suffix)]] <- "internal"
 
   colMaps(adata)[[sprintf("C_%s", merged_suffix)]] <- as(out$C_merged, "sparseMatrix")
   colMapTypes(adata)[[sprintf("C_%s", merged_suffix)]] <- "internal"
 
   obs <- .get_obs_data(adata)
-  obs[[archetype_slot_out]] <- c(out$assigned_archetype)
+  obs[[archetype_slot_out]] <- c(out$assigned_archetypes)
   adata <- .set_obs_data(adata, obs)
   return(adata)
 }

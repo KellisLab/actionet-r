@@ -41,7 +41,9 @@ test_that("AnnData container path matches matrix/raw compute paths", {
   expect_true("action_A" %in% names(red$varm))
   expect_true("action_B" %in% names(red$obsm))
   expect_true("action_params" %in% names(red$uns))
-  expect_equal(unname(as.matrix(red$obsm[["action"]])), unname(t(raw_red$S_r)), tolerance = 1e-8)
+  # Both AnnData and bare-matrix paths now route through cells x genes C++ contract.
+  # raw_red$S_r is cells x k; obsm[["action"]] is also cells x k.
+  expect_equal(unname(as.matrix(red$obsm[["action"]])), unname(raw_red$S_r), tolerance = 1e-8)
 
   act <- runACTION(adata = red, k_min = 2, k_max = 3, thread_no = 1)
   expect_true(all(c("H_stacked", "H_merged", "C_stacked", "C_merged") %in% names(act$obsm)))

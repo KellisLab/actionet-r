@@ -246,7 +246,7 @@ plot.ACTIONet.gradient <- function(
     net_slot = "actionet",
     coordinate_attr = "umap_2d_actionet",
     scale_coors = TRUE) {
-  if (((.is_se_like(data)) & (length(x) != .actionet_ncol(data))) | ((!.is_se_like(data)) & (nrow(data) != length(x)))) {
+  if (((.is_se_like(data)) & (length(x) != .n_obs(data))) | ((!.is_se_like(data)) & (nrow(data) != length(x)))) {
     stop("Length of input vector doesn't match the number of cells.")
   }
   ## Create color gradient generator

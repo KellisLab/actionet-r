@@ -34,7 +34,7 @@ computeFeatureSpecificity <- function(
   na_mask <- is.na(labels)
   if (any(na_mask)) {
     labels <- labels[!na_mask]
-    X <- X[, !na_mask, drop = FALSE]
+    X <- X[!na_mask, , drop = FALSE]
   }
 
   obs_factor <- factor(labels)
@@ -100,7 +100,6 @@ archetypeFeatureSpecificity <- function(
     matrix_type = "dense",
     force_type = TRUE
   )
-  H <- Matrix::t(H)
 
   if (is.matrix(X)) {
     out <- C_archetypeFeatureSpecificityDense(X, H = H, thread_no = thread_no)

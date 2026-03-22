@@ -104,7 +104,7 @@ correctBatchEffect <- function(
       design_mat <- model.matrix(~ 0 + batches)
     } else {
       design_mat <- .make_design_mat(design = design, data = .get_obs_data(adata), remove_intercept = TRUE)
-      if (NROW(design_mat) != .actionet_ncol(adata)) {
+      if (NROW(design_mat) != .n_obs(adata)) {
         err <- sprintf("Size of 'design' does not match the number of observations in 'adata'")
       }
     }
@@ -146,10 +146,10 @@ correctBatchEffect <- function(
     )
   }
   S_r <- out$S_r
-  colnames(S_r) <- .actionet_colnames(adata)
-  rownames(S_r) <- sapply(seq_len(NROW(S_r)), function(i) sprintf("Dim%d", i))
+  rownames(S_r) <- .actionet_colnames(adata)   # cells are rows in obsm
+  colnames(S_r) <- sapply(seq_len(NCOL(S_r)), function(i) sprintf("Dim%d", i))
   name_Sr <- sprintf("%s_%s", reduction_slot, corrected_suffix)
-  colMaps(adata)[[name_Sr]] <- Matrix::t(S_r)
+  colMaps(adata)[[name_Sr]] <- S_r
   colMapTypes(adata)[[name_Sr]] <- "reduction"
 
 

@@ -50,6 +50,13 @@ reduceKernel <- function(
     return_elem = TRUE
   )
 
+  # Bare matrix inputs are assumed to be legacy genes x cells orientation.
+  # Transpose to cells x genes before calling C++ (which now expects cells x genes).
+  # AnnData containers are already cells x genes and do not need transposition.
+  if (!is_ace) {
+    X <- if (.is_sparse_matrix(X)) Matrix::t(X) else t(as.matrix(X))
+  }
+
   algorithm <- match.arg(algorithm, several.ok = TRUE)[1]
   algorithm <- switch(algorithm,
     "irlb" = 0,
@@ -69,9 +76,9 @@ reduceKernel <- function(
 
   if (is_ace && !return_raw) {
     S_r <- out$S_r
-    colnames(S_r) <- .actionet_colnames(adata)
-    rownames(S_r) <- paste0("dim_", seq_len(NROW(S_r)))
-    colMaps(adata)[[reduction_slot]] <- Matrix::t(S_r)
+    rownames(S_r) <- .actionet_colnames(adata)   # cells are rows in obsm
+    colnames(S_r) <- paste0("dim_", seq_len(NCOL(S_r)))
+    colMaps(adata)[[reduction_slot]] <- S_r
     colMapTypes(adata)[[reduction_slot]] <- "reduction"
 
     V <- out$U
@@ -154,7 +161,9 @@ mergeArchetypes <- function(
     H_stacked,
     thread_no = 0) {
   if (!all(dim(C_stacked) == rev(dim(H_stacked)))) {
-    err <- sprintf("Dimensions of `C_stacked` and transposed `H_stacked` do not match.\n")
+    err <- sprintf("Dimensions of `C_stacked` (%s) and `H_stacked` (%s) are incompatible: C must be archetypes x cells_or_k and H must be cells_or_k x archetypes.\n",
+                   paste(dim(C_stacked), collapse = "x"),
+                   paste(dim(H_stacked), collapse = "x"))
     stop(err)
   }
 

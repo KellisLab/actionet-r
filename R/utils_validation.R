@@ -79,7 +79,7 @@
     }
     return(FALSE)
   }
-  x <- .get_layer_matrix(ace, layer = assay_name, transpose = TRUE)
+  x <- .get_layer_matrix(ace, layer = assay_name)
 
   if (force_type == TRUE) {
     x <- .validate_matrix(
@@ -280,14 +280,20 @@
       .get_obs_data(obj)[[attr]]
     )
   } else {
-    if (length(attr) != .actionet_dim(obj)[dim]) {
+    # dim=1 → feature (var) attributes; dim=2 → observation (obs) attributes
+    expected_len <- if (.is_anndata(obj)) {
+      switch(dim, .n_vars(obj), .n_obs(obj))
+    } else {
+      .actionet_dim(obj)[dim]
+    }
+    if (length(attr) != expected_len) {
       err <- sprintf(
         "length(%s) (%d) does not match %s(%s) (%d)",
         attr_name,
         length(attr),
         ifelse(dim == 1, "NROW", "NCOL"),
         obj_name,
-        .actionet_dim(obj)[dim]
+        expected_len
       )
       stop(err)
     }
@@ -305,7 +311,12 @@
       }
     }
   }
-  idx <- seq_len(.actionet_dim(obj)[dim])
+  # dim=1 → feature/var space; dim=2 → obs space
+  idx <- if (.is_anndata(obj)) {
+    switch(dim, seq_len(.n_vars(obj)), seq_len(.n_obs(obj)))
+  } else {
+    seq_len(.actionet_dim(obj)[dim])
+  }
   if (!is.null(groups_use)) {
     na_mask <- (!data_vec %in% groups_use)
     data_vec[na_mask] <- NA

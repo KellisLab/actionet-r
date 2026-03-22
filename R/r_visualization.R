@@ -72,19 +72,15 @@ layoutNetwork <- function(
                 return_elem = TRUE
             )
         } else {
-            if (is_ace) {
-                err <- sprintf("'initial_coordinates' must be type 'matrix' or entry in 'colMaps(obj)' for 'obj' type '%s'", class(obj))
-            } else {
-                err <- sprintf("'initial_coordinates' must be type 'matrix' for 'obj' type '%s'", class(obj))
-            }
+            err <- sprintf("'initial_coordinates' must be type 'matrix' for 'obj' type '%s'", class(adata))
             stop(err)
         }
     } else {
         if (!is_ace) {
-            err <- sprintf("'initial_coordinates' cannot be NULL for 'obj' type '%s'", class(obj))
+            err <- sprintf("'initial_coordinates' cannot be NULL for 'obj' type '%s'", class(adata))
             stop(err)
         } else {
-            msg <- sprintf("Computing initial coordinates from assay '%s'", assay_name)
+            msg <- sprintf("Computing initial coordinates from assay '%s'", layer)
             message(msg)
             svd.out <- runSVD(
                 X = .validate_assay(adata, assay_name = layer, return_elem = TRUE),
@@ -92,12 +88,13 @@ layoutNetwork <- function(
                 seed = seed,
                 verbose = verbose
             )
-            initial_coordinates <- scale(svd.out$v)
+            # Post-flip: assay is cells x genes, so u is the cell-space (obs x k) embedding.
+            initial_coordinates <- scale(svd.out$u)
         }
     }
 
-    if (NROW(initial_coordinates) != .actionet_ncol(adata)) {
-        err <- sprintf("'NROW(initial_coordinates)' (%d) does not match number of cells in object (%d)", NROW(initial_coordinates), .actionet_ncol(adata))
+    if (NROW(initial_coordinates) != .n_obs(adata)) {
+        err <- sprintf("'NROW(initial_coordinates)' (%d) does not match number of cells in object (%d)", NROW(initial_coordinates), .n_obs(adata))
         stop(err)
     }
 

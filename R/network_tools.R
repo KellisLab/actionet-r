@@ -70,8 +70,8 @@ networkDiffusion <- function(
     scores <- Matrix::as.matrix(scores)
   }
 
-  if (NROW(scores) != .actionet_ncol(adata)) {
-    err <- sprintf("`length(scores)` must equal `NCOL(obj)`.\n")
+  if (NROW(scores) != .n_obs(adata)) {
+    err <- sprintf("`NROW(scores)` must equal `n_obs(obj)` (number of observations).\n")
     stop(err)
   }
 

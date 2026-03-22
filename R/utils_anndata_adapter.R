@@ -163,14 +163,14 @@
 
 .actionet_nrow <- function(obj) {
   if (.is_anndata(obj)) {
-    return(.n_vars(obj))
+    return(.n_obs(obj))  # cells
   }
   nrow(obj)
 }
 
 .actionet_ncol <- function(obj) {
   if (.is_anndata(obj)) {
-    return(.n_obs(obj))
+    return(.n_vars(obj))  # genes
   }
   ncol(obj)
 }
@@ -181,14 +181,14 @@
 
 .actionet_rownames <- function(obj) {
   if (.is_anndata(obj)) {
-    return(.var_names(obj))
+    return(.var_names(obj))  # genes (features) — stays in varm row-space
   }
   rownames(obj)
 }
 
 .actionet_colnames <- function(obj) {
   if (.is_anndata(obj)) {
-    return(.obs_names(obj))
+    return(.obs_names(obj))  # cells (observations)
   }
   colnames(obj)
 }
@@ -251,7 +251,7 @@
   names(.as_plain_list(adata$layers))
 }
 
-.get_layer_matrix <- function(adata, layer = NULL, transpose = TRUE, allow_null = FALSE) {
+.get_layer_matrix <- function(adata, layer = NULL, transpose = FALSE, allow_null = FALSE) {
   adata <- .as_inmemory_anndata(adata)
 
   mat <- if (is.null(layer)) {
@@ -278,12 +278,10 @@
   mat
 }
 
-.set_layer_matrix <- function(adata, layer = NULL, value) {
+.set_layer_matrix <- function(adata, layer = NULL, value, transpose = FALSE) {
   adata <- .as_inmemory_anndata(adata)
-  value <- if (.is_sparse_matrix(value)) {
-    Matrix::t(value)
-  } else {
-    t(as.matrix(value))
+  if (transpose) {
+    value <- if (.is_sparse_matrix(value)) Matrix::t(value) else t(as.matrix(value))
   }
 
   if (is.null(layer)) {
@@ -592,6 +590,7 @@ toAnnData <- function(x) {
 
   if (.is_sparse_matrix(x) || is.matrix(x)) {
     adata <- anndataR::AnnData(
+      # Assume legacy genes x cells orientation; transpose to cells x genes for AnnData
       X = if (.is_sparse_matrix(x)) Matrix::t(x) else t(as.matrix(x))
     )
     adata <- .ensure_unique_dimnames(adata)

@@ -32,7 +32,8 @@
       stop(err)
     }
 
-    if (NROW(markers) != .actionet_nrow(obj)) {
+    n_features <- if (.is_anndata(obj)) .n_vars(obj) else nrow(obj)
+    if (NROW(markers) != n_features) {
       err <- sprintf("NROW(%s) does not match NROW(markers)", obj_name)
       stop(err)
     }

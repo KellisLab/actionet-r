@@ -25,7 +25,7 @@ C_runAA <- function(A, W0, max_it = 100L, tol = 1e-6) {
 #'
 #' @param S_r Input matrix. Usually a reduced representation of the raw data.
 #' @param k_min Minimum number of archetypes (>= 2) to search for, and the beginning of the search range.
-#' @param k_max Maximum number of archetypes (<= <b>S_r.n_cols</b>) to search for, and the end of the search range.
+#' @param k_max Maximum number of archetypes (<= <b>S_r.n_rows</b>) to search for, and the end of the search range.
 #' @param normalization Normalization method to apply on <b>S_r</b> before running ACTION.
 #' @param max_it Maximum number of iterations for <code>runAA()</code>.
 #' @param tol Convergence tolerance for <code>runAA()</code>.
@@ -36,7 +36,7 @@ C_runAA <- function(A, W0, max_it = 100L, tol = 1e-6) {
 #' @examples
 #' ACTION.out = runACTION(S_r, k_max = 10)
 #' H8 = ACTION.out$H[[8]]
-#' cell.assignments = apply(H8, 2, which.max)
+#' cell.assignments = apply(H8, 1, which.max)
 C_decompACTION <- function(S_r, k_min = 2L, k_max = 30L, max_it = 100L, tol = 1e-16, thread_no = 0L) {
     .Call(`_actionet_C_decompACTION`, S_r, k_min, k_max, max_it, tol, thread_no)
 }
@@ -95,7 +95,7 @@ C_mergeArchetypes <- function(S_r, C_stacked, H_stacked, thread_no = 0L) {
 
 #' Compute reduced kernel matrix
 #'
-#' @param S Input matrix (<em>vars</em> x <em>obs</em>).
+#' @param S Input matrix (cells x genes, obs x var — AnnData-native orientation, Plan 02).
 #' May be <code>arma::mat</code> or <code>arma::sp_mat</code>.
 #' @param dim Number of singular vectors to estimate. Passed to <code>runSVD()</code>.
 #' @param svd_alg Singular value decomposition algorithm. See to <code>runSVD()</code> for options.
@@ -104,16 +104,11 @@ C_mergeArchetypes <- function(S_r, C_stacked, H_stacked, thread_no = 0L) {
 #' @param verbose Print status messages.
 #'
 #' @return Field with 5 elements:
-#' - 0: <code>arma::mat</code> Reduced kernel matrix.
+#' - 0: <code>arma::mat</code> Reduced kernel matrix (cells x k).
 #' - 1: <code>arma::vec</code> Singular values.
-#' - 2: <code>arma::mat</code> Left singular vectors.
-#' - 3: <code>arma::mat</code> <b>A</b> perturbation matrix.
-#' - 4: <code>arma::mat</code> <b>B</b> perturbation matrix.
-#'
-#' @examples
-#' S = logcounts(sce)
-#' reduction.out = reduce(S, reduced_dim = 50)
-#' S_r = reduction.out$S_r
+#' - 2: <code>arma::mat</code> Gene loadings (genes x k).
+#' - 3: <code>arma::mat</code> <b>A</b> perturbation matrix (genes x p).
+#' - 4: <code>arma::mat</code> <b>B</b> perturbation matrix (cells x p).
 C_reduceKernelSparse <- function(S, k = 50L, svd_alg = 0L, max_it = 0L, seed = 0L, verbose = TRUE) {
     .Call(`_actionet_C_reduceKernelSparse`, S, k, svd_alg, max_it, seed, verbose)
 }

@@ -14,7 +14,7 @@
     min_cells_per_arch = min_cells_per_arch
   )
 
-  colMaps(ace)[["H_stacked"]] <- Matrix::t(as(pruning.out$H_stacked, "sparseMatrix"))
+  colMaps(ace)[["H_stacked"]] <- as(pruning.out$H_stacked, "sparseMatrix")
   colMapTypes(ace)[["H_stacked"]] <- "internal"
 
   colMaps(ace)[["C_stacked"]] <- as(pruning.out$C_stacked, "sparseMatrix")
@@ -42,7 +42,6 @@
     matrix_type = "dense",
     force_type = TRUE
   )
-  S_r <- Matrix::t(S_r)
 
   C_stacked <- .validate_map(
     ace = ace,
@@ -57,7 +56,6 @@
     matrix_type = "dense",
     force_type = TRUE
   )
-  H_stacked <- Matrix::t(H_stacked)
 
   unification.out <- .mergeArchetypes(
     S_r = S_r,
@@ -70,7 +68,7 @@
   if (return_raw == TRUE) {
     return(unification.out)
   } else {
-    Ht_merged <- as(Matrix::t(unification.out$H_merged), "sparseMatrix")
+    Ht_merged <- as(unification.out$H_merged, "sparseMatrix")
     colMaps(ace)[[sprintf("H_%s", merged_suffix)]] <- Ht_merged
     colMapTypes(ace)[[sprintf("H_%s", merged_suffix)]] <- "internal"
 
@@ -78,7 +76,7 @@
     colMapTypes(ace)[[sprintf("C_%s", merged_suffix)]] <- "internal"
 
     obs <- .get_obs_data(ace)
-    obs[[footprint_slot_name]] <- c(unification.out$assigned_archetype)
+    obs[[footprint_slot_name]] <- c(unification.out$assigned_archetypes)
     ace <- .set_obs_data(ace, obs)
 
     return(ace)

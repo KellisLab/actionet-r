@@ -56,7 +56,7 @@ imputeFeatures <- function(
         assay_name = layer,
         allow_se_like = FALSE,
         return_elem = TRUE
-    )[idx_feat, , drop = FALSE]
+    )[, idx_feat, drop = FALSE]
 
 
     if (algorithm == "pca") {
@@ -75,7 +75,7 @@ imputeFeatures <- function(
         W <- pc_smooth$SVD.out$u
         W <- W[idx_feat, , drop = FALSE]
 
-        out <- W %*% Matrix::t(H)
+        out <- Matrix::t(W %*% Matrix::t(H))  # cells x features
         out[out < 0] <- 0
         # } else if (algorithm == "action") { # TODO: Fix this!! We need to also impute C. What alpha values?
         #     if (!("archetype_footprint" %in% names(colMaps(ace))) | (force_reimpute == TRUE)) {
@@ -97,7 +97,7 @@ imputeFeatures <- function(
     } else {
         out <- networkDiffusion(
             adata = adata,
-            scores = Matrix::t(X0),
+            scores = X0,
             norm_method = norm_method,
             alpha = alpha,
             thread_no = thread_no,
@@ -106,16 +106,15 @@ imputeFeatures <- function(
             net_slot = net_slot,
             return_raw = TRUE
         )
-        out <- Matrix::t(out)
     }
 
-    # Re-scale expression of features
-    m1 <- apply(X0, 1, max)
-    m2 <- apply(out, 1, max)
+    # Re-scale expression of features (out and X0 are both cells x features)
+    m1 <- apply(X0, 2, max)
+    m2 <- apply(out, 2, max)
     ratio <- m1 / m2
     ratio[m2 == 0] <- 1
-    D <- Matrix::Diagonal(NROW(out), ratio)
-    out <- Matrix::t(as.matrix(D %*% out))
+    D <- Matrix::Diagonal(NCOL(out), ratio)
+    out <- as.matrix(out %*% D)
 
     colnames(out) <- matched_feat
     rownames(out) <- .actionet_colnames(adata)
@@ -142,7 +141,7 @@ impute.genes.using.archetypes <- function(adata = NULL, genes, features_use = NU
     idx_feat <- match(matched_feat, features_use)
 
     Z <- rowMaps(adata)[["archetype_feat_profile"]][idx_feat, , drop = FALSE]
-    H <- Matrix::t(colMaps(adata)[["H_merged"]])
+    H <- Matrix::t(colMaps(adata)[["H_merged"]])  # cells x archetypes → archetypes x cells for Z %*% H
 
     expression_imputed <- Matrix::t(Z %*% H)
     colnames(expression_imputed) <- matched_feat
@@ -171,7 +170,7 @@ impute.specific.genes.using.archetypes <- function(adata = NULL, genes, features
     idx_feat <- match(matched_feat, features_use)
 
     Z <- log1p(rowMaps(adata)[["archetype_feat_specificity_upper"]][idx_feat, , drop = FALSE])
-    H <- Matrix::t(colMaps(adata)[["H_merged"]])
+    H <- Matrix::t(colMaps(adata)[["H_merged"]])  # cells x archetypes → archetypes x cells for Z %*% H
 
     expression_imputed <- Matrix::t(Z %*% H)
     colnames(expression_imputed) <- matched_feat

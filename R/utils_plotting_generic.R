@@ -74,7 +74,7 @@ CPal_default <- c(
                              palette = CPal_default,
                              NA_color = "#CCCCCC") {
   if (.is_se_like(data)) {
-    n_dim <- .actionet_ncol(data)
+    n_dim <- .n_obs(data)
   } else {
     n_dim <- NROW(data)
   }

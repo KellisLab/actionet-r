@@ -27,12 +27,12 @@ normalize.ace <- function(
   S <- .validate_assay(adata, assay_name = layer, return_elem = TRUE)
   S <- normalize.matrix(
     S,
-    dim = 2,
+    dim = 1,  # normalize each cell (row) by its library size
     scale_param = scale_param,
     trans_func = trans_func,
     pseudocount = pseudocount)
-  rownames(S) <- .actionet_rownames(adata)
-  colnames(S) <- .actionet_colnames(adata)
+  rownames(S) <- .obs_names(adata)   # cells are rows
+  colnames(S) <- .var_names(adata)   # genes are columns
   adata <- .set_layer_matrix(adata, layer_out, S)
   if (is.null(adata$X)) {
     adata <- .set_layer_matrix(adata, NULL, S)
