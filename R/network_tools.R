@@ -22,7 +22,7 @@ buildNetwork <- function(
     map_slot = map_slot,
     matrix_type = "dense",
     force_type = TRUE,
-    transpose_map = TRUE,
+    transpose_map = FALSE,
     return_elem = TRUE
   )
 

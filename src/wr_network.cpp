@@ -24,18 +24,17 @@ arma::sp_mat C_buildNetwork(Rcpp::NumericMatrix H, std::string algorithm = "k*nn
                             std::string distance_metric = "jsd", double density = 1.0,
                             int thread_no = 0, double M = 16, double ef_construction = 200,
                             double ef = 200, bool mutual_edges_only = true, int k = 10) {
-    // R matrices are column-major.  Each column is one cell (data point); each row
-    // is one archetype dimension.  buildNetworkCore expects row-major float32 where
-    // each row is one point, so we transpose while converting double → float32.
-    const std::size_t dim      = static_cast<std::size_t>(H.nrow());
-    const std::size_t n_points = static_cast<std::size_t>(H.ncol());
+    // H is cells x k (column-major from R, AnnData-native orientation).
+    // buildNetworkCore expects a row-major float32 buffer where each row is one cell.
+    // Iterate rows of the column-major matrix: H(i, j) = cell i, archetype j.
+    const std::size_t n_points = static_cast<std::size_t>(H.nrow());  // cells
+    const std::size_t dim      = static_cast<std::size_t>(H.ncol());  // archetypes (k)
 
     std::vector<float> X(n_points * dim);
-    for (std::size_t col = 0; col < n_points; ++col) {
-        const double* src = &H[static_cast<R_xlen_t>(col * dim)];
-        float*        dst = X.data() + col * dim;
-        for (std::size_t d = 0; d < dim; ++d) {
-            dst[d] = static_cast<float>(src[d]);
+    for (std::size_t i = 0; i < n_points; ++i) {
+        for (std::size_t j = 0; j < dim; ++j) {
+            X[i * dim + j] = static_cast<float>(H(static_cast<int>(i),
+                                                   static_cast<int>(j)));
         }
     }
 
