@@ -1,5 +1,13 @@
 // Rcpp interface for `decomposition` module
 // Organized by module header in th order imported.
+//
+// NOTE (Plan 02): After the C++ core contract flip, the expected orientations
+// for this reference wrapper copy are:
+//   S          — cells x genes  (obs x var, AnnData-native)
+//   S_r (in)   — cells x k
+//   old_S_r    — cells x k  (public reduction contract; pass directly)
+//   design     — cells x covariates  (unchanged)
+// The actual actionet-r wrappers will be updated in Plan 03.
 #include "actionet_r_config.h"
 
 // orthogonalization ========================================================================================================
@@ -7,31 +15,21 @@
 // [[Rcpp::export]]
 Rcpp::List C_orthogonalizeBatchEffect(arma::sp_mat& S, arma::mat& old_S_r, arma::mat& old_U, arma::mat& old_A,
                                       arma::mat& old_B, arma::vec& old_sigma, arma::mat& design) {
-    arma::field<arma::mat> SVD_results(5);
+    arma::field<arma::mat> reduction_results(5);
+    reduction_results(0) = old_S_r;
+    reduction_results(1) = old_sigma;
+    reduction_results(2) = old_U;
+    reduction_results(3) = old_A;
+    reduction_results(4) = old_B;
 
-    SVD_results(0) = old_U;
-    SVD_results(1) = old_sigma;
-    SVD_results(2) = old_S_r;
-    for (int i = 0; i < old_sigma.n_elem; i++) {
-        SVD_results(2).col(i) /= old_sigma(i);
-    }
-    SVD_results(3) = old_A;
-    SVD_results(4) = old_B;
-
-    arma::field<arma::mat> orthogonalized_reduction =
-        actionet::orthogonalizeBatchEffect(S, SVD_results, design);
+    arma::field<arma::mat> orthogonalized_reduction = actionet::orthogonalizeBatchEffect(S, reduction_results, design);
 
     Rcpp::List res;
-    res["U"] = orthogonalized_reduction(0);
+    res["S_r"] = orthogonalized_reduction(0);
 
     arma::vec sigma = orthogonalized_reduction(1).col(0);
     res["sigma"] = sigma;
-
-    arma::mat V = orthogonalized_reduction(2);
-    for (int i = 0; i < V.n_cols; i++) {
-        V.col(i) *= sigma(i);
-    }
-    res["S_r"] = arma::trans(V);
+    res["U"] = orthogonalized_reduction(2);
 
     res["A"] = orthogonalized_reduction(3);
     res["B"] = orthogonalized_reduction(4);
@@ -42,31 +40,21 @@ Rcpp::List C_orthogonalizeBatchEffect(arma::sp_mat& S, arma::mat& old_S_r, arma:
 //[[Rcpp::export]]
 Rcpp::List C_orthogonalizeBatchEffect_full(arma::mat& S, arma::mat& old_S_r, arma::mat& old_U, arma::mat& old_A,
                                            arma::mat& old_B, arma::vec& old_sigma, arma::mat& design) {
-    arma::field<arma::mat> SVD_results(5);
+    arma::field<arma::mat> reduction_results(5);
+    reduction_results(0) = old_S_r;
+    reduction_results(1) = old_sigma;
+    reduction_results(2) = old_U;
+    reduction_results(3) = old_A;
+    reduction_results(4) = old_B;
 
-    SVD_results(0) = old_U;
-    SVD_results(1) = old_sigma;
-    SVD_results(2) = old_S_r;
-    for (int i = 0; i < old_sigma.n_elem; i++) {
-        SVD_results(2).col(i) /= old_sigma(i);
-    }
-    SVD_results(3) = old_A;
-    SVD_results(4) = old_B;
-
-    arma::field<arma::mat> orthogonalized_reduction =
-        actionet::orthogonalizeBatchEffect(S, SVD_results, design);
+    arma::field<arma::mat> orthogonalized_reduction = actionet::orthogonalizeBatchEffect(S, reduction_results, design);
 
     Rcpp::List res;
-    res["U"] = orthogonalized_reduction(0);
+    res["S_r"] = orthogonalized_reduction(0);
 
     arma::vec sigma = orthogonalized_reduction(1).col(0);
     res["sigma"] = sigma;
-
-    arma::mat V = orthogonalized_reduction(2);
-    for (int i = 0; i < V.n_cols; i++) {
-        V.col(i) *= sigma(i);
-    }
-    res["S_r"] = arma::trans(V);
+    res["U"] = orthogonalized_reduction(2);
     res["A"] = orthogonalized_reduction(3);
     res["B"] = orthogonalized_reduction(4);
 
@@ -76,30 +64,21 @@ Rcpp::List C_orthogonalizeBatchEffect_full(arma::mat& S, arma::mat& old_S_r, arm
 // [[Rcpp::export]]
 Rcpp::List C_orthogonalizeBasal(arma::sp_mat& S, arma::mat& old_S_r, arma::mat& old_U, arma::mat& old_A,
                                 arma::mat& old_B, arma::vec& old_sigma, arma::mat& basal) {
-    arma::field<arma::mat> SVD_results(5);
+    arma::field<arma::mat> reduction_results(5);
+    reduction_results(0) = old_S_r;
+    reduction_results(1) = old_sigma;
+    reduction_results(2) = old_U;
+    reduction_results(3) = old_A;
+    reduction_results(4) = old_B;
 
-    SVD_results(0) = old_U;
-    SVD_results(1) = old_sigma;
-    SVD_results(2) = old_S_r;
-    for (int i = 0; i < old_sigma.n_elem; i++) {
-        SVD_results(2).col(i) /= old_sigma(i);
-    }
-    SVD_results(3) = old_A;
-    SVD_results(4) = old_B;
-
-    arma::field<arma::mat> orthogonalized_reduction = actionet::orthogonalizeBasal(S, SVD_results, basal);
+    arma::field<arma::mat> orthogonalized_reduction = actionet::orthogonalizeBasal(S, reduction_results, basal);
 
     Rcpp::List res;
-    res["U"] = orthogonalized_reduction(0);
+    res["S_r"] = orthogonalized_reduction(0);
 
     arma::vec sigma = orthogonalized_reduction(1).col(0);
     res["sigma"] = sigma;
-
-    arma::mat V = orthogonalized_reduction(2);
-    for (int i = 0; i < V.n_cols; i++) {
-        V.col(i) *= sigma(i);
-    }
-    res["S_r"] = arma::trans(V);
+    res["U"] = orthogonalized_reduction(2);
 
     res["A"] = orthogonalized_reduction(3);
     res["B"] = orthogonalized_reduction(4);
@@ -110,30 +89,21 @@ Rcpp::List C_orthogonalizeBasal(arma::sp_mat& S, arma::mat& old_S_r, arma::mat& 
 //[[Rcpp::export]]
 Rcpp::List C_orthogonalizeBasal_full(arma::mat& S, arma::mat& old_S_r, arma::mat& old_U, arma::mat& old_A,
                                      arma::mat& old_B, arma::vec& old_sigma, arma::mat& basal) {
-    arma::field<arma::mat> SVD_results(5);
+    arma::field<arma::mat> reduction_results(5);
+    reduction_results(0) = old_S_r;
+    reduction_results(1) = old_sigma;
+    reduction_results(2) = old_U;
+    reduction_results(3) = old_A;
+    reduction_results(4) = old_B;
 
-    SVD_results(0) = old_U;
-    SVD_results(1) = old_sigma;
-    SVD_results(2) = old_S_r;
-    for (int i = 0; i < old_sigma.n_elem; i++) {
-        SVD_results(2).col(i) /= old_sigma(i);
-    }
-    SVD_results(3) = old_A;
-    SVD_results(4) = old_B;
-
-    arma::field<arma::mat> orthogonalized_reduction = actionet::orthogonalizeBasal(S, SVD_results, basal);
+    arma::field<arma::mat> orthogonalized_reduction = actionet::orthogonalizeBasal(S, reduction_results, basal);
 
     Rcpp::List res;
-    res["U"] = orthogonalized_reduction(0);
+    res["S_r"] = orthogonalized_reduction(0);
 
     arma::vec sigma = orthogonalized_reduction(1).col(0);
     res["sigma"] = sigma;
-
-    arma::mat V = orthogonalized_reduction(2);
-    for (int i = 0; i < V.n_cols; i++) {
-        V.col(i) *= sigma(i);
-    }
-    res["S_r"] = arma::trans(V);
+    res["U"] = orthogonalized_reduction(2);
     res["A"] = orthogonalized_reduction(3);
     res["B"] = orthogonalized_reduction(4);
 

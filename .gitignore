@@ -2,12 +2,6 @@
 .Rhistory
 .RData
 .Ruserdata
-*.Rproj*
-*.swp
-*.o
-~*
-*.so
-*.a
 .fuse*
 *.back
 **/.DS_Store
@@ -21,3 +15,10 @@ lib/
 testing*/
 .idea/
 Makevars
+*.Rproj*
+*.swp
+*.o
+~*
+*.so
+*.a
+*.h5ad

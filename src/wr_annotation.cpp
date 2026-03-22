@@ -1,5 +1,11 @@
 // Rcpp interface for `annotation` module
 // Organized by module header in th order imported.
+//
+// NOTE (Plan 02): After the C++ core contract flip, the expected orientations
+// for this reference wrapper copy are:
+//   S — cells x genes  (obs x var, AnnData-native)
+//   H — cells x k      (was k x cells; wrapper must transpose before calling C++ core)
+// The actual actionet-r wrappers will be updated in Plan 03.
 #include "actionet_r_config.h"
 
 // marker_stats ========================================================================================================
