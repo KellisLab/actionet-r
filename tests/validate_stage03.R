@@ -38,6 +38,7 @@ TOL_SIGMA      <- 1e-3   # singular values; absolute tol (sigma ~ O(100), max_di
 # with stochastic simplex regression the ordering may differ across runs, so
 # specificity tolerance is loose.  The shape check is the primary gate.
 TOL_SPECIFICITY <- 2e+1  # loose — shape is the primary gate here
+SEED <- 42L
 
 # ── Helper: SVD sign alignment ────────────────────────────────────────────────
 align_signs <- function(A, B) {
@@ -128,40 +129,65 @@ bl <- readRDS(baseline_path)
 
 # ── Run pipeline ──────────────────────────────────────────────────────────────
 message("\n=== Running reduction ===")
-adata <- reduceKernel(adata, k = 20, layer = "logcounts", verbose = FALSE)
+adata <- reduceKernel(
+  adata,
+  k = 20L,
+  algorithm = "irlb",
+  seed = SEED,
+  layer = "logcounts",
+  reduction_slot = "action",
+  verbose = FALSE
+)
 
 message("=== Running ACTION ===")
-adata <- runACTION(adata = adata, k_min = 2, k_max = 20, thread_no = 0)
+adata <- runACTION(
+  adata = adata,
+  k_min = 2L,
+  k_max = 20L,
+  reduction_slot = "action",
+  thread_no = 0
+)
 
 message("=== Building network ===")
-adata <- buildNetwork(adata = adata, thread_no = 0)
+adata <- buildNetwork(
+  adata = adata,
+  map_slot = "H_stacked",
+  net_slot_out = "actionet",
+  thread_no = 0
+)
 
 message("=== Computing specificity ===")
 if ("assigned_archetype" %in% names(adata$obs)) {
-  cluster_labels <- adata$obs[["assigned_archetype"]]
+  cluster_labels <- as.integer(adata$obs[["assigned_archetype"]])
   adata <- computeFeatureSpecificity(
     adata = adata,
     labels = cluster_labels,
+    layer = "logcounts",
+    map_out_prefix = "cluster",
+    return_lower = TRUE,
     thread_no = 0
   )
-  # archetypeFeatureSpecificity requires the archetype footprint to be
-  # pre-computed (via networkDiffusion of H_merged).  Run it through the
-  # full network-diffused footprint step before calling it.
   if ("H_merged" %in% names(adata$obsm)) {
-    adata <- networkDiffusion(
+    adata <- archetypeFeatureSpecificity(
       adata = adata,
-      scores = adata$obsm[["H_merged"]],
-      map_slot_out = "archetype_footprint",
-      net_slot = "actionet"
+      layer = "logcounts",
+      map_slot = "H_merged",
+      map_out_prefix = "archetype",
+      thread_no = 0
     )
-    adata <- archetypeFeatureSpecificity(adata = adata, thread_no = 0)
   }
 }
 
 message("=== Running batch correction ===")
 if ("batch" %in% names(adata$obs)) {
   batch_labels <- adata$obs[["batch"]]
-  adata <- correctBatchEffect(adata = adata, batches = batch_labels)
+  adata <- correctBatchEffect(
+    adata = adata,
+    batches = batch_labels,
+    reduction_slot = "action",
+    corrected_suffix = "orth",
+    layer = "logcounts"
+  )
 }
 
 # ── Shape checks ─────────────────────────────────────────────────────────────

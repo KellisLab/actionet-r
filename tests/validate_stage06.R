@@ -102,11 +102,11 @@ check("upper_significance: ncol == n_clusters",
 check("lower_significance shape matches upper",
       all(dim(out_raw$lower_significance) == dim(out_raw$upper_significance)))
 check("average_profile shape: (n_vars, n_clusters)",
-      !is.null(out_raw$archetypes) &&
-      nrow(out_raw$archetypes) == n_vars &&
-      ncol(out_raw$archetypes) == n_clusters,
-      sprintf("got %s", if (is.null(out_raw$archetypes)) "NULL"
-              else paste(dim(out_raw$archetypes), collapse = " x ")))
+      !is.null(out_raw$average_profile) &&
+      nrow(out_raw$average_profile) == n_vars &&
+      ncol(out_raw$average_profile) == n_clusters,
+      sprintf("got %s", if (is.null(out_raw$average_profile)) "NULL"
+              else paste(dim(out_raw$average_profile), collapse = " x ")))
 check("upper_significance all non-negative",
       all(out_raw$upper_significance >= 0))
 check("lower_significance all non-negative",
@@ -143,10 +143,10 @@ check("Sparse == Dense: lower values match",
       sprintf("max_diff=%.2e",
               max(abs(out_raw$lower_significance - out_dense$lower_significance))))
 check("Sparse == Dense: average_profile values match",
-      isTRUE(all.equal(out_raw$archetypes, out_dense$archetypes,
+      isTRUE(all.equal(out_raw$average_profile, out_dense$average_profile,
                         tolerance = 1e-10)),
       sprintf("max_diff=%.2e",
-              max(abs(out_raw$archetypes - out_dense$archetypes))))
+              max(abs(out_raw$average_profile - out_dense$average_profile))))
 
 # ---------------------------------------------------------------------------
 # Section 3: annotateCells with cells x genes S
