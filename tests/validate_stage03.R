@@ -11,7 +11,8 @@
 # Exits with code 0 on pass, 1 on failure.
 
 suppressPackageStartupMessages({
-  devtools::load_all(".", quiet = TRUE)
+  options(pkgbuild.override_build_tools = TRUE)
+  pkgload::load_all(".", quiet = TRUE, compile = FALSE, recompile = FALSE)
 })
 
 # ── CLI args ──────────────────────────────────────────────────────────────────

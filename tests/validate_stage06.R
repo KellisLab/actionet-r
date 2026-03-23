@@ -13,7 +13,7 @@
 
 suppressPackageStartupMessages({
   options(pkgbuild.override_build_tools = TRUE)
-  devtools::load_all(".", quiet = TRUE)
+  pkgload::load_all(".", quiet = TRUE, compile = FALSE, recompile = FALSE)
 })
 
 PASS <- 0L

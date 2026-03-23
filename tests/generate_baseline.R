@@ -21,9 +21,12 @@ suppressPackageStartupMessages({
 # Always load actionet from the source to get the current dev-backed version
 # (the installed package may be outdated).
 if (file.exists(file.path(getwd(), "DESCRIPTION"))) {
-  message("Loading actionet via devtools::load_all() from current directory ...")
+  message("Loading actionet via pkgload::load_all() from current directory ...")
   suppressPackageStartupMessages(
-    devtools::load_all(".", quiet = TRUE, reset = TRUE)
+    {
+      options(pkgbuild.override_build_tools = TRUE)
+      pkgload::load_all(".", quiet = TRUE, reset = TRUE, compile = FALSE, recompile = FALSE)
+    }
   )
 } else if (requireNamespace("actionet", quietly = TRUE)) {
   message("Loading installed actionet package ...")
