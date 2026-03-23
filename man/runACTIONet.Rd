@@ -20,7 +20,7 @@ runACTIONet(
   network_M = 16,
   network_ef_construction = 200,
   network_ef = 200,
-  network_k = 10,
+  network_k = 100,
   mutual_edges_only = TRUE,
   layout_method = c("umap", "tumap", "largevis"),
   layout_epochs = 100,
@@ -67,7 +67,7 @@ The larger the value, the more archetypes will be filtered out. (default=-3)}
 
 \item{network_ef}{HNSW query search breadth for network construction. For `network_algorithm="k*nn"`, the effective value is `max(network_ef, kNN)`. (default=200)}
 
-\item{network_k}{Number of nearest neighbors for `network_algorithm="knn"`. (default=10)}
+\item{network_k}{Number of nearest neighbors for `network_algorithm="knn"`. (default=100)}
 
 \item{mutual_edges_only}{Whether to enforce edges to be mutually-nearest-neighbors. (default=TRUE)}
 

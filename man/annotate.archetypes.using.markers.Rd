@@ -9,7 +9,7 @@ annotate.archetypes.using.markers(
   ace,
   markers,
   features_use = NULL,
-  significance_slot = "arch_feat_spec"
+  significance_slot = "archetype_feat_specificity_upper"
 )
 }
 \arguments{

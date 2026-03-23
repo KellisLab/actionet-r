@@ -18,7 +18,7 @@ C_decompACTION(
 
 \item{k_min}{Minimum number of archetypes (>= 2) to search for, and the beginning of the search range.}
 
-\item{k_max}{Maximum number of archetypes (<= <b>S_r.n_cols</b>) to search for, and the end of the search range.}
+\item{k_max}{Maximum number of archetypes (<= <b>S_r.n_rows</b>) to search for, and the end of the search range.}
 
 \item{max_it}{Maximum number of iterations for <code>runAA()</code>.}
 
@@ -37,5 +37,5 @@ Run ACTION decomposition algorithm
 \examples{
 ACTION.out = runACTION(S_r, k_max = 10)
 H8 = ACTION.out$H[[8]]
-cell.assignments = apply(H8, 2, which.max)
+cell.assignments = apply(H8, 1, which.max)
 }
