@@ -8,7 +8,7 @@ Upstream dependency:
 
 - `libactionet` C++ core library
 - `anndataR` R
-- `ACTIONetExperiment` R (optional compatibility only)
+- `ACTIONetExperiment` R; Deprecated (optional backwards-compatibility only)
 
 Related front-end:
 
