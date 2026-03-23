@@ -107,9 +107,8 @@ cmp_archetype_slots <- function(slot, a, b) {
   b <- as.matrix(b)
   if (ncol(a) != ncol(b)) {
     check(slot, FALSE,
-          sprintf("archetype count differs: R=%d Python=%d (known stochastic pruning diff)",
-                  ncol(a), ncol(b)),
-          warn = TRUE)
+          sprintf("archetype count differs: R=%d Python=%d",
+                  ncol(a), ncol(b)))
     return(invisible(NULL))
   }
   ac <- canon_archetype_order(a)[[1]]
@@ -292,7 +291,7 @@ check_cross_language <- function(adata, py_h5ad_path) {
               atol = 1e-8, rtol = 1e-6)
   }
 
-  # ACTION archetypes — shape may differ
+  # ACTION archetypes — exact parity is expected across front-ends
   for (slot in c("H_stacked", "H_merged", "C_stacked", "C_merged")) {
     r_m  <- colMaps(adata)[[slot]]
     py_m <- py$obsm[[slot]]
@@ -304,7 +303,7 @@ check_cross_language <- function(adata, py_h5ad_path) {
             sprintf("MISSING in %s", if (is.null(r_m)) "R" else "Python"))
   }
 
-  # Network — depends on archetypes, warn if different
+  # Network — exact parity is expected once archetypes align
   G_r  <- colNets(adata)[["actionet"]]
   G_py <- py$obsp[["actionet"]]
   if (!is.null(G_r) && !is.null(G_py)) {
@@ -321,11 +320,9 @@ check_cross_language <- function(adata, py_h5ad_path) {
       nnz_py <- sum(G_py_d != 0)
       if (nnz_r != nnz_py) {
         check("cross-lang network", FALSE,
-              sprintf("nnz R=%d Python=%d (follows from archetype diff)", nnz_r, nnz_py),
-              warn = TRUE)
+              sprintf("nnz R=%d Python=%d", nnz_r, nnz_py))
       } else {
-        dev <- max(abs(G_r_d - G_py_d))
-        check("cross-lang network", dev <= 1e-6, sprintf("max_dev=%.3e", dev))
+        cmp_dense("cross-lang network", G_r_d, G_py_d)
       }
     }
   }
@@ -353,10 +350,9 @@ check_cross_language <- function(adata, py_h5ad_path) {
     py_mat <- as.matrix(py_m)
     if (!identical(dim(r_mat), dim(py_mat))) {
       check(label, FALSE,
-            sprintf("shape: R=%s Python=%s (archetype count diff)",
+            sprintf("shape: R=%s Python=%s",
                     paste(dim(r_mat), collapse = "x"),
-                    paste(dim(py_mat), collapse = "x")),
-            warn = TRUE)
+                    paste(dim(py_mat), collapse = "x")))
     } else {
       cmp_dense(label, r_mat, py_mat, atol = 1e-4, rtol = 1e-3)
     }
@@ -415,11 +411,5 @@ if (!skip_python) {
 # Final summary
 cat(sprintf("\n%s\n  RESULTS: %d passed, %d failed, %d warnings\n%s\n",
             strrep("=", 60), PASS, FAIL, WARN, strrep("=", 60)))
-
-if (WARN > 0) {
-  cat("\nKnown differences (documented, not counted as failures):\n")
-  cat("  See WARN lines above - archetype count and network differ between\n")
-  cat("  R and Python due to stochastic ACTION pruning (different defaults).\n")
-}
 
 quit(status = if (FAIL == 0L) 0L else 1L)
