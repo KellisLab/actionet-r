@@ -270,7 +270,7 @@ C_buildNetwork <- function(H, algorithm = "k*nn", distance_metric = "jsd", densi
     .Call(`_actionet_C_buildNetwork`, H, algorithm, distance_metric, density, thread_no, M, ef_construction, ef, mutual_edges_only, k)
 }
 
-C_runLPA <- function(G, labels, lambda = 1, iters = 3L, sig_threshold = 3, fixed_labels_ = NULL, thread_no = 0L) {
+C_runLPA <- function(G, labels, lambda = 0, iters = 3L, sig_threshold = 3, fixed_labels_ = NULL, thread_no = 0L) {
     .Call(`_actionet_C_runLPA`, G, labels, lambda, iters, sig_threshold, fixed_labels_, thread_no)
 }
 
