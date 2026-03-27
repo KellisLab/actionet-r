@@ -10,8 +10,7 @@
 // The actual actionet-r wrappers will be updated in Plan 03.
 #include "actionet_r_config.h"
 
-// orthogonalization ========================================================================================================
-// TODO: This whole submodule is fucked. Fix it.
+// orthogonalization ==========================================================================================================
 // [[Rcpp::export]]
 Rcpp::List C_orthogonalizeBatchEffect(arma::sp_mat& S, arma::mat& old_S_r, arma::mat& old_U, arma::mat& old_A,
                                       arma::mat& old_B, arma::vec& old_sigma, arma::mat& design) {

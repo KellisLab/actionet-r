@@ -56,7 +56,7 @@ arma::sp_mat C_buildNetwork(Rcpp::NumericMatrix H, std::string algorithm = "k*nn
 // label_propagation ===================================================================================================
 
 // [[Rcpp::export]]
-arma::vec C_runLPA(arma::sp_mat& G, arma::vec& labels, double lambda = 1, int iters = 3,
+arma::vec C_runLPA(arma::sp_mat& G, arma::vec& labels, double lambda = 0, int iters = 3,
                    double sig_threshold = 3, Rcpp::Nullable<Rcpp::IntegerVector> fixed_labels_ = R_NilValue,
                    int thread_no = 0) {
     // TODO: This is ugly. Find a better way to fix labels.
