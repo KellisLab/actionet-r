@@ -59,14 +59,12 @@ arma::sp_mat C_buildNetwork(Rcpp::NumericMatrix H, std::string algorithm = "k*nn
 arma::vec C_runLPA(arma::sp_mat& G, arma::vec& labels, double lambda = 0, int iters = 3,
                    double sig_threshold = 3, Rcpp::Nullable<Rcpp::IntegerVector> fixed_labels_ = R_NilValue,
                    int thread_no = 0) {
-    // TODO: This is ugly. Find a better way to fix labels.
     arma::uvec fixed_labels_vec;
     if (fixed_labels_.isNotNull()) {
-        Rcpp::NumericVector fixed_labels(fixed_labels_);
-        fixed_labels_vec.set_size(fixed_labels.size());
-        for (int i = 0; i < fixed_labels.size(); i++) {
-            fixed_labels_vec(i) = fixed_labels(i) - 1;
-        }
+        Rcpp::IntegerVector fixed_labels(fixed_labels_);
+        fixed_labels_vec = arma::conv_to<arma::uvec>::from(
+            Rcpp::as<arma::uvec>(fixed_labels) - 1
+        );
     }
 
     arma::vec new_labels =

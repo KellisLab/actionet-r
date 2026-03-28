@@ -334,16 +334,16 @@ BEGIN_RCPP
 END_RCPP
 }
 // C_perturbedSVD
-Rcpp::List C_perturbedSVD(arma::mat u, arma::vec d, arma::mat v, arma::mat A, arma::mat B);
+Rcpp::List C_perturbedSVD(const arma::mat& u, const arma::vec& d, const arma::mat& v, const arma::mat& A, const arma::mat& B);
 RcppExport SEXP _actionet_C_perturbedSVD(SEXP uSEXP, SEXP dSEXP, SEXP vSEXP, SEXP ASEXP, SEXP BSEXP) {
 BEGIN_RCPP
     Rcpp::RObject rcpp_result_gen;
     Rcpp::RNGScope rcpp_rngScope_gen;
-    Rcpp::traits::input_parameter< arma::mat >::type u(uSEXP);
-    Rcpp::traits::input_parameter< arma::vec >::type d(dSEXP);
-    Rcpp::traits::input_parameter< arma::mat >::type v(vSEXP);
-    Rcpp::traits::input_parameter< arma::mat >::type A(ASEXP);
-    Rcpp::traits::input_parameter< arma::mat >::type B(BSEXP);
+    Rcpp::traits::input_parameter< const arma::mat& >::type u(uSEXP);
+    Rcpp::traits::input_parameter< const arma::vec& >::type d(dSEXP);
+    Rcpp::traits::input_parameter< const arma::mat& >::type v(vSEXP);
+    Rcpp::traits::input_parameter< const arma::mat& >::type A(ASEXP);
+    Rcpp::traits::input_parameter< const arma::mat& >::type B(BSEXP);
     rcpp_result_gen = Rcpp::wrap(C_perturbedSVD(u, d, v, A, B));
     return rcpp_result_gen;
 END_RCPP

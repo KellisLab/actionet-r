@@ -320,7 +320,7 @@ C_computeArchetypeCentrality <- function(G, sample_assignments) {
     .Call(`_actionet_C_computeArchetypeCentrality`, G, sample_assignments)
 }
 
-C_autocorrelation_Moran_parametric <- function(G, scores, normalization_method = 4L, thread_no = 0L) {
+C_autocorrelation_Moran_parametric <- function(G, scores, normalization_method = 3L, thread_no = 0L) {
     .Call(`_actionet_C_autocorrelation_Moran_parametric`, G, scores, normalization_method, thread_no)
 }
 

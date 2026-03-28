@@ -176,14 +176,13 @@ Rcpp::List C_runSVDDense(arma::mat& A, int k = 30, int max_it = 0, int seed = 0,
 }
 
 // [[Rcpp::export]]
-Rcpp::List C_perturbedSVD(arma::mat u, arma::vec d, arma::mat v, arma::mat A, arma::mat B) {
-    // TODO: Jank. Put this in the function
-    if (1 < d.n_cols)
-        d = d.diag();
+Rcpp::List C_perturbedSVD(const arma::mat& u, const arma::vec& d, const arma::mat& v,
+                          const arma::mat& A, const arma::mat& B) {
+    arma::vec d_vec = (d.n_cols > 1) ? arma::vec(d.diag()) : d;
 
     arma::field<arma::mat> SVD_results(3);
     SVD_results(0) = u;
-    SVD_results(1) = d;
+    SVD_results(1) = d_vec;
     SVD_results(2) = v;
 
     arma::field<arma::mat> perturbed_SVD = actionet::perturbedSVD(SVD_results, A, B);

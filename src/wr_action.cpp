@@ -266,15 +266,8 @@ arma::mat C_runSimplexRegression(arma::mat& A, arma::mat& B, bool computeXtX = f
 Rcpp::List C_runSPA(arma::mat& A, int k) {
     actionet::ResSPA res = actionet::runSPA(A, k);
 
-    // Shift index
-    arma::uvec selected_cols = res.selected_cols;
-    arma::vec cols(k);
-    for (int i = 0; i < k; i++) {
-        cols[i] = selected_cols[i] + 1;
-    }
-
     Rcpp::List out;
-    out["selected_cols"] = cols;
+    out["selected_cols"] = arma::conv_to<arma::vec>::from(res.selected_cols) + 1;
     out["norms"] = res.column_norms;
 
     return out;

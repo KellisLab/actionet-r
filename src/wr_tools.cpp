@@ -7,7 +7,7 @@
 // TODO: Unused. Remove?
 // [[Rcpp::export]]
 Rcpp::List
-    C_autocorrelation_Moran_parametric(const arma::sp_mat& G, const arma::mat& scores, int normalization_method = 4,
+    C_autocorrelation_Moran_parametric(const arma::sp_mat& G, const arma::mat& scores, int normalization_method = 3,
                                        int thread_no = 0) {
     arma::field<arma::vec> out = actionet::autocorrelation_Moran_parametric(G, scores, normalization_method, thread_no);
 
