@@ -292,6 +292,10 @@ C_computeNetworkDiffusion <- function(G, X0, alpha = 0.85, max_it = 5L, thread_n
     .Call(`_actionet_C_computeNetworkDiffusion`, G, X0, alpha, max_it, thread_no, approx, norm_method, tol)
 }
 
+C_computeNetworkDiffusionSparse <- function(G, X0, alpha = 0.85, max_it = 5L, thread_no = 0L, approx = FALSE, norm_method = 0L, tol = 1e-8) {
+    .Call(`_actionet_C_computeNetworkDiffusionSparse`, G, X0, alpha, max_it, thread_no, approx, norm_method, tol)
+}
+
 #' Compute coreness of graph vertices
 #'
 #' @param G Input graph

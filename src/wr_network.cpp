@@ -96,6 +96,13 @@ arma::mat C_computeNetworkDiffusion(arma::sp_mat& G, arma::mat& X0, double alpha
     return (X);
 }
 
+// [[Rcpp::export]]
+arma::mat C_computeNetworkDiffusionSparse(arma::sp_mat& G, arma::sp_mat& X0, double alpha = 0.85, int max_it = 5,
+                                          int thread_no = 0, bool approx = false, int norm_method = 0, double tol = 1e-8) {
+    arma::mat X = actionet::computeNetworkDiffusion(G, X0, alpha, max_it, thread_no, approx, norm_method, tol);
+    return (X);
+}
+
 // network_measures ====================================================================================================
 
 //' Compute coreness of graph vertices

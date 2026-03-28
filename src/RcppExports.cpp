@@ -403,6 +403,24 @@ BEGIN_RCPP
     return rcpp_result_gen;
 END_RCPP
 }
+// C_computeNetworkDiffusionSparse
+arma::mat C_computeNetworkDiffusionSparse(arma::sp_mat& G, arma::sp_mat& X0, double alpha, int max_it, int thread_no, bool approx, int norm_method, double tol);
+RcppExport SEXP _actionet_C_computeNetworkDiffusionSparse(SEXP GSEXP, SEXP X0SEXP, SEXP alphaSEXP, SEXP max_itSEXP, SEXP thread_noSEXP, SEXP approxSEXP, SEXP norm_methodSEXP, SEXP tolSEXP) {
+BEGIN_RCPP
+    Rcpp::RObject rcpp_result_gen;
+    Rcpp::RNGScope rcpp_rngScope_gen;
+    Rcpp::traits::input_parameter< arma::sp_mat& >::type G(GSEXP);
+    Rcpp::traits::input_parameter< arma::sp_mat& >::type X0(X0SEXP);
+    Rcpp::traits::input_parameter< double >::type alpha(alphaSEXP);
+    Rcpp::traits::input_parameter< int >::type max_it(max_itSEXP);
+    Rcpp::traits::input_parameter< int >::type thread_no(thread_noSEXP);
+    Rcpp::traits::input_parameter< bool >::type approx(approxSEXP);
+    Rcpp::traits::input_parameter< int >::type norm_method(norm_methodSEXP);
+    Rcpp::traits::input_parameter< double >::type tol(tolSEXP);
+    rcpp_result_gen = Rcpp::wrap(C_computeNetworkDiffusionSparse(G, X0, alpha, max_it, thread_no, approx, norm_method, tol));
+    return rcpp_result_gen;
+END_RCPP
+}
 // C_computeCoreness
 arma::uvec C_computeCoreness(arma::sp_mat& G);
 RcppExport SEXP _actionet_C_computeCoreness(SEXP GSEXP) {
@@ -804,6 +822,7 @@ static const R_CallMethodDef CallEntries[] = {
     {"_actionet_C_buildNetwork", (DL_FUNC) &_actionet_C_buildNetwork, 10},
     {"_actionet_C_runLPA", (DL_FUNC) &_actionet_C_runLPA, 7},
     {"_actionet_C_computeNetworkDiffusion", (DL_FUNC) &_actionet_C_computeNetworkDiffusion, 8},
+    {"_actionet_C_computeNetworkDiffusionSparse", (DL_FUNC) &_actionet_C_computeNetworkDiffusionSparse, 8},
     {"_actionet_C_computeCoreness", (DL_FUNC) &_actionet_C_computeCoreness, 1},
     {"_actionet_C_computeArchetypeCentrality", (DL_FUNC) &_actionet_C_computeArchetypeCentrality, 2},
     {"_actionet_C_autocorrelation_Moran_parametric", (DL_FUNC) &_actionet_C_autocorrelation_Moran_parametric, 4},

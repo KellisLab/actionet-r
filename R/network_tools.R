@@ -66,8 +66,10 @@ networkDiffusion <- function(
 
   is_ace <- .validate_ace(adata, allow_se_like = TRUE, error_on_fail = FALSE, return_elem = FALSE)
 
-  if (!is.matrix(scores)) {
-    scores <- Matrix::as.matrix(scores)
+  if (methods::is(scores, "sparseMatrix")) {
+    scores <- as(scores, "CsparseMatrix")
+  } else if (!is.matrix(scores)) {
+    scores <- as.matrix(scores)
   }
 
   if (NROW(scores) != .n_obs(adata)) {
@@ -88,16 +90,29 @@ networkDiffusion <- function(
   } else if (alpha < 0) {
     stop("`alpha` < 0")
   }
-  X <- C_computeNetworkDiffusion(
-    G = G,
-    X0 = scores,
-    alpha = alpha,
-    max_it = max_it,
-    thread_no = thread_no,
-    approx = approx,
-    norm_method = ifelse(norm_method == "pagerank_sym", 2, 0),
-    tol = tol
-  )
+  if (methods::is(scores, "sparseMatrix")) {
+    X <- C_computeNetworkDiffusionSparse(
+      G = G,
+      X0 = scores,
+      alpha = alpha,
+      max_it = max_it,
+      thread_no = thread_no,
+      approx = approx,
+      norm_method = ifelse(norm_method == "pagerank_sym", 2, 0),
+      tol = tol
+    )
+  } else {
+    X <- C_computeNetworkDiffusion(
+      G = G,
+      X0 = scores,
+      alpha = alpha,
+      max_it = max_it,
+      thread_no = thread_no,
+      approx = approx,
+      norm_method = ifelse(norm_method == "pagerank_sym", 2, 0),
+      tol = tol
+    )
+  }
 
   if (is_ace && !return_raw) {
     if (is.null(map_slot_out)) {
