@@ -187,7 +187,8 @@ arma::sp_mat C_scaleMatrixSparse(arma::sp_mat& X, arma::vec& v, unsigned int dim
 
 // [[Rcpp::export]]
 arma::sp_mat C_normalizeGraph(arma::sp_mat& G, int norm_method = 0) {
-    arma::sp_mat Gn = actionet::normalizeGraph(G, norm_method);
+    arma::sp_mat Gn = G;
+    actionet::normalizeGraph(Gn, norm_method);
     return (Gn);
 }
 

@@ -21,52 +21,8 @@ C_runAA <- function(A, W0, max_it = 100L, tol = 1e-6) {
     .Call(`_actionet_C_runAA`, A, W0, max_it, tol)
 }
 
-#' Run ACTION decomposition algorithm
-#'
-#' @param S_r Input matrix. Usually a reduced representation of the raw data.
-#' @param k_min Minimum number of archetypes (>= 2) to search for, and the beginning of the search range.
-#' @param k_max Maximum number of archetypes (<= <b>S_r.n_rows</b>) to search for, and the end of the search range.
-#' @param normalization Normalization method to apply on <b>S_r</b> before running ACTION.
-#' @param max_it Maximum number of iterations for <code>runAA()</code>.
-#' @param tol Convergence tolerance for <code>runAA()</code>.
-#' @param thread_no Number of CPU threads to use. If 0, number is automatically determined.
-#'
-#' @return A named list with entries 'C' and 'H', each a list for different values of k
-#'
-#' @examples
-#' ACTION.out = runACTION(S_r, k_max = 10)
-#' H8 = ACTION.out$H[[8]]
-#' cell.assignments = apply(H8, 1, which.max)
-C_decompACTION <- function(S_r, k_min = 2L, k_max = 30L, max_it = 100L, tol = 1e-16, thread_no = 0L) {
-    .Call(`_actionet_C_decompACTION`, S_r, k_min, k_max, max_it, tol, thread_no)
-}
-
 C_runACTION <- function(S_r, k_min = 2L, k_max = 30L, max_it = 100L, tol = 1e-16, spec_th = -3, min_obs = 3L, thread_no = 0L) {
     .Call(`_actionet_C_runACTION`, S_r, k_min, k_max, max_it, tol, spec_th, min_obs, thread_no)
-}
-
-#' Filter and aggregate multi-level archetypes
-#'
-#' @param C_trace Field containing C matrices. Output of <code>runACTION()</code> in <code>ResACTION["C"]</code>.
-#' @param H_trace Field containing H matrices. Output of <code>runACTION()</code> in <code>ResACTION["H"]</code>.
-#' @param spec_th Minimum threshold (as z-score) to filter archetypes by specificity.
-#' @param min_obs Minimum number of observations assigned to an archetypes needed to retain that archetype.
-#'
-#' @return A named list: \itemize{
-#' \item selected_archs: List of final archetypes that passed the
-#' filtering/pruning step.
-#' \item C_stacked,H_stacked: Horizontal/Vertical
-#' concatenation of filtered C and H matrices, respectively.
-#' }
-#'
-#' @examples
-#' S = logcounts(sce)
-#' reduction.out = reduce(S, reduced_dim = 50)
-#' S_r = reduction.out$S_r
-#' ACTION.out = runACTION(S_r, k_max = 10)
-#' reconstruction.out = reconstruct_archetypes(S, ACTION.out$C, ACTION.out$H)
-C_collectArchetypes <- function(C_trace, H_trace, spec_th = -3, min_obs = 3L) {
-    .Call(`_actionet_C_collectArchetypes`, C_trace, H_trace, spec_th, min_obs)
 }
 
 #' Identify and merge redundant archetypes into a representative subset

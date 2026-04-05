@@ -1,12 +1,10 @@
 ## Primary
 * Fix `networkDiffusion` to keep dimnames.
-* Fix broken R functions
+* Deprecate and remove old R functions
 * Edit the package 'DESCRIPTION'.
 * Edit the exports in 'NAMESPACE', and add necessary imports.
-* Consolidate decompACTION and runACTION
-* Add rerun archetype merging
+* Finish rerun archetype merging
 * Separation ACTION and ACTIONet
-* Creature "run pipeline" function
 * Fix plotting
  * interactive 3D coords
  * Generalize "correctBatchEffect" for matrix input after fixing back-end
@@ -16,17 +14,19 @@
 * In `plot.ACTIONet()`, plotting order should have `NA` points on bottom.
 * Fix bug in `plot.ACTIONet()` and `.layout_plot_labels()` when `label_attr` contains empty string (`""`)
 * Finish `annotateClusters`
+  * Compare incomplete XICOR version to actionet-python
 * Add error for `annotateClusters` for when feat_spec is not in object.
 * Force all zero rows removed if `min_cells_per_feat` > 0 in `filter.ace`
 * Fix impute with single gene
 
 ## Secondary
+* Deprecate `compute_specificity_parallel`
 * Change ggtheme to bw
-* Add arbitrary pseudo count
 * Normalize only subset of features
 
 ## Done
 * New marker detection
-* WOrking and improved ledien via igraph
+* Working and improved ledien via igraph
 * New qc functions
 * Removed `C_fastSpMatViewSum` due to inaccuracy when multithreading.
+* Add arbitrary pseudo count
