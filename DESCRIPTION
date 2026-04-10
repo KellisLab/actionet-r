@@ -12,9 +12,12 @@ Description: More about what it does (maybe more than one line).
 URL: www.somethinggoeshere.com
 License: GPL3
 SystemRequirements: CMake (>= 3.19), HDF5 C library
-Depends: R (>= 4.0.0), ACTIONetExperiment, Matrix
-Imports: Rcpp (>= 1.0.12), RcppArmadillo, BiocParallel
-Suggests: igraph, ggplot2, ggrepel, gplots, plotly, colorspace
+Depends: R (>= 4.0.0), Matrix
+Imports: Rcpp (>= 1.0.12), RcppArmadillo, BiocParallel, anndataR,
+    SummarizedExperiment, SingleCellExperiment, S4Vectors
+Suggests: ACTIONetExperiment, igraph, ggplot2, ggrepel, gplots, plotly,
+    colorspace, testthat (>= 3.0.0)
 LinkingTo: Rcpp, RcppArmadillo
 RoxygenNote: 7.3.3
+Config/testthat/edition: 3
 Encoding: UTF-8

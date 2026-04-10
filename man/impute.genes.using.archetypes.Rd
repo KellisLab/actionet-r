@@ -4,14 +4,19 @@
 \alias{impute.genes.using.archetypes}
 \title{Imputing expression of genes by interpolating over archetype profile}
 \usage{
-impute.genes.using.archetypes(ace, genes, features_use = NULL)
+impute.genes.using.archetypes(
+  adata = NULL,
+  genes,
+  features_use = NULL,
+  ace = NULL
+)
 }
 \arguments{
-\item{ace}{ACTIONet output}
+\item{adata}{AnnData or compatible ACTIONet output container.}
 
 \item{genes}{List of genes to impute}
 
-\item{features_use}{A vector of features of length NROW(ace) or the name of a column of rowData(ace) containing the genes given in 'genes'.}
+\item{features_use}{A vector of features of length `n_vars(adata)` or the name of a column of `adata$var` containing the genes given in `genes`.}
 }
 \value{
 A matrix of imputed expression values
@@ -20,5 +25,5 @@ A matrix of imputed expression values
 Imputing expression of genes by interpolating over archetype profile
 }
 \examples{
-expression_imputed <- impute.genes.using.archetype(ace, genes)
+expression_imputed <- impute.genes.using.archetypes(adata, genes)
 }

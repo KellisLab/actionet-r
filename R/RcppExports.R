@@ -21,52 +21,8 @@ C_runAA <- function(A, W0, max_it = 100L, tol = 1e-6) {
     .Call(`_actionet_C_runAA`, A, W0, max_it, tol)
 }
 
-#' Run ACTION decomposition algorithm
-#'
-#' @param S_r Input matrix. Usually a reduced representation of the raw data.
-#' @param k_min Minimum number of archetypes (>= 2) to search for, and the beginning of the search range.
-#' @param k_max Maximum number of archetypes (<= <b>S_r.n_cols</b>) to search for, and the end of the search range.
-#' @param normalization Normalization method to apply on <b>S_r</b> before running ACTION.
-#' @param max_it Maximum number of iterations for <code>runAA()</code>.
-#' @param tol Convergence tolerance for <code>runAA()</code>.
-#' @param thread_no Number of CPU threads to use. If 0, number is automatically determined.
-#'
-#' @return A named list with entries 'C' and 'H', each a list for different values of k
-#'
-#' @examples
-#' ACTION.out = runACTION(S_r, k_max = 10)
-#' H8 = ACTION.out$H[[8]]
-#' cell.assignments = apply(H8, 2, which.max)
-C_decompACTION <- function(S_r, k_min = 2L, k_max = 30L, max_it = 100L, tol = 1e-16, thread_no = 0L) {
-    .Call(`_actionet_C_decompACTION`, S_r, k_min, k_max, max_it, tol, thread_no)
-}
-
-C_runACTION <- function(S_r, k_min = 2L, k_max = 30L, max_it = 100L, tol = 1e-16, spec_th = -3, min_obs = 3L, thread_no = 0L) {
-    .Call(`_actionet_C_runACTION`, S_r, k_min, k_max, max_it, tol, spec_th, min_obs, thread_no)
-}
-
-#' Filter and aggregate multi-level archetypes
-#'
-#' @param C_trace Field containing C matrices. Output of <code>runACTION()</code> in <code>ResACTION["C"]</code>.
-#' @param H_trace Field containing H matrices. Output of <code>runACTION()</code> in <code>ResACTION["H"]</code>.
-#' @param spec_th Minimum threshold (as z-score) to filter archetypes by specificity.
-#' @param min_obs Minimum number of observations assigned to an archetypes needed to retain that archetype.
-#'
-#' @return A named list: \itemize{
-#' \item selected_archs: List of final archetypes that passed the
-#' filtering/pruning step.
-#' \item C_stacked,H_stacked: Horizontal/Vertical
-#' concatenation of filtered C and H matrices, respectively.
-#' }
-#'
-#' @examples
-#' S = logcounts(sce)
-#' reduction.out = reduce(S, reduced_dim = 50)
-#' S_r = reduction.out$S_r
-#' ACTION.out = runACTION(S_r, k_max = 10)
-#' reconstruction.out = reconstruct_archetypes(S, ACTION.out$C, ACTION.out$H)
-C_collectArchetypes <- function(C_trace, H_trace, spec_th = -3, min_obs = 3L) {
-    .Call(`_actionet_C_collectArchetypes`, C_trace, H_trace, spec_th, min_obs)
+C_runACTION <- function(S_r, k_min = 2L, k_max = 30L, max_it = 100L, tol = 1e-16, spec_th = -3, min_obs = 3L, thread_no = 0L, return_c_matrices = TRUE) {
+    .Call(`_actionet_C_runACTION`, S_r, k_min, k_max, max_it, tol, spec_th, min_obs, thread_no, return_c_matrices)
 }
 
 #' Identify and merge redundant archetypes into a representative subset
@@ -95,7 +51,7 @@ C_mergeArchetypes <- function(S_r, C_stacked, H_stacked, thread_no = 0L) {
 
 #' Compute reduced kernel matrix
 #'
-#' @param S Input matrix (<em>vars</em> x <em>obs</em>).
+#' @param S Input matrix (cells x genes, obs x var — AnnData-native orientation, Plan 02).
 #' May be <code>arma::mat</code> or <code>arma::sp_mat</code>.
 #' @param dim Number of singular vectors to estimate. Passed to <code>runSVD()</code>.
 #' @param svd_alg Singular value decomposition algorithm. See to <code>runSVD()</code> for options.
@@ -104,16 +60,11 @@ C_mergeArchetypes <- function(S_r, C_stacked, H_stacked, thread_no = 0L) {
 #' @param verbose Print status messages.
 #'
 #' @return Field with 5 elements:
-#' - 0: <code>arma::mat</code> Reduced kernel matrix.
+#' - 0: <code>arma::mat</code> Reduced kernel matrix (cells x k).
 #' - 1: <code>arma::vec</code> Singular values.
-#' - 2: <code>arma::mat</code> Left singular vectors.
-#' - 3: <code>arma::mat</code> <b>A</b> perturbation matrix.
-#' - 4: <code>arma::mat</code> <b>B</b> perturbation matrix.
-#'
-#' @examples
-#' S = logcounts(sce)
-#' reduction.out = reduce(S, reduced_dim = 50)
-#' S_r = reduction.out$S_r
+#' - 2: <code>arma::mat</code> Gene loadings (genes x k).
+#' - 3: <code>arma::mat</code> <b>A</b> perturbation matrix (genes x p).
+#' - 4: <code>arma::mat</code> <b>B</b> perturbation matrix (cells x p).
 C_reduceKernelSparse <- function(S, k = 50L, svd_alg = 0L, max_it = 0L, seed = 0L, verbose = TRUE) {
     .Call(`_actionet_C_reduceKernelSparse`, S, k, svd_alg, max_it, seed, verbose)
 }
@@ -275,7 +226,7 @@ C_buildNetwork <- function(H, algorithm = "k*nn", distance_metric = "jsd", densi
     .Call(`_actionet_C_buildNetwork`, H, algorithm, distance_metric, density, thread_no, M, ef_construction, ef, mutual_edges_only, k)
 }
 
-C_runLPA <- function(G, labels, lambda = 1, iters = 3L, sig_threshold = 3, fixed_labels_ = NULL, thread_no = 0L) {
+C_runLPA <- function(G, labels, lambda = 0, iters = 3L, sig_threshold = 3, fixed_labels_ = NULL, thread_no = 0L) {
     .Call(`_actionet_C_runLPA`, G, labels, lambda, iters, sig_threshold, fixed_labels_, thread_no)
 }
 
@@ -295,6 +246,10 @@ C_runLPA <- function(G, labels, lambda = 1, iters = 3L, sig_threshold = 3, fixed
 #' smoothed.expression = computeNetworkDiffusionApprox(G, gene.expression)
 C_computeNetworkDiffusion <- function(G, X0, alpha = 0.85, max_it = 5L, thread_no = 0L, approx = FALSE, norm_method = 0L, tol = 1e-8) {
     .Call(`_actionet_C_computeNetworkDiffusion`, G, X0, alpha, max_it, thread_no, approx, norm_method, tol)
+}
+
+C_computeNetworkDiffusionSparse <- function(G, X0, alpha = 0.85, max_it = 5L, thread_no = 0L, approx = FALSE, norm_method = 0L, tol = 1e-8) {
+    .Call(`_actionet_C_computeNetworkDiffusionSparse`, G, X0, alpha, max_it, thread_no, approx, norm_method, tol)
 }
 
 #' Compute coreness of graph vertices
@@ -325,7 +280,7 @@ C_computeArchetypeCentrality <- function(G, sample_assignments) {
     .Call(`_actionet_C_computeArchetypeCentrality`, G, sample_assignments)
 }
 
-C_autocorrelation_Moran_parametric <- function(G, scores, normalization_method = 4L, thread_no = 0L) {
+C_autocorrelation_Moran_parametric <- function(G, scores, normalization_method = 3L, thread_no = 0L) {
     .Call(`_actionet_C_autocorrelation_Moran_parametric`, G, scores, normalization_method, thread_no)
 }
 
@@ -466,8 +421,8 @@ C_XICOR <- function(X, Y, compute_pval = TRUE, seed = 0L, thread_no = 0L) {
     .Call(`_actionet_C_XICOR`, X, Y, compute_pval, seed, thread_no)
 }
 
-C_layoutNetwork <- function(G, initial_coordinates, method = "umap", n_components = 2L, spread = 1, min_dist = 1, n_epochs = 0L, learning_rate = 1, repulsion_strength = 1, negative_sample_rate = 5, approx_pow = FALSE, pcg_rand = TRUE, batch = TRUE, grain_size = 1L, seed = 0L, thread_no = 0L, verbose = TRUE, a = 0, b = 0, opt_method = "adam", alpha = -1, beta1 = 0.5, beta2 = 0.9, eps = 1e-7) {
-    .Call(`_actionet_C_layoutNetwork`, G, initial_coordinates, method, n_components, spread, min_dist, n_epochs, learning_rate, repulsion_strength, negative_sample_rate, approx_pow, pcg_rand, batch, grain_size, seed, thread_no, verbose, a, b, opt_method, alpha, beta1, beta2, eps)
+C_layoutNetwork <- function(G, initial_coordinates, method = "umap", n_components = 2L, spread = 1, min_dist = 1, n_epochs = 0L, learning_rate = 1, repulsion_strength = 1, negative_sample_rate = 5, approx_pow = FALSE, pcg_rand = TRUE, rng_type = "", batch = TRUE, grain_size = 1L, ai = NULL, aj = NULL, seed = 0L, thread_no = 0L, verbose = TRUE, a = 0, b = 0, opt_method = "adam", alpha = -1, beta1 = 0.5, beta2 = 0.9, eps = 1e-7) {
+    .Call(`_actionet_C_layoutNetwork`, G, initial_coordinates, method, n_components, spread, min_dist, n_epochs, learning_rate, repulsion_strength, negative_sample_rate, approx_pow, pcg_rand, rng_type, batch, grain_size, ai, aj, seed, thread_no, verbose, a, b, opt_method, alpha, beta1, beta2, eps)
 }
 
 C_computeNodeColors <- function(coordinates, thread_no = 1L) {

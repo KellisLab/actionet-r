@@ -7,7 +7,8 @@ This repository provides the **R user-facing interface** to the Actionet C++ cor
 Upstream dependency:
 
 - `libactionet` C++ core library
-- `ACTIONetExperiment` R
+- `anndataR` R
+- `ACTIONetExperiment` R; Deprecated (optional backwards-compatibility only)
 
 Related front-end:
 

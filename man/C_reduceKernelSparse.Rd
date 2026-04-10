@@ -14,7 +14,7 @@ C_reduceKernelSparse(
 )
 }
 \arguments{
-\item{S}{Input matrix (<em>vars</em> x <em>obs</em>).
+\item{S}{Input matrix (cells x genes, obs x var — AnnData-native orientation, Plan 02).
 May be <code>arma::mat</code> or <code>arma::sp_mat</code>.}
 
 \item{svd_alg}{Singular value decomposition algorithm. See to <code>runSVD()</code> for options.}
@@ -29,17 +29,12 @@ May be <code>arma::mat</code> or <code>arma::sp_mat</code>.}
 }
 \value{
 Field with 5 elements:
-- 0: <code>arma::mat</code> Reduced kernel matrix.
+- 0: <code>arma::mat</code> Reduced kernel matrix (cells x k).
 - 1: <code>arma::vec</code> Singular values.
-- 2: <code>arma::mat</code> Left singular vectors.
-- 3: <code>arma::mat</code> <b>A</b> perturbation matrix.
-- 4: <code>arma::mat</code> <b>B</b> perturbation matrix.
+- 2: <code>arma::mat</code> Gene loadings (genes x k).
+- 3: <code>arma::mat</code> <b>A</b> perturbation matrix (genes x p).
+- 4: <code>arma::mat</code> <b>B</b> perturbation matrix (cells x p).
 }
 \description{
 Compute reduced kernel matrix
-}
-\examples{
-S = logcounts(sce)
-reduction.out = reduce(S, reduced_dim = 50)
-S_r = reduction.out$S_r
 }

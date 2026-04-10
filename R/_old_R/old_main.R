@@ -213,3 +213,88 @@ rerun.archetype.unification <- function(ace,
 
   return(ace)
 }
+
+
+#' Prune nonspecific and/or unreliable archetypes
+.run.collectArchetypes <- function(ace,
+                                   C_trace,
+                                   H_trace,
+                                   specificity_th = -3,
+                                   min_cells_per_arch = 2) {
+  .validate_ace(ace, allow_null = FALSE, return_elem = FALSE)
+
+  pruning.out <- .collectArchetypes(
+    C_trace = C_trace,
+    H_trace = H_trace,
+    specificity_th = specificity_th,
+    min_cells_per_arch = min_cells_per_arch
+  )
+
+  colMaps(ace)[["H_stacked"]] <- as(pruning.out$H_stacked, "sparseMatrix")
+  colMapTypes(ace)[["H_stacked"]] <- "internal"
+
+  colMaps(ace)[["C_stacked"]] <- as(pruning.out$C_stacked, "sparseMatrix")
+  colMapTypes(ace)[["C_stacked"]] <- "internal"
+
+  return(ace)
+}
+
+
+#' Identiy equivalent classes of archetypes and group them together
+.run.mergeArchetypes <- function(ace,
+                                 reduction_slot = "action",
+                                 C_stacked_slot = "C_stacked",
+                                 H_stacked_slot = "H_stacked",
+                                 normalization = 0,
+                                 merged_suffix = "merged",
+                                 footprint_slot_name = "assigned_archetype",
+                                 thread_no = 0,
+                                 return_raw = FALSE) {
+  .validate_ace(ace, allow_null = FALSE, return_elem = FALSE)
+
+  S_r <- .validate_map(
+    ace = ace,
+    map_slot = reduction_slot,
+    matrix_type = "dense",
+    force_type = TRUE
+  )
+
+  C_stacked <- .validate_map(
+    ace = ace,
+    map_slot = C_stacked_slot,
+    matrix_type = "dense",
+    force_type = TRUE
+  )
+
+  H_stacked <- .validate_map(
+    ace = ace,
+    map_slot = H_stacked_slot,
+    matrix_type = "dense",
+    force_type = TRUE
+  )
+
+  unification.out <- .mergeArchetypes(
+    S_r = S_r,
+    C_stacked = C_stacked,
+    H_stacked = H_stacked,
+    normalization = normalization,
+    thread_no = thread_no
+  )
+
+  if (return_raw == TRUE) {
+    return(unification.out)
+  } else {
+    Ht_merged <- as(unification.out$H_merged, "sparseMatrix")
+    colMaps(ace)[[sprintf("H_%s", merged_suffix)]] <- Ht_merged
+    colMapTypes(ace)[[sprintf("H_%s", merged_suffix)]] <- "internal"
+
+    colMaps(ace)[[sprintf("C_%s", merged_suffix)]] <- as(unification.out$C_merged, "sparseMatrix")
+    colMapTypes(ace)[[sprintf("C_%s", merged_suffix)]] <- "internal"
+
+    obs <- .get_obs_data(ace)
+    obs[[footprint_slot_name]] <- c(unification.out$assigned_archetypes)
+    ace <- .set_obs_data(ace, obs)
+
+    return(ace)
+  }
+}

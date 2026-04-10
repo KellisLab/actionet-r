@@ -15,7 +15,7 @@ CPal_default <- c(
 .get_plot_coors <- function(X,
                             coordinate_attr = NULL,
                             scale_coors = TRUE) {
-  if (is(X, "ACTIONetExperiment")) {
+  if (.is_se_like(X)) {
     if (!is.null(coordinate_attr)) {
       if (coordinate_attr %in% names(colMaps(X))) {
         coors <- as.matrix(colMaps(X)[[coordinate_attr]])
@@ -24,14 +24,14 @@ CPal_default <- c(
         stop(err)
       }
     } else {
-      err <- sprintf("'coordinate_attr' cannot be NULL if 'ace' is 'ACTIONetExperiment'.\n")
+      err <- sprintf("'coordinate_attr' cannot be NULL if 'X' is a container object.\n")
       stop(err)
     }
   } else {
-    if (is.matrix(X) | ACTIONetExperiment:::is.sparseMatrix(X)) {
+    if (is.matrix(X) | .is_sparse_matrix(X)) {
       coors <- as.matrix(X)
     } else {
-      err <- sprintf("'X' must be 'ACTIONetExperiment' or matrix.\n")
+      err <- sprintf("'X' must be AnnData or matrix.\n")
       stop(err)
     }
   }
@@ -73,8 +73,8 @@ CPal_default <- c(
                              color_slot = "colors_actionet",
                              palette = CPal_default,
                              NA_color = "#CCCCCC") {
-  if (is(data, "ACTIONetExperiment")) {
-    n_dim <- NCOL(data)
+  if (.is_se_like(data)) {
+    n_dim <- .n_obs(data)
   } else {
     n_dim <- NROW(data)
   }
@@ -149,11 +149,11 @@ CPal_default <- c(
   } else {
     if (is.null(color_slot)) {
       plot_colors <- .default_colors(n_dim)
-    } else if (is(data, "ACTIONetExperiment")) {
+    } else if (.is_se_like(data)) {
       if (color_slot %in% names(colMaps(data))) {
         plot_colors <- grDevices::rgb(colMaps(data)[[color_slot]])
       } else {
-        err <- sprintf("'color_attr' not in colMaps(ace)")
+        err <- sprintf("'color_attr' not in container maps")
         stop(err)
       }
     } else {

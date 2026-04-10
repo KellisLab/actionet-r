@@ -1,49 +1,83 @@
 #' @export
 normalize.ace <- function(
-    ace,
-    assay_name = "counts",
-    assay_out = "logcounts",
+    adata = NULL,
+    layer = "counts",
+    layer_out = "logcounts",
     scale_param = stats::median,
     trans_func = base::log2,
-    pseudocount = 1) {
-
-  S <- SummarizedExperiment::assays(ace)[[assay_name]]
+    pseudocount = 1,
+    assay_name = NULL,
+    assay_out = NULL,
+    ace = NULL) {
+  adata <- .resolve_container_arg(adata = adata, ace = ace)
+  layer <- .resolve_layer_arg(
+    layer = layer,
+    assay_name = assay_name,
+    default = "counts",
+    layer_missing = missing(layer),
+    assay_name_missing = missing(assay_name)
+  )
+  if (!missing(assay_out) && !is.null(assay_out)) {
+    .Deprecated(msg = "'assay_out' is deprecated; use 'layer_out' instead.")
+    if (missing(layer_out) || is.null(layer_out)) {
+      layer_out <- assay_out
+    }
+  }
+  adata <- .validate_ace(adata, allow_se_like = TRUE, as_ace = TRUE, return_elem = TRUE)
+  S <- .validate_assay(adata, assay_name = layer, return_elem = TRUE)
   S <- normalize.matrix(
     S,
-    dim = 2,
+    dim = 1,  # normalize each cell (row) by its library size
     scale_param = scale_param,
     trans_func = trans_func,
     pseudocount = pseudocount)
-  rownames(S) <- rownames(ace)
-  colnames(S) <- colnames(ace)
-  SummarizedExperiment::assays(ace)[[assay_out]] <- S
-  return(ace)
-
-  metadata(ace)$norm_method <- "default"
-
-  return(ace)
+  rownames(S) <- .obs_names(adata)   # cells are rows
+  colnames(S) <- .var_names(adata)   # genes are columns
+  adata <- .set_layer_matrix(adata, layer_out, S)
+  if (is.null(adata$X)) {
+    adata <- .set_layer_matrix(adata, NULL, S)
+  }
+  return(adata)
 }
 
 #' @importFrom batchelor multiBatchNorm
 #' @export
-normalize.multiBatchNorm <- function(ace,
+normalize.multiBatchNorm <- function(adata = NULL,
                                      batch_attr,
-                                     assay_name = "counts",
-                                     assay_out = "logcounts",
+                                     layer = "counts",
+                                     layer_out = "logcounts",
                                      BPPARAM = SerialParam(),
                                      norm.args = list(),
                                      min.mean = 1,
                                      subset.row = NULL,
                                      normalize.all = FALSE,
-                                     preserve.single = TRUE) {
-  batch_attr <- ACTIONetExperiment::get.data.or.split(ace, attr = batch_attr, to_return = "data")
-  sce_temp <- as(ace, "SingleCellExperiment")
+                                     preserve.single = TRUE,
+                                     assay_name = NULL,
+                                     assay_out = NULL,
+                                     ace = NULL) {
+  adata <- .resolve_container_arg(adata = adata, ace = ace)
+  layer <- .resolve_layer_arg(
+    layer = layer,
+    assay_name = assay_name,
+    default = "counts",
+    layer_missing = missing(layer),
+    assay_name_missing = missing(assay_name)
+  )
+  if (!missing(assay_out) && !is.null(assay_out)) {
+    .Deprecated(msg = "'assay_out' is deprecated; use 'layer_out' instead.")
+    if (missing(layer_out) || is.null(layer_out)) {
+      layer_out <- assay_out
+    }
+  }
+  adata <- .validate_ace(adata, allow_se_like = TRUE, as_ace = TRUE, return_elem = TRUE)
+  batch_attr <- .validate_vector_attr(adata, attr = batch_attr, return_type = "data")
+  sce_temp <- adata$as_SingleCellExperiment()
 
   sce_temp <- batchelor::multiBatchNorm(
     sce_temp,
     batch = batch_attr,
     norm.args = norm.args,
-    assay.type = assay_name,
+    assay.type = layer,
     min.mean = min.mean,
     subset.row = subset.row,
     normalize.all = normalize.all,
@@ -51,10 +85,12 @@ normalize.multiBatchNorm <- function(ace,
     BPPARAM = BPPARAM
   )
 
-  SummarizedExperiment::assays(ace)[[assay_out]] <- SummarizedExperiment::assays(sce_temp)[["logcounts"]]
-  metadata(ace)$norm_method <- "multiBatchNorm"
+  adata <- .set_layer_matrix(adata, layer_out, SummarizedExperiment::assays(sce_temp)[["logcounts"]])
+  uns <- .get_uns(adata)
+  uns$norm_method <- "multiBatchNorm"
+  adata <- .set_uns(adata, uns)
 
-  return(ace)
+  return(adata)
 }
 
 
@@ -64,7 +100,7 @@ normalize.matrix <- function(S,
                              scale_param = NULL,
                              trans_func = NULL,
                              pseudocount = 0) {
-  if (!is.matrix(S) && !ACTIONetExperiment:::is.sparseMatrix(S)) {
+  if (!is.matrix(S) && !.is_sparse_matrix(S)) {
     err <- sprintf("`S` must be `matrix` or `sparseMatrix`.\n")
     stop(err)
   }
@@ -106,7 +142,7 @@ normalize.matrix <- function(S,
   S <- .scale.matrix(S, dim = dim, scale_fac = scale_param)
 
   if (!is.null(trans_func)) {
-    if (ACTIONetExperiment:::is.sparseMatrix(S)) {
+    if (.is_sparse_matrix(S)) {
       S@x <- trans_func(S@x + pseudocount)
     } else {
       S[S != 0] <- trans_func(S[S != 0] + pseudocount)

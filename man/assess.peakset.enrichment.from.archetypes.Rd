@@ -5,14 +5,15 @@
 \title{Performs geneset enrichment analysis on archetypes}
 \usage{
 assess.peakset.enrichment.from.archetypes(
-  ace,
+  adata = NULL,
   associations,
   min.counts = 0,
-  specificity.slot = "arch_feat_spec"
+  specificity.slot = "archetype_feat_specificity_upper",
+  ace = NULL
 )
 }
 \arguments{
-\item{ace}{ACTIONetExperiment (ACE) output object}
+\item{adata}{AnnData or compatible ACTIONet output object.}
 
 \item{associations}{Either a genes x pathways membership matrix, or a set of genesets}
 
@@ -27,5 +28,5 @@ Performs geneset enrichment analysis on archetypes
 \examples{
 data("gProfilerDB_human")
 associations <- gProfilerDB_human$SYMBOL$WP
-Geneset.enrichments <- assess.geneset.enrichment.from.archetypes(ace, associations)
+Geneset.enrichments <- assess.peakset.enrichment.from.archetypes(adata, associations)
 }

@@ -2,18 +2,20 @@
 % Please edit documentation in R/batch_correct.R
 \name{correctBatchEffectFastMNN}
 \alias{correctBatchEffectFastMNN}
-\title{Perform batch correction on `ACTIONetExperiment` and `SingleCellExperiment` objects.}
+\title{Perform batch correction on AnnData or `SingleCellExperiment`-like inputs.}
 \usage{
 correctBatchEffectFastMNN(
-  ace,
+  adata = NULL,
   batch_attr = NULL,
-  assay_name = NULL,
+  layer = NULL,
   reduced_dim = 50,
   MNN_k = 20,
   reduction_out = "MNN",
-  BPPARAM = SerialParam()
+  BPPARAM = SerialParam(),
+  assay_name = NULL,
+  ace = NULL
 )
 }
 \description{
-Perform batch correction on `ACTIONetExperiment` and `SingleCellExperiment` objects.
+Perform batch correction on AnnData or `SingleCellExperiment`-like inputs.
 }

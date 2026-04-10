@@ -12,7 +12,7 @@ get.pseudobulk.SE <- function(
     min_cells_per_batch = 3,
     return_sparse = FALSE,
     BPPARAM = BiocParallel::SerialParam()) {
-  group_vec <- ACTIONetExperiment::get.data.or.split(ace, attr = sample_attr, to_return = "data")
+  group_vec <- .validate_vector_attr(ace, attr = sample_attr, return_type = "data")
   sample_counts <- table(group_vec)
   good_samples <- sample_counts >= min_cells_per_batch
 
@@ -24,7 +24,7 @@ get.pseudobulk.SE <- function(
     old_samples <- names(sample_counts)
     sample_counts <- sample_counts[good_samples]
     ace <- ace[, ace[[sample_attr]] %in% names(sample_counts)]
-    group_vec <- ACTIONetExperiment::get.data.or.split(ace, attr = sample_attr, to_return = "data")
+    group_vec <- .validate_vector_attr(ace, attr = sample_attr, return_type = "data")
     bad_sample_names <- setdiff(old_samples, names(sample_counts))
     msg <- sprintf("Samples Dropped: %s\n", paste0(bad_sample_names, collapse = ", "))
     message(msg)
@@ -58,7 +58,7 @@ get.pseudobulk.SE <- function(
       stop(err)
     }
 
-    IDX <- ACTIONetExperiment::get.data.or.split(ace, attr = sample_attr, to_return = "split")
+    IDX <- .validate_vector_attr(ace, attr = sample_attr, return_type = "split")
     counts_list <- bplapply(IDX, function(idx) counts_mat[, idx, drop = FALSE], BPPARAM = BPPARAM)
 
     mr_assays <- .make_ensemble_assays(
@@ -174,7 +174,7 @@ run.ensemble.pseudobulk.DESeq <- function(
     slot_prefix = "S",
     p_adj_method = "fdr",
     BPPARAM = BiocParallel::SerialParam()) {
-  ACTIONetExperiment:::.check_and_load_package("DESeq2")
+  .check_and_load_package("DESeq2")
 
   if (is.null(bins)) {
     bins <- S4Vectors::metadata(se)$bins
@@ -251,7 +251,7 @@ run.ensemble.pseudobulk.Limma <- function(
     min_covered_samples = 2,
     p_adj_method = "fdr",
     BPPARAM = BiocParallel::SerialParam()) {
-  ACTIONetExperiment:::.check_and_load_package(c("SummarizedExperiment", "limma"))
+  .check_and_load_package(c("SummarizedExperiment", "limma"))
 
   if (class(se) != "SummarizedExperiment") {
     stop("'se' must be an object of type 'SummarizedExperiment'.")
@@ -336,7 +336,7 @@ variance.adjusted.limma <- function(
     W_mat = NULL,
     variable_name = NULL,
     min_covered_samples = 3) {
-  ACTIONetExperiment:::.check_and_load_package(c("SummarizedExperiment", "limma"))
+  .check_and_load_package(c("SummarizedExperiment", "limma"))
 
   if (class(se) != "SummarizedExperiment") {
     stop("se must be an object of type 'SummarizedExperiment'.")

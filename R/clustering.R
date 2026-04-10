@@ -89,7 +89,9 @@ clusterNetwork <- function(
     if (is.null(attr_out)) {
       attr_out <- sprintf("%s_%s", algorithm, net_slot)
     }
-    colData(obj)[[attr_out]] <- clusters
+    obs <- .get_obs_data(obj)
+    obs[[attr_out]] <- clusters
+    obj <- .set_obs_data(obj, obs)
     return(obj)
   }
 

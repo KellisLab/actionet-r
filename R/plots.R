@@ -1,5 +1,6 @@
 #' @export
 plot.ACTIONetExperiment <- function(ace, ...) {
+  .Deprecated(msg = "ACTIONetExperiment plotting is deprecated; convert with toAnnData() and call plot() on the AnnData object.")
   x <- list(...)
   args <- c(list(ace = quote(ace)), x)
 
@@ -19,7 +20,7 @@ plot.ACTIONetExperiment <- function(ace, ...) {
       p_out <- do.call(plot.ACTIONet, as.list(args))
     } else if ((length(unique(x[[1]])) > 50) & (is.numeric(x[[1]]))) {
       p_out <- do.call(plot.ACTIONet.gradient, as.list(args))
-    } else if (sum(unlist(x[[1]]) %in% rownames(ace)) > length(x[[1]]) / 2) {
+    } else if (sum(unlist(x[[1]]) %in% .actionet_rownames(ace)) > length(x[[1]]) / 2) {
       genes <- sort(unique(unlist(x[[1]])))
       p_out <- plotFeatureExpression(ace, genes)
     } else {
@@ -28,6 +29,16 @@ plot.ACTIONetExperiment <- function(ace, ...) {
   }
 
   return(p_out)
+}
+
+#' @export
+plot.AbstractAnnData <- function(x, ...) {
+  plot.ACTIONet(x, ...)
+}
+
+#' @export
+plot.InMemoryAnnData <- function(x, ...) {
+  plot.ACTIONet(x, ...)
 }
 
 #' Plot ACTIONet scatter plot
@@ -235,7 +246,7 @@ plot.ACTIONet.gradient <- function(
     net_slot = "actionet",
     coordinate_attr = "umap_2d_actionet",
     scale_coors = TRUE) {
-  if (((is(data, "ACTIONetExperiment")) & (length(x) != ncol(data))) | ((!is(data, "ACTIONetExperiment")) & (nrow(data) != length(x)))) {
+  if (((.is_se_like(data)) & (length(x) != .n_obs(data))) | ((!.is_se_like(data)) & (nrow(data) != length(x)))) {
     stop("Length of input vector doesn't match the number of cells.")
   }
   ## Create color gradient generator
@@ -262,7 +273,7 @@ plot.ACTIONet.gradient <- function(
       alpha <- 1
     }
     x <- as.numeric(networkDiffusion(
-      obj = colNets(data)[[net_slot]],
+      adata = colNets(data)[[net_slot]],
       scores = x,
       norm_method = "pagerank",
       alpha = alpha,
@@ -367,7 +378,7 @@ plot.ACTIONet.interactive <- function(
 
   if (plot_3d == TRUE) {
     if (NCOL(plot_coors) < 3) {
-      if ("umap_3d_actionet" %in% names(colMaps(data))) {
+      if (.is_se_like(data) && "umap_3d_actionet" %in% names(colMaps(data))) {
         msg <- sprintf("Using 'coordinate_attr' = 'umap_3d_actionet'.\n")
         message(msg)
         plot_coors <- .get_plot_coors(data, "umap_3d_actionet", scale_coors)
@@ -391,12 +402,6 @@ plot.ACTIONet.interactive <- function(
   } else {
     plot_data$labels <- as.character(plot_labels)
     plot_data$labels[is.na(plot_labels)] <- "NA"
-    # plot_data$color[is.na(plot_labels)] <- NA_color
-    # if (hide_NA == TRUE && any(is.na(plot_labels))) {
-    #   na_mask <- !is.na(plot_labels)
-    # } else {
-    #   na_mask <- NULL
-    # }
   }
 
   if (hide_NA) {
@@ -404,21 +409,6 @@ plot.ACTIONet.interactive <- function(
   } else {
     na_mask <- NULL
   }
-
-
-  # if (is.null(label_attr)) {
-  #   na_mask <- NULL
-  #   plot_data$labels <- "NA"
-  # } else {
-  #   plot_data$labels <- plot_labels
-  #   plot_data$labels[is.na(plot_data$labels)] <- "NA"
-  #   plot_data$color[is.na(plot_labels)] <- NA_color
-  #   if (hide_NA == TRUE && any(is.na(plot_labels))) {
-  #     na_mask <- !is.na(plot_labels)
-  #   } else {
-  #     na_mask <- NULL
-  #   }
-  # }
 
   if (!is.null(hover_text)) {
     plot_data$text <- hover_text
@@ -433,10 +423,6 @@ plot.ACTIONet.interactive <- function(
   if (length(na_mask) > 0) {
     plot_data <- plot_data[na_mask, , drop = FALSE]
   }
-
-  # if (!is.null(na_mask)) {
-  #   plot_data <- plot_data[na_mask, , drop = FALSE]
-  # }
 
   if (is.null(point_order)) {
     pidx <- sample(NROW(plot_data))
@@ -596,11 +582,11 @@ plot.ACTIONet.feature.view <- function(
   cs[cs == 0] <- 1
   X <- scale(X, center = FALSE, scale = cs)
 
-  core.coors <- Matrix::t(metadata(ace)$backbone$coordinates)
+  core.coors <- Matrix::t(.get_uns(ace)$backbone$coordinates)
   feature.coors <- Matrix::t(core.coors %*% X)
 
   if (is.null(palette)) {
-    core.Pal <- grDevices::rgb(S4Vectors::metadata(ace)$backbone$colors)
+    core.Pal <- grDevices::rgb(.get_uns(ace)$backbone$colors)
   } else {
     if (length(palette) == 1) {
       core.Pal <- ggpubr::get_palette(palette, length(unique(ace$archetype.assignment)))
@@ -649,7 +635,7 @@ plot.ACTIONet.gene.view <- function(ace,
                                     title = "",
                                     label_size = 0.8,
                                     renormalize = FALSE) {
-  feat_scores <- as.matrix(rowMaps(ace)[["arch_feat_spec"]])
+  feat_scores <- as.matrix(rowMaps(ace)[["archetype_feat_specificity_upper"]])
   filtered.rows <- grep(blacklist_pattern, rownames(feat_scores))
   if (length(filtered.rows) > 0) {
     feat_scores <- feat_scores[-filtered.rows, ]
@@ -874,7 +860,7 @@ select.top.k.genes <- function(ace,
                                top_features = 3,
                                normalize = FALSE,
                                reorder_columns = FALSE,
-                               slot_name = "arch_feat_spec") {
+                               slot_name = "archetype_feat_specificity_upper") {
   feat_scores <- as.matrix(rowMaps(ace)[[slot_name]])
   filtered.rows <- grep(blacklist_pattern, rownames(feat_scores))
   if (length(filtered.rows) > 0) {
@@ -902,7 +888,7 @@ plot.top.k.genes <- function(ace,
                              row.title = "Archetypes",
                              column.title = "Genes",
                              rowPal = "black",
-                             slot_name = "arch_feat_spec") {
+                             slot_name = "archetype_feat_specificity_upper") {
   feat_scores <- as.matrix(rowMaps(ace)[[slot_name]])
   filtered.rows <- grep(blacklist_pattern, rownames(feat_scores))
   if (length(filtered.rows) > 0) {
@@ -933,9 +919,9 @@ plot.archetype.selected.genes <- function(ace,
                                           row.title = "Archetypes",
                                           column.title = "Genes",
                                           rowPal = "black",
-                                          slot_name = "arch_feat_spec") {
-  feat_scores <- as.matrix(rowMaps(ace)[["arch_feat_spec"]])
-  filtered.rows <- match(intersect(rownames(ace), genes), rownames(ace))
+                                          slot_name = "archetype_feat_specificity_upper") {
+  feat_scores <- as.matrix(rowMaps(ace)[[slot_name]])
+  filtered.rows <- match(intersect(.actionet_rownames(ace), genes), .actionet_rownames(ace))
 
   if (length(filtered.rows) > 0) {
     feat_scores <- feat_scores[-filtered.rows, ]
@@ -1067,7 +1053,7 @@ select.top.k.features <- function(feat_scores,
   }
 
   if (reorder_columns == TRUE) {
-    feat_scores_agg <- apply(IDX, 2, function(perm) as.numeric(ACTIONetExperiment:::fastColMeans(W0[perm, ])))
+    feat_scores_agg <- apply(IDX, 2, function(perm) as.numeric(.fast_col_means(W0[perm, ])))
     CC <- cor(feat_scores_agg)
     D <- stats::as.dist(1 - CC)
     cols <- seriation::get_order(seriation::seriate(D, "OLO"))

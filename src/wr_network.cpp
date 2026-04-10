@@ -24,18 +24,17 @@ arma::sp_mat C_buildNetwork(Rcpp::NumericMatrix H, std::string algorithm = "k*nn
                             std::string distance_metric = "jsd", double density = 1.0,
                             int thread_no = 0, double M = 16, double ef_construction = 200,
                             double ef = 200, bool mutual_edges_only = true, int k = 10) {
-    // R matrices are column-major.  Each column is one cell (data point); each row
-    // is one archetype dimension.  buildNetworkCore expects row-major float32 where
-    // each row is one point, so we transpose while converting double → float32.
-    const std::size_t dim      = static_cast<std::size_t>(H.nrow());
-    const std::size_t n_points = static_cast<std::size_t>(H.ncol());
+    // H is cells x k (column-major from R, AnnData-native orientation).
+    // buildNetworkCore expects a row-major float32 buffer where each row is one cell.
+    // Iterate rows of the column-major matrix: H(i, j) = cell i, archetype j.
+    const std::size_t n_points = static_cast<std::size_t>(H.nrow());  // cells
+    const std::size_t dim      = static_cast<std::size_t>(H.ncol());  // archetypes (k)
 
     std::vector<float> X(n_points * dim);
-    for (std::size_t col = 0; col < n_points; ++col) {
-        const double* src = &H[static_cast<R_xlen_t>(col * dim)];
-        float*        dst = X.data() + col * dim;
-        for (std::size_t d = 0; d < dim; ++d) {
-            dst[d] = static_cast<float>(src[d]);
+    for (std::size_t i = 0; i < n_points; ++i) {
+        for (std::size_t j = 0; j < dim; ++j) {
+            X[i * dim + j] = static_cast<float>(H(static_cast<int>(i),
+                                                   static_cast<int>(j)));
         }
     }
 
@@ -57,17 +56,15 @@ arma::sp_mat C_buildNetwork(Rcpp::NumericMatrix H, std::string algorithm = "k*nn
 // label_propagation ===================================================================================================
 
 // [[Rcpp::export]]
-arma::vec C_runLPA(arma::sp_mat& G, arma::vec& labels, double lambda = 1, int iters = 3,
+arma::vec C_runLPA(arma::sp_mat& G, arma::vec& labels, double lambda = 0, int iters = 3,
                    double sig_threshold = 3, Rcpp::Nullable<Rcpp::IntegerVector> fixed_labels_ = R_NilValue,
                    int thread_no = 0) {
-    // TODO: This is ugly. Find a better way to fix labels.
     arma::uvec fixed_labels_vec;
     if (fixed_labels_.isNotNull()) {
-        Rcpp::NumericVector fixed_labels(fixed_labels_);
-        fixed_labels_vec.set_size(fixed_labels.size());
-        for (int i = 0; i < fixed_labels.size(); i++) {
-            fixed_labels_vec(i) = fixed_labels(i) - 1;
-        }
+        Rcpp::IntegerVector fixed_labels(fixed_labels_);
+        fixed_labels_vec = arma::conv_to<arma::uvec>::from(
+            Rcpp::as<arma::uvec>(fixed_labels) - 1
+        );
     }
 
     arma::vec new_labels =
@@ -95,6 +92,13 @@ arma::vec C_runLPA(arma::sp_mat& G, arma::vec& labels, double lambda = 1, int it
 // [[Rcpp::export]]
 arma::mat C_computeNetworkDiffusion(arma::sp_mat& G, arma::mat& X0, double alpha = 0.85, int max_it = 5,
                                     int thread_no = 0, bool approx = false, int norm_method = 0, double tol = 1e-8) {
+    arma::mat X = actionet::computeNetworkDiffusion(G, X0, alpha, max_it, thread_no, approx, norm_method, tol);
+    return (X);
+}
+
+// [[Rcpp::export]]
+arma::mat C_computeNetworkDiffusionSparse(arma::sp_mat& G, arma::sp_mat& X0, double alpha = 0.85, int max_it = 5,
+                                          int thread_no = 0, bool approx = false, int norm_method = 0, double tol = 1e-8) {
     arma::mat X = actionet::computeNetworkDiffusion(G, X0, alpha, max_it, thread_no, approx, norm_method, tol);
     return (X);
 }

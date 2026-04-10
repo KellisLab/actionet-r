@@ -1,6 +1,6 @@
 .get_features <- function(obj, features_use = NULL, allow_empty = FALSE, features_name = "features_use") {
     if (is.null(features_use) || !.is_se_like(obj)) {
-        features_use <- rownames(obj)
+        features_use <- if (.is_anndata(obj)) .actionet_rownames(obj) else rownames(obj)
     } else {
         features_use <- .validate_vector_attr(
             obj,
@@ -23,13 +23,13 @@
 ## Deprecated
 .get_feature_vec <- function(ace, features_use = NULL) {
     if (is.null(features_use)) {
-        features_use <- rownames(ace)
+        features_use <- .actionet_rownames(ace)
     } else {
-        features_use <- ACTIONetExperiment::get.data.or.split(
-            ace = ace,
+        features_use <- .validate_vector_attr(
+            obj = ace,
             attr = features_use,
-            to_return = "data",
-            d = 1
+            return_type = "data",
+            dim = 1
         )
     }
     return(features_use)
@@ -41,7 +41,7 @@
     }
 
     if (is.character(labels)) {
-        labels <- factor(ACTIONetExperiment::get.data.or.split(ace, attr = labels, to_return = "data"))
+        labels <- factor(.validate_vector_attr(ace, attr = labels, return_type = "data"))
     }
 
     if ((length(labels) > 1) & is.logical(labels)) {

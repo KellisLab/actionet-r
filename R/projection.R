@@ -12,8 +12,8 @@ compute.RNA.archetype.to.RNA.archetype.alignment <- function(
         reference_slot_name)]]
     query_profile = rowMaps(query_ace)[[sprintf("%s_feat_spec", query_slot_name)]]
 
-    g1 = rownames(reference_ace)[apply(reference_profile, 1, max) > specificity_filter_threshold]
-    g2 = rownames(query_ace)[apply(query_profile, 1, max) > specificity_filter_threshold]
+    g1 = .actionet_rownames(reference_ace)[apply(reference_profile, 1, max) > specificity_filter_threshold]
+    g2 = .actionet_rownames(query_ace)[apply(query_profile, 1, max) > specificity_filter_threshold]
     common.genes = intersect(g1, g2)
 
     reference_profile = reference_profile[common.genes, ]
@@ -83,7 +83,7 @@ compute.bulkRNA.to.RNA.archetype.alignment <- function(
     reference_profile = assays(bulk)[[bulk_assay_slot]]
     query_profile = rowMaps(query_ace)[[sprintf("%s_feat_spec", query_slot_name)]]
 
-    filtered_query_genes = rownames(query_ace)[apply(query_profile, 1, max) > specificity_filter_threshold]
+    filtered_query_genes = .actionet_rownames(query_ace)[apply(query_profile, 1, max) > specificity_filter_threshold]
 
     common.genes = intersect(rownames(bulk), filtered_query_genes)
     reference_profile = reference_profile[common.genes, ]
