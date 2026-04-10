@@ -4,7 +4,7 @@ layoutNetwork <- function(
     initial_coordinates = NULL,
     net_slot = "actionet",
     layer = "logcounts",
-    method = c("umap", "tumap", "largevis"),
+    method = c("umap", "tumap", "largevis", "leopold", "leopold2"),
     n_components = 2,
     spread = 1.0,
     min_dist = 1.0,
@@ -14,8 +14,11 @@ layoutNetwork <- function(
     negative_sample_rate = 3.0,
     approx_pow = TRUE,
     pcg_rand = TRUE,
+    rng_type = NULL,
     batch = TRUE,
     grain_size = 1,
+    ai = NULL,
+    aj = NULL,
     seed = 0,
     thread_no = 0,
     verbose = TRUE,
@@ -44,6 +47,16 @@ layoutNetwork <- function(
 
     opt_method <- tolower(opt_method)
     opt_method <- match.arg(opt_method, several.ok = TRUE)[1]
+
+    if (!is.null(rng_type)) {
+        if (!is.character(rng_type) || length(rng_type) != 1) {
+            stop("'rng_type' must be a single character value")
+        }
+        rng_type <- tolower(rng_type)
+        if (!rng_type %in% c("pcg", "tausworthe", "deterministic")) {
+            stop("'rng_type' must be one of: 'pcg', 'tausworthe', 'deterministic'")
+        }
+    }
 
     is_ace <- .validate_ace(adata, allow_se_like = TRUE, error_on_fail = FALSE, return_elem = FALSE)
     G <- .ace_or_net(
@@ -108,6 +121,32 @@ layoutNetwork <- function(
         stop(err)
     }
 
+    .validate_optional_coeff <- function(values, name) {
+        if (is.null(values)) {
+            return(NULL)
+        }
+        if (!is.numeric(values)) {
+            err <- sprintf("'%s' must be numeric when provided", name)
+            stop(err)
+        }
+        values <- as.numeric(values)
+        if (length(values) != .n_obs(adata)) {
+            err <- sprintf("'%s' must have length %d (number of observations)", name, .n_obs(adata))
+            stop(err)
+        }
+        values
+    }
+
+    ai <- .validate_optional_coeff(ai, "ai")
+    aj <- .validate_optional_coeff(aj, "aj")
+
+    if (method == "leopold" && is.null(ai)) {
+        stop("'ai' must be provided when method='leopold'")
+    }
+    if (method == "leopold2" && (is.null(ai) || is.null(aj))) {
+        stop("'ai' and 'aj' must be provided when method='leopold2'")
+    }
+
     if (is.null(a) || is.null(b)) {
         a <- b <- 0
     }
@@ -125,8 +164,11 @@ layoutNetwork <- function(
         negative_sample_rate = negative_sample_rate,
         approx_pow = approx_pow,
         pcg_rand = pcg_rand,
+        rng_type = if (is.null(rng_type)) "" else rng_type,
         batch = batch,
         grain_size = grain_size,
+        ai = if (is.null(ai)) numeric(0) else ai,
+        aj = if (is.null(aj)) numeric(0) else aj,
         seed = seed,
         thread_no = thread_no,
         verbose = verbose,

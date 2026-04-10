@@ -71,7 +71,7 @@ The larger the value, the more archetypes will be filtered out. (default=-3)}
 
 \item{mutual_edges_only}{Whether to enforce edges to be mutually-nearest-neighbors. (default=TRUE)}
 
-\item{layout_method}{Algorithm for computing plot layout. Options are UMAP ("umap") or t-UMAP ("tumap"). (default="umap")}
+\item{layout_method}{Algorithm for computing plot layout. Options are UMAP ("umap"), t-UMAP ("tumap"), or LargeVis ("largevis"). (default="umap")}
 
 \item{layout_epochs}{Number of epochs for SGD algorithm. (default=250)}
 

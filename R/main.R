@@ -18,7 +18,7 @@
 #' @param network_ef HNSW query search breadth for network construction. For `network_algorithm="k*nn"`, the effective value is `max(network_ef, kNN)`. (default=200)
 #' @param network_k Number of nearest neighbors for `network_algorithm="knn"`. (default=100)
 #' @param mutual_edges_only Whether to enforce edges to be mutually-nearest-neighbors. (default=TRUE)
-#' @param layout_method Algorithm for computing plot layout. Options are UMAP ("umap") or t-UMAP ("tumap"). (default="umap")
+#' @param layout_method Algorithm for computing plot layout. Options are UMAP ("umap"), t-UMAP ("tumap"), or LargeVis ("largevis"). (default="umap")
 #' @param layout_epochs Number of epochs for SGD algorithm. (default=250)
 #' @param layout_parallel Run layout construction using multiple cores. May result in marginally different outputs across runs due to parallelization-induced randomization. (default=TRUE)
 #' @param compute_specificity_parallel Run feature specificity enrichment using multiple cores. Setting this to `TRUE` on large datasets may cause an out of memory crash. (default=FALSE)

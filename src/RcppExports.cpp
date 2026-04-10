@@ -721,8 +721,8 @@ BEGIN_RCPP
 END_RCPP
 }
 // C_layoutNetwork
-arma::mat C_layoutNetwork(arma::sp_mat& G, arma::mat& initial_coordinates, std::string method, unsigned int n_components, float spread, float min_dist, unsigned int n_epochs, float learning_rate, float repulsion_strength, float negative_sample_rate, bool approx_pow, bool pcg_rand, bool batch, unsigned int grain_size, int seed, int thread_no, bool verbose, float a, float b, std::string opt_method, float alpha, float beta1, float beta2, float eps);
-RcppExport SEXP _actionet_C_layoutNetwork(SEXP GSEXP, SEXP initial_coordinatesSEXP, SEXP methodSEXP, SEXP n_componentsSEXP, SEXP spreadSEXP, SEXP min_distSEXP, SEXP n_epochsSEXP, SEXP learning_rateSEXP, SEXP repulsion_strengthSEXP, SEXP negative_sample_rateSEXP, SEXP approx_powSEXP, SEXP pcg_randSEXP, SEXP batchSEXP, SEXP grain_sizeSEXP, SEXP seedSEXP, SEXP thread_noSEXP, SEXP verboseSEXP, SEXP aSEXP, SEXP bSEXP, SEXP opt_methodSEXP, SEXP alphaSEXP, SEXP beta1SEXP, SEXP beta2SEXP, SEXP epsSEXP) {
+arma::mat C_layoutNetwork(arma::sp_mat& G, arma::mat& initial_coordinates, std::string method, unsigned int n_components, float spread, float min_dist, unsigned int n_epochs, float learning_rate, float repulsion_strength, float negative_sample_rate, bool approx_pow, bool pcg_rand, std::string rng_type, bool batch, unsigned int grain_size, Rcpp::NumericVector ai, Rcpp::NumericVector aj, int seed, int thread_no, bool verbose, float a, float b, std::string opt_method, float alpha, float beta1, float beta2, float eps);
+RcppExport SEXP _actionet_C_layoutNetwork(SEXP GSEXP, SEXP initial_coordinatesSEXP, SEXP methodSEXP, SEXP n_componentsSEXP, SEXP spreadSEXP, SEXP min_distSEXP, SEXP n_epochsSEXP, SEXP learning_rateSEXP, SEXP repulsion_strengthSEXP, SEXP negative_sample_rateSEXP, SEXP approx_powSEXP, SEXP pcg_randSEXP, SEXP rng_typeSEXP, SEXP batchSEXP, SEXP grain_sizeSEXP, SEXP aiSEXP, SEXP ajSEXP, SEXP seedSEXP, SEXP thread_noSEXP, SEXP verboseSEXP, SEXP aSEXP, SEXP bSEXP, SEXP opt_methodSEXP, SEXP alphaSEXP, SEXP beta1SEXP, SEXP beta2SEXP, SEXP epsSEXP) {
 BEGIN_RCPP
     Rcpp::RObject rcpp_result_gen;
     Rcpp::RNGScope rcpp_rngScope_gen;
@@ -738,8 +738,11 @@ BEGIN_RCPP
     Rcpp::traits::input_parameter< float >::type negative_sample_rate(negative_sample_rateSEXP);
     Rcpp::traits::input_parameter< bool >::type approx_pow(approx_powSEXP);
     Rcpp::traits::input_parameter< bool >::type pcg_rand(pcg_randSEXP);
+    Rcpp::traits::input_parameter< std::string >::type rng_type(rng_typeSEXP);
     Rcpp::traits::input_parameter< bool >::type batch(batchSEXP);
     Rcpp::traits::input_parameter< unsigned int >::type grain_size(grain_sizeSEXP);
+    Rcpp::traits::input_parameter< Rcpp::NumericVector >::type ai(aiSEXP);
+    Rcpp::traits::input_parameter< Rcpp::NumericVector >::type aj(ajSEXP);
     Rcpp::traits::input_parameter< int >::type seed(seedSEXP);
     Rcpp::traits::input_parameter< int >::type thread_no(thread_noSEXP);
     Rcpp::traits::input_parameter< bool >::type verbose(verboseSEXP);
@@ -750,7 +753,7 @@ BEGIN_RCPP
     Rcpp::traits::input_parameter< float >::type beta1(beta1SEXP);
     Rcpp::traits::input_parameter< float >::type beta2(beta2SEXP);
     Rcpp::traits::input_parameter< float >::type eps(epsSEXP);
-    rcpp_result_gen = Rcpp::wrap(C_layoutNetwork(G, initial_coordinates, method, n_components, spread, min_dist, n_epochs, learning_rate, repulsion_strength, negative_sample_rate, approx_pow, pcg_rand, batch, grain_size, seed, thread_no, verbose, a, b, opt_method, alpha, beta1, beta2, eps));
+    rcpp_result_gen = Rcpp::wrap(C_layoutNetwork(G, initial_coordinates, method, n_components, spread, min_dist, n_epochs, learning_rate, repulsion_strength, negative_sample_rate, approx_pow, pcg_rand, rng_type, batch, grain_size, ai, aj, seed, thread_no, verbose, a, b, opt_method, alpha, beta1, beta2, eps));
     return rcpp_result_gen;
 END_RCPP
 }
@@ -817,7 +820,7 @@ static const R_CallMethodDef CallEntries[] = {
     {"_actionet_C_MWM_rank1", (DL_FUNC) &_actionet_C_MWM_rank1, 4},
     {"_actionet_C_xicor", (DL_FUNC) &_actionet_C_xicor, 4},
     {"_actionet_C_XICOR", (DL_FUNC) &_actionet_C_XICOR, 5},
-    {"_actionet_C_layoutNetwork", (DL_FUNC) &_actionet_C_layoutNetwork, 24},
+    {"_actionet_C_layoutNetwork", (DL_FUNC) &_actionet_C_layoutNetwork, 27},
     {"_actionet_C_computeNodeColors", (DL_FUNC) &_actionet_C_computeNodeColors, 2},
     {NULL, NULL, 0}
 };
