@@ -26,8 +26,8 @@ BEGIN_RCPP
 END_RCPP
 }
 // C_runACTION
-Rcpp::List C_runACTION(arma::mat& S_r, int k_min, int k_max, int max_it, double tol, double spec_th, int min_obs, int thread_no);
-RcppExport SEXP _actionet_C_runACTION(SEXP S_rSEXP, SEXP k_minSEXP, SEXP k_maxSEXP, SEXP max_itSEXP, SEXP tolSEXP, SEXP spec_thSEXP, SEXP min_obsSEXP, SEXP thread_noSEXP) {
+Rcpp::List C_runACTION(arma::mat& S_r, int k_min, int k_max, int max_it, double tol, double spec_th, int min_obs, int thread_no, bool return_c_matrices);
+RcppExport SEXP _actionet_C_runACTION(SEXP S_rSEXP, SEXP k_minSEXP, SEXP k_maxSEXP, SEXP max_itSEXP, SEXP tolSEXP, SEXP spec_thSEXP, SEXP min_obsSEXP, SEXP thread_noSEXP, SEXP return_c_matricesSEXP) {
 BEGIN_RCPP
     Rcpp::RObject rcpp_result_gen;
     Rcpp::RNGScope rcpp_rngScope_gen;
@@ -39,7 +39,8 @@ BEGIN_RCPP
     Rcpp::traits::input_parameter< double >::type spec_th(spec_thSEXP);
     Rcpp::traits::input_parameter< int >::type min_obs(min_obsSEXP);
     Rcpp::traits::input_parameter< int >::type thread_no(thread_noSEXP);
-    rcpp_result_gen = Rcpp::wrap(C_runACTION(S_r, k_min, k_max, max_it, tol, spec_th, min_obs, thread_no));
+    Rcpp::traits::input_parameter< bool >::type return_c_matrices(return_c_matricesSEXP);
+    rcpp_result_gen = Rcpp::wrap(C_runACTION(S_r, k_min, k_max, max_it, tol, spec_th, min_obs, thread_no, return_c_matrices));
     return rcpp_result_gen;
 END_RCPP
 }
@@ -768,7 +769,7 @@ END_RCPP
 
 static const R_CallMethodDef CallEntries[] = {
     {"_actionet_C_runAA", (DL_FUNC) &_actionet_C_runAA, 4},
-    {"_actionet_C_runACTION", (DL_FUNC) &_actionet_C_runACTION, 8},
+    {"_actionet_C_runACTION", (DL_FUNC) &_actionet_C_runACTION, 9},
     {"_actionet_C_mergeArchetypes", (DL_FUNC) &_actionet_C_mergeArchetypes, 4},
     {"_actionet_C_reduceKernelSparse", (DL_FUNC) &_actionet_C_reduceKernelSparse, 6},
     {"_actionet_C_reduceKernelDense", (DL_FUNC) &_actionet_C_reduceKernelDense, 6},

@@ -402,12 +402,6 @@ plot.ACTIONet.interactive <- function(
   } else {
     plot_data$labels <- as.character(plot_labels)
     plot_data$labels[is.na(plot_labels)] <- "NA"
-    # plot_data$color[is.na(plot_labels)] <- NA_color
-    # if (hide_NA == TRUE && any(is.na(plot_labels))) {
-    #   na_mask <- !is.na(plot_labels)
-    # } else {
-    #   na_mask <- NULL
-    # }
   }
 
   if (hide_NA) {
@@ -415,21 +409,6 @@ plot.ACTIONet.interactive <- function(
   } else {
     na_mask <- NULL
   }
-
-
-  # if (is.null(label_attr)) {
-  #   na_mask <- NULL
-  #   plot_data$labels <- "NA"
-  # } else {
-  #   plot_data$labels <- plot_labels
-  #   plot_data$labels[is.na(plot_data$labels)] <- "NA"
-  #   plot_data$color[is.na(plot_labels)] <- NA_color
-  #   if (hide_NA == TRUE && any(is.na(plot_labels))) {
-  #     na_mask <- !is.na(plot_labels)
-  #   } else {
-  #     na_mask <- NULL
-  #   }
-  # }
 
   if (!is.null(hover_text)) {
     plot_data$text <- hover_text
@@ -444,10 +423,6 @@ plot.ACTIONet.interactive <- function(
   if (length(na_mask) > 0) {
     plot_data <- plot_data[na_mask, , drop = FALSE]
   }
-
-  # if (!is.null(na_mask)) {
-  #   plot_data <- plot_data[na_mask, , drop = FALSE]
-  # }
 
   if (is.null(point_order)) {
     pidx <- sample(NROW(plot_data))

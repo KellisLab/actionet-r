@@ -10,6 +10,7 @@ runACTION <- function(
     tol = 1e-100,
     spec_th = -3,
     thread_no = 0,
+    return_c_matrices = TRUE,
     merged_suffix = "merged",
     archetype_slot_out = "assigned_archetype",
     ace = NULL) {
@@ -46,20 +47,23 @@ runACTION <- function(
     tol = tol,
     spec_th = spec_th,
     min_obs = min_obs,
-    thread_no = thread_no
+    thread_no = thread_no,
+    return_c_matrices = return_c_matrices
   )
 
   colMaps(adata)[["H_stacked"]] <- as(out$H_stacked, "sparseMatrix")
   colMapTypes(adata)[["H_stacked"]] <- "internal"
 
-  colMaps(adata)[["C_stacked"]] <- as(out$C_stacked, "sparseMatrix")
-  colMapTypes(adata)[["C_stacked"]] <- "internal"
-
   colMaps(adata)[[sprintf("H_%s", merged_suffix)]] <- as(out$H_merged, "sparseMatrix")
   colMapTypes(adata)[[sprintf("H_%s", merged_suffix)]] <- "internal"
 
-  colMaps(adata)[[sprintf("C_%s", merged_suffix)]] <- as(out$C_merged, "sparseMatrix")
-  colMapTypes(adata)[[sprintf("C_%s", merged_suffix)]] <- "internal"
+  if (return_c_matrices) {
+    colMaps(adata)[["C_stacked"]] <- as(out$C_stacked, "sparseMatrix")
+    colMapTypes(adata)[["C_stacked"]] <- "internal"
+
+    colMaps(adata)[[sprintf("C_%s", merged_suffix)]] <- as(out$C_merged, "sparseMatrix")
+    colMapTypes(adata)[[sprintf("C_%s", merged_suffix)]] <- "internal"
+  }
 
   obs <- .get_obs_data(adata)
   obs[[archetype_slot_out]] <- c(out$assigned_archetypes)

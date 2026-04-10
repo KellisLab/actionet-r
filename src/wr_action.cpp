@@ -44,15 +44,17 @@ Rcpp::List C_runAA(arma::mat& A, arma::mat& W0, int max_it = 100, double tol = 1
 
 // [[Rcpp::export]]
 Rcpp::List C_runACTION(arma::mat& S_r, int k_min = 2, int k_max = 30, int max_it = 100, double tol = 1e-16,
-                     double spec_th = -3, int min_obs = 3, int thread_no = 0) {
+                     double spec_th = -3, int min_obs = 3, int thread_no = 0, bool return_c_matrices = true) {
     arma::field<arma::mat> action_out =
-        actionet::runACTION(S_r, k_min, k_max, max_it, tol, spec_th, min_obs, thread_no);
+        actionet::runACTION(S_r, k_min, k_max, max_it, tol, spec_th, min_obs, thread_no, return_c_matrices);
 
     Rcpp::List out;
     out["H_stacked"] = action_out(0);
-    out["C_stacked"] = action_out(1);
     out["H_merged"] = action_out(2);
-    out["C_merged"] = action_out(3);
+    if (return_c_matrices) {
+        out["C_stacked"] = action_out(1);
+        out["C_merged"] = action_out(3);
+    }
     out["assigned_archetypes"] = arma::vec(action_out(4)) + 1; // Shift index
 
     return out;

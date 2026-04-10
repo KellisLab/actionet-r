@@ -85,7 +85,8 @@ runACTIONet <- function(adata = NULL,
     min_obs = min_obs,
     max_it = max_it,
     spec_th = spec_th,
-    thread_no = thread_no
+    thread_no = thread_no,
+    return_c_matrices = FALSE
   )
 
   # Build ACTIONet
@@ -122,16 +123,6 @@ runACTIONet <- function(adata = NULL,
     net_slot = net_slot_out,
     map_slot_out = "archetype_footprint"
   )
-
-  # Use archetypal reduction as initial coordinates for uwot
-  # Need to reduce it to 3D coordinate space.
-  # red.out <- runSVD(
-  #   X = scale(colMaps(ace)[["archetype_footprint"]]),
-  #   k = 3,
-  #   seed = seed,
-  #   verbose = FALSE
-  # )
-  # initial_coordinates <- scale(red.out$u)
 
   slot_layout <- sprintf("%s_%s", layout_method, net_slot_out)
   initial_coordinates <- colMaps(adata)[["archetype_footprint"]]

@@ -21,8 +21,8 @@ C_runAA <- function(A, W0, max_it = 100L, tol = 1e-6) {
     .Call(`_actionet_C_runAA`, A, W0, max_it, tol)
 }
 
-C_runACTION <- function(S_r, k_min = 2L, k_max = 30L, max_it = 100L, tol = 1e-16, spec_th = -3, min_obs = 3L, thread_no = 0L) {
-    .Call(`_actionet_C_runACTION`, S_r, k_min, k_max, max_it, tol, spec_th, min_obs, thread_no)
+C_runACTION <- function(S_r, k_min = 2L, k_max = 30L, max_it = 100L, tol = 1e-16, spec_th = -3, min_obs = 3L, thread_no = 0L, return_c_matrices = TRUE) {
+    .Call(`_actionet_C_runACTION`, S_r, k_min, k_max, max_it, tol, spec_th, min_obs, thread_no, return_c_matrices)
 }
 
 #' Identify and merge redundant archetypes into a representative subset
