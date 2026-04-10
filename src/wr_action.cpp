@@ -204,7 +204,7 @@ Rcpp::List C_reduceKernelSparse(arma::sp_mat& S, int k = 50, int svd_alg = 0, in
     Rcpp::List res;
     res["S_r"] = reduction(0);
     res["sigma"] = reduction(1);
-    res["V"] = reduction(2);
+    res["U"] = reduction(2);
     res["A"] = reduction(3);
     res["B"] = reduction(4);
 
@@ -220,7 +220,7 @@ Rcpp::List C_reduceKernelDense(arma::mat& S, int k = 50, int svd_alg = 0, int ma
     Rcpp::List res;
     res["S_r"] = reduction(0);
     res["sigma"] = reduction(1);
-    res["V"] = reduction(2);
+    res["U"] = reduction(2);
     res["A"] = reduction(3);
     res["B"] = reduction(4);
 

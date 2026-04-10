@@ -1,6 +1,7 @@
 // Rcpp interface for `network` module
 // Organized by module header in th order imported.
 #include "actionet_r_config.h"
+#include "network/build_network_core.hpp"
 
 // build_network =======================================================================================================
 
@@ -19,13 +20,38 @@
 //' prune.out = collectArchetypes(ACTION.out$C, ACTION.out$H)
 //'	G = buildNetwork(prune.out$H_stacked)
 // [[Rcpp::export]]
-arma::sp_mat C_buildNetwork(const arma::mat& H, std::string algorithm = "k*nn", std::string distance_metric = "jsd",
-                            double density = 1.0, int thread_no = 0, double M = 16, double ef_construction = 200,
-                            double ef = 50, bool mutual_edges_only = true, int k = 10) {
-    arma::sp_mat G = actionet::buildNetwork(H, std::move(algorithm), std::move(distance_metric), density, thread_no, M,
-                                            ef_construction, ef, mutual_edges_only, k);
+arma::sp_mat C_buildNetwork(Rcpp::NumericMatrix H, std::string algorithm = "k*nn",
+                            std::string distance_metric = "jsd", double density = 1.0,
+                            int thread_no = 0, double M = 16, double ef_construction = 200,
+                            double ef = 200, bool mutual_edges_only = true, int k = 10) {
+    // R matrices are column-major.  Each column is one cell (data point); each row
+    // is one archetype dimension.  buildNetworkCore expects row-major float32 where
+    // each row is one point, so we transpose while converting double → float32.
+    const std::size_t dim      = static_cast<std::size_t>(H.nrow());
+    const std::size_t n_points = static_cast<std::size_t>(H.ncol());
 
-    return G;
+    std::vector<float> X(n_points * dim);
+    for (std::size_t col = 0; col < n_points; ++col) {
+        const double* src = &H[static_cast<R_xlen_t>(col * dim)];
+        float*        dst = X.data() + col * dim;
+        for (std::size_t d = 0; d < dim; ++d) {
+            dst[d] = static_cast<float>(src[d]);
+        }
+    }
+
+    actionet::BuildNetworkParams params;
+    params.algorithm        = std::move(algorithm);
+    params.distance_metric  = std::move(distance_metric);
+    params.density          = density;
+    params.thread_no        = thread_no;
+    params.M                = M;
+    params.ef_construction  = ef_construction;
+    params.ef               = ef;
+    params.mutual_edges_only = mutual_edges_only;
+    params.k                = k;
+
+    const actionet::CSRGraph g = actionet::buildNetworkCore(X.data(), n_points, dim, params);
+    return actionet::armaSpMatFromCSR(g);
 }
 
 // label_propagation ===================================================================================================

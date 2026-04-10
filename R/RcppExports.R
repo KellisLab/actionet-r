@@ -205,20 +205,20 @@ C_computeFeatureSpecificityDense <- function(S, labels, thread_no = 0L) {
     .Call(`_actionet_C_computeFeatureSpecificityDense`, S, labels, thread_no)
 }
 
-C_orthogonalizeBatchEffect <- function(S, old_S_r, old_V, old_A, old_B, old_sigma, design) {
-    .Call(`_actionet_C_orthogonalizeBatchEffect`, S, old_S_r, old_V, old_A, old_B, old_sigma, design)
+C_orthogonalizeBatchEffect <- function(S, old_S_r, old_U, old_A, old_B, old_sigma, design) {
+    .Call(`_actionet_C_orthogonalizeBatchEffect`, S, old_S_r, old_U, old_A, old_B, old_sigma, design)
 }
 
-C_orthogonalizeBatchEffect_full <- function(S, old_S_r, old_V, old_A, old_B, old_sigma, design) {
-    .Call(`_actionet_C_orthogonalizeBatchEffect_full`, S, old_S_r, old_V, old_A, old_B, old_sigma, design)
+C_orthogonalizeBatchEffect_full <- function(S, old_S_r, old_U, old_A, old_B, old_sigma, design) {
+    .Call(`_actionet_C_orthogonalizeBatchEffect_full`, S, old_S_r, old_U, old_A, old_B, old_sigma, design)
 }
 
-C_orthogonalizeBasal <- function(S, old_S_r, old_V, old_A, old_B, old_sigma, basal) {
-    .Call(`_actionet_C_orthogonalizeBasal`, S, old_S_r, old_V, old_A, old_B, old_sigma, basal)
+C_orthogonalizeBasal <- function(S, old_S_r, old_U, old_A, old_B, old_sigma, basal) {
+    .Call(`_actionet_C_orthogonalizeBasal`, S, old_S_r, old_U, old_A, old_B, old_sigma, basal)
 }
 
-C_orthogonalizeBasal_full <- function(S, old_S_r, old_V, old_A, old_B, old_sigma, basal) {
-    .Call(`_actionet_C_orthogonalizeBasal_full`, S, old_S_r, old_V, old_A, old_B, old_sigma, basal)
+C_orthogonalizeBasal_full <- function(S, old_S_r, old_U, old_A, old_B, old_sigma, basal) {
+    .Call(`_actionet_C_orthogonalizeBasal_full`, S, old_S_r, old_U, old_A, old_B, old_sigma, basal)
 }
 
 #' Computes SVD decomposition
@@ -271,7 +271,7 @@ C_perturbedSVD <- function(u, d, v, A, B) {
 #' @examples
 #' prune.out = collectArchetypes(ACTION.out$C, ACTION.out$H)
 #'	G = buildNetwork(prune.out$H_stacked)
-C_buildNetwork <- function(H, algorithm = "k*nn", distance_metric = "jsd", density = 1.0, thread_no = 0L, M = 16, ef_construction = 200, ef = 50, mutual_edges_only = TRUE, k = 10L) {
+C_buildNetwork <- function(H, algorithm = "k*nn", distance_metric = "jsd", density = 1.0, thread_no = 0L, M = 16, ef_construction = 200, ef = 200, mutual_edges_only = TRUE, k = 10L) {
     .Call(`_actionet_C_buildNetwork`, H, algorithm, distance_metric, density, thread_no, M, ef_construction, ef, mutual_edges_only, k)
 }
 

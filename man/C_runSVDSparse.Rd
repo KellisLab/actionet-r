@@ -22,7 +22,11 @@ C_runSVDSparse(
 
 \item{seed}{Random seed (default=0)}
 
-\item{algorithm}{SVD algorithm to use. Currently supported methods are blah blah blah}
+\item{algorithm}{SVD algorithm to use:
+- 0 = IRLB (default, good for small/medium matrices)
+- 1 = Halko (randomized SVD)
+- 2 = Feng (another randomized method)
+- 3 = PRIMME (NOT AVAILABLE in R - use Python for large matrices)}
 }
 \value{
 A named list with U, sigma, and V components
@@ -30,6 +34,10 @@ A named list with U, sigma, and V components
 \description{
 This is direct implementation of the randomized SVD algorithm:
 From: IRLBA R Package
+}
+\note{
+PRIMME algorithm is not available in R builds due to R's 32-bit matrix limitations.
+  For very large sparse matrices (>2^31 elements), use the Python package.
 }
 \examples{
 A = randn(100, 20)

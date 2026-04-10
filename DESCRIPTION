@@ -11,9 +11,10 @@ Authors@R: c(
 Description: More about what it does (maybe more than one line).
 URL: www.somethinggoeshere.com
 License: GPL3
+SystemRequirements: CMake (>= 3.19), HDF5 C library
 Depends: R (>= 4.0.0), ACTIONetExperiment, Matrix
 Imports: Rcpp (>= 1.0.12), RcppArmadillo, BiocParallel
 Suggests: igraph, ggplot2, ggrepel, gplots, plotly, colorspace
 LinkingTo: Rcpp, RcppArmadillo
-RoxygenNote: 7.3.2
+RoxygenNote: 7.3.3
 Encoding: UTF-8

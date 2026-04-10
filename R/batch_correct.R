@@ -95,7 +95,7 @@ correctBatchEffect <- function(
   S_r <- .validate_map(ace, map_slot = reduction_slot, matrix_type = "dense", force_type = TRUE, return_elem = TRUE)
 
   B <- .validate_map(ace, map_slot = sprintf("%s_B", reduction_slot), matrix_type = "dense", force_type = TRUE, return_elem = TRUE, row = FALSE)
-  V <- .validate_map(ace, map_slot = sprintf("%s_V", reduction_slot), matrix_type = "dense", force_type = TRUE, return_elem = TRUE, row = TRUE)
+  U <- .validate_map(ace, map_slot = sprintf("%s_U", reduction_slot), matrix_type = "dense", force_type = TRUE, return_elem = TRUE, row = TRUE)
   A <- .validate_map(ace, map_slot = sprintf("%s_A", reduction_slot), matrix_type = "dense", force_type = TRUE, return_elem = TRUE, row = TRUE)
   sigma <- S4Vectors::metadata(ace)[[sprintf("%s_sigma", reduction_slot)]]
 
@@ -108,7 +108,7 @@ correctBatchEffect <- function(
     out <- C_orthogonalizeBatchEffect_full(
       S = S,
       old_S_r = S_r,
-      old_V = V,
+      old_U = U,
       old_A = A,
       old_B = B,
       old_sigma = sigma,
@@ -118,7 +118,7 @@ correctBatchEffect <- function(
     out <- C_orthogonalizeBatchEffect(
       S = S,
       old_S_r = S_r,
-      old_V = V,
+      old_U = U,
       old_A = A,
       old_B = B,
       old_sigma = sigma,
@@ -133,11 +133,11 @@ correctBatchEffect <- function(
   colMapTypes(ace)[[name_Sr]] <- "reduction"
 
 
-  V <- out$V
-  colnames(V) <- sapply(seq_len(dim(V)[2]), function(i) sprintf("V%d", i))
-  name_V <- sprintf("%s_V_%s", reduction_slot, corrected_suffix)
-  rowMaps(ace)[[name_V]] <- V
-  rowMapTypes(ace)[[name_V]] <- "internal"
+  U <- out$U
+  colnames(U) <- sapply(seq_len(dim(U)[2]), function(i) sprintf("U%d", i))
+  name_U <- sprintf("%s_U_%s", reduction_slot, corrected_suffix)
+  rowMaps(ace)[[name_U]] <- U
+  rowMapTypes(ace)[[name_U]] <- "internal"
 
 
   A <- out$A

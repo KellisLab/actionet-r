@@ -13,6 +13,8 @@
 #' @param network_metric Distance metric with which to compute cell-to-cell similarity during network construction. Options are 'jsd' (Jensen-Shannon divergence), L2-norm ('l2'), and inner product ('ip'). (default='jsd')
 #' @param network_algorithm Algorithm to use for network construction. Options are k-nearest neighbors ('knn') and k*-nearest neighbors ('k*nn'). (default='k*nn')
 #' @param network_density Density factor of ACTIONet graph. (default=1)
+#' @param network_ef_construction HNSW construction search breadth for network construction. For `network_algorithm="k*nn"`, the effective value is `max(network_ef_construction, kNN)`. (default=200)
+#' @param network_ef HNSW query search breadth for network construction. For `network_algorithm="k*nn"`, the effective value is `max(network_ef, kNN)`. (default=200)
 #' @param mutual_edges_only Whether to enforce edges to be mutually-nearest-neighbors. (default=TRUE)
 #' @param layout_method Algorithm for computing plot layout. Options are UMAP ("umap") or t-UMAP ("tumap"). (default="umap")
 #' @param layout_epochs Number of epochs for SGD algorithm. (default=250)
@@ -38,6 +40,8 @@ runACTIONet <- function(ace,
                         network_metric = "jsd",
                         network_algorithm = "k*nn",
                         network_density = 1,
+                        network_ef_construction = 200,
+                        network_ef = 200,
                         mutual_edges_only = TRUE,
                         layout_method = c("umap", "tumap", "largevis"),
                         layout_epochs = 100,
@@ -75,6 +79,8 @@ runACTIONet <- function(ace,
     distance_metric = network_metric,
     density = network_density,
     thread_no = thread_no,
+    ef_construction = network_ef_construction,
+    ef = network_ef,
     mutual_edges_only = mutual_edges_only,
     map_slot = "H_stacked",
     net_slot_out = net_slot_out
