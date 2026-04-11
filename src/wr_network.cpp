@@ -92,14 +92,16 @@ arma::vec C_runLPA(arma::sp_mat& G, arma::vec& labels, double lambda = 0, int it
 // [[Rcpp::export]]
 arma::mat C_computeNetworkDiffusion(arma::sp_mat& G, arma::mat& X0, double alpha = 0.85, int max_it = 5,
                                     int thread_no = 0, bool approx = false, int norm_method = 0, double tol = 1e-8) {
-    arma::mat X = actionet::computeNetworkDiffusion(G, X0, alpha, max_it, thread_no, approx, norm_method, tol);
+    const arma::sp_mat& G_ref = G;
+    arma::mat X = actionet::computeNetworkDiffusion(G_ref, X0, alpha, max_it, thread_no, approx, norm_method, tol);
     return (X);
 }
 
 // [[Rcpp::export]]
 arma::mat C_computeNetworkDiffusionSparse(arma::sp_mat& G, arma::sp_mat& X0, double alpha = 0.85, int max_it = 5,
                                           int thread_no = 0, bool approx = false, int norm_method = 0, double tol = 1e-8) {
-    arma::mat X = actionet::computeNetworkDiffusion(G, X0, alpha, max_it, thread_no, approx, norm_method, tol);
+    const arma::sp_mat& G_ref = G;
+    arma::mat X = actionet::computeNetworkDiffusion(G_ref, X0, alpha, max_it, thread_no, approx, norm_method, tol);
     return (X);
 }
 
