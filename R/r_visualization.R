@@ -29,7 +29,6 @@ layoutNetwork <- function(
     beta1 = 0.5,
     beta2 = 0.9,
     eps = 1e-7,
-    repair_disconnected = TRUE,
     map_slot_out = NULL,
     return_raw = FALSE,
     assay_name = NULL,
@@ -179,8 +178,7 @@ layoutNetwork <- function(
         alpha = alpha,
         beta1 = beta1,
         beta2 = beta2,
-        eps = eps,
-        repair_disconnected = repair_disconnected
+        eps = eps
     )
 
     if (is_ace && !return_raw) {

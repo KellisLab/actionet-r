@@ -14,15 +14,13 @@ arma::mat C_layoutNetwork(arma::sp_mat& G, arma::mat& initial_coordinates, std::
                           Rcpp::NumericVector ai = R_NilValue, Rcpp::NumericVector aj = R_NilValue,
                           int seed = 0, int thread_no = 0, bool verbose = true, float a = 0, float b = 0,
                           std::string opt_method = "adam", float alpha = -1, float beta1 = 0.5,
-                          float beta2 = 0.9, float eps = 1e-7,
-                          bool repair_disconnected = true) {
+                          float beta2 = 0.9, float eps = 1e-7) {
     const std::size_t requested_threads = thread_no > 0 ? static_cast<std::size_t>(thread_no) : 0;
     OptimizerArgs opt_args(opt_method, alpha == -1 ? learning_rate : alpha, beta1, beta2, eps);
     UwotArgs uwot_args(
         method, n_components, spread, min_dist, n_epochs, learning_rate,
         repulsion_strength, negative_sample_rate, approx_pow, pcg_rand,
-        batch, seed, requested_threads, grain_size, verbose, opt_args, rng_type,
-        repair_disconnected
+        batch, seed, requested_threads, grain_size, verbose, opt_args, rng_type
     );
 
     if (a != 0 || b != 0) {
