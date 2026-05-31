@@ -421,8 +421,8 @@ C_XICOR <- function(X, Y, compute_pval = TRUE, seed = 0L, thread_no = 0L) {
     .Call(`_actionet_C_XICOR`, X, Y, compute_pval, seed, thread_no)
 }
 
-C_layoutNetwork <- function(G, initial_coordinates, method = "umap", n_components = 2L, spread = 1, min_dist = 1, n_epochs = 0L, learning_rate = 1, repulsion_strength = 1, negative_sample_rate = 5, approx_pow = FALSE, pcg_rand = TRUE, rng_type = "", batch = TRUE, grain_size = 1L, ai = NULL, aj = NULL, seed = 0L, thread_no = 0L, verbose = TRUE, a = 0, b = 0, opt_method = "adam", alpha = -1, beta1 = 0.5, beta2 = 0.9, eps = 1e-7) {
-    .Call(`_actionet_C_layoutNetwork`, G, initial_coordinates, method, n_components, spread, min_dist, n_epochs, learning_rate, repulsion_strength, negative_sample_rate, approx_pow, pcg_rand, rng_type, batch, grain_size, ai, aj, seed, thread_no, verbose, a, b, opt_method, alpha, beta1, beta2, eps)
+C_layoutNetwork <- function(G, initial_coordinates, method = "umap", n_components = 2L, spread = 1, min_dist = 1, n_epochs = 0L, learning_rate = 1, repulsion_strength = 1, negative_sample_rate = 3, approx_pow = TRUE, pcg_rand = TRUE, rng_type = "", batch = TRUE, grain_size = 1L, ai = NULL, aj = NULL, seed = 0L, thread_no = 0L, verbose = TRUE, a = 0, b = 0, opt_method = "adam", alpha = -1, beta1 = 0.5, beta2 = 0.9, eps = 1e-7, repair_disconnected = TRUE) {
+    .Call(`_actionet_C_layoutNetwork`, G, initial_coordinates, method, n_components, spread, min_dist, n_epochs, learning_rate, repulsion_strength, negative_sample_rate, approx_pow, pcg_rand, rng_type, batch, grain_size, ai, aj, seed, thread_no, verbose, a, b, opt_method, alpha, beta1, beta2, eps, repair_disconnected)
 }
 
 C_computeNodeColors <- function(coordinates, thread_no = 1L) {
