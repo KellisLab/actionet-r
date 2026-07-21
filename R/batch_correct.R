@@ -110,7 +110,7 @@ correctBatchEffect <- function(
     }
   }
 
-  adata <- .validate_ace(adata, allow_se_like = FALSE, fix_dimnames = TRUE, return_elem = TRUE, error_on_fail = TRUE)
+  adata <- .validate_ace(adata, as_ace = TRUE, allow_se_like = TRUE, fix_dimnames = TRUE, return_elem = TRUE, error_on_fail = TRUE)
   S <- .validate_assay(adata, assay_name = layer, error_on_fail = TRUE, return_elem = TRUE)
   S_r <- .validate_map(adata, map_slot = reduction_slot, matrix_type = "dense", force_type = TRUE, return_elem = TRUE)
 

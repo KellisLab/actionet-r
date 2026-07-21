@@ -5,7 +5,7 @@
 \title{Infer cell annotations from imputed gene expression for all cells.}
 \usage{
 annotateCells(
-  ace,
+  adata = NULL,
   markers,
   method = c("vision", "actionet"),
   features_use = NULL,
@@ -18,21 +18,24 @@ annotateCells(
   ignore_baseline = FALSE,
   use_enrichment = TRUE,
   use_lpa = FALSE,
-  thread_no = 0
+  thread_no = 0,
+  ace = NULL
 )
 }
 \arguments{
-\item{ace}{ACTIONetExperiment object}
+\item{adata}{AnnData or compatible ACTIONet output object.}
 
 \item{markers}{A named list of marker genes.}
 
-\item{features_use}{A vector of features of length NROW(ace) or the name of a column of rowData(ace) containing the genes given in 'markers'.}
+\item{features_use}{A vector of features of length NROW(adata) or the name of a column of the feature metadata containing the genes given in 'markers'.}
 
 \item{assay_name}{Name of assay for which to impute gene expression (default="logcounts").}
 
-\item{net_slot}{Name of slot in colNets(ace) containing the network to use for gene expression imputation (default="actionet").}
+\item{net_slot}{Name of slot in colNets(adata) containing the network to use for gene expression imputation (default="actionet").}
 
 \item{thread_no}{Number of parallel threads used for gene imputation.}
+
+\item{ace}{Deprecated; use `adata`.}
 
 \item{alpha_val}{Random-walk parameter for gene imputation.}
 }
@@ -49,6 +52,6 @@ Infer cell annotations from imputed gene expression for all cells.
 \examples{
 data("curatedMarkers_human") # pre-packaged in ACTIONet
 markers <- curatedMarkers_human$Blood$PBMC$Monaco2019.12celltypes$marker.genes
-annots <- annotate.cells.using.markers(ace, markers = markers)
-plot.ACTIONet(ace, annots$Label, annots$Confidence)
+annots <- annotate.cells.using.markers(adata, markers = markers)
+plot.ACTIONet(adata, annots$Label, annots$Confidence)
 }

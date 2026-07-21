@@ -1,12 +1,13 @@
 #' Infer cell annotations from imputed gene expression for all cells.
 #'
-#' @param ace ACTIONetExperiment object
+#' @param adata AnnData or compatible ACTIONet output object.
 #' @param markers A named list of marker genes.
-#' @param features_use A vector of features of length NROW(ace) or the name of a column of rowData(ace) containing the genes given in 'markers'.
+#' @param features_use A vector of features of length NROW(adata) or the name of a column of the feature metadata containing the genes given in 'markers'.
 #' @param alpha_val Random-walk parameter for gene imputation.
 #' @param thread_no Number of parallel threads used for gene imputation.
-#' @param net_slot Name of slot in colNets(ace) containing the network to use for gene expression imputation (default="actionet").
+#' @param net_slot Name of slot in colNets(adata) containing the network to use for gene expression imputation (default="actionet").
 #' @param assay_name Name of assay for which to impute gene expression (default="logcounts").
+#' @param ace Deprecated; use `adata`.
 #' @return A named list: \itemize{
 #' \item Label: Inferred cell type labels
 #' \item Confidence: Confidence of inferred labels
@@ -16,11 +17,11 @@
 #' @examples
 #' data("curatedMarkers_human") # pre-packaged in ACTIONet
 #' markers <- curatedMarkers_human$Blood$PBMC$Monaco2019.12celltypes$marker.genes
-#' annots <- annotate.cells.using.markers(ace, markers = markers)
-#' plot.ACTIONet(ace, annots$Label, annots$Confidence)
+#' annots <- annotate.cells.using.markers(adata, markers = markers)
+#' plot.ACTIONet(adata, annots$Label, annots$Confidence)
 #' @export
 annotateCells <- function(
-    ace,
+    adata = NULL,
     markers,
     method = c("vision", "actionet"),
     features_use = NULL,
@@ -33,15 +34,17 @@ annotateCells <- function(
     ignore_baseline = FALSE,
     use_enrichment = TRUE,
     use_lpa = FALSE,
-    thread_no = 0) {
+    thread_no = 0,
+    ace = NULL) {
   method <- match.arg(method)
   norm_method <- match.arg(norm_method)
   norm_method <- ifelse(norm_method == "pagerank_sym", 2, 0)
 
-  .validate_ace(ace, allow_se_like = FALSE, return_elem = FALSE, error_on_fail = TRUE)
-  X <- .encode_markers(ace, markers = markers, features_use = features_use, obj_name = "ace")
-  S <- .validate_assay(ace, assay_name = assay_name, matrix_type = "sparse", force_type = TRUE, error_on_fail = TRUE, return_elem = TRUE)
-  G <- .validate_net(ace, net_slot = net_slot, matrix_type = "sparse", force_type = TRUE, return_elem = TRUE)
+  adata <- .resolve_container_arg(adata = adata, ace = ace)
+  adata <- .validate_ace(adata, as_ace = TRUE, allow_se_like = TRUE, return_elem = TRUE, error_on_fail = TRUE)
+  X <- .encode_markers(adata, markers = markers, features_use = features_use, obj_name = "adata")
+  S <- .validate_assay(adata, assay_name = assay_name, matrix_type = "sparse", force_type = TRUE, error_on_fail = TRUE, return_elem = TRUE)
+  G <- .validate_net(adata, net_slot = net_slot, matrix_type = "sparse", force_type = TRUE, return_elem = TRUE)
 
   if (method == "vision") {
     marker_stats <- C_computeFeatureStatsVision(
@@ -88,7 +91,7 @@ annotateCells <- function(
 
   if (use_lpa) {
     out[["labels_corrected"]] <- propagateLabels(
-      ace,
+      adata,
       labels = labels,
       which_fixed = NULL,
       algorithm = "LPA",

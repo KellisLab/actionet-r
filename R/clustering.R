@@ -1,6 +1,6 @@
 #' @export
 clusterNetwork <- function(
-    obj,
+    obj = NULL,
     objective_function = c("modularity", "CPM"),
     resolution_parameter = 1.0,
     initial_membership = NULL,
@@ -8,12 +8,16 @@ clusterNetwork <- function(
     min_size = 3,
     net_slot = "actionet",
     attr_out = NULL,
-    return_raw = FALSE) {
+    return_raw = FALSE,
+    adata = NULL,
+    ace = NULL) {
   is_installed <- require(igraph)
 
   if (!is_installed) {
     stop("Package 'igraph' is not installed")
   }
+
+  obj <- .resolve_container_arg(adata = adata, ace = ace, obj = obj)
 
   # algorithm <- match.arg(algorithm)
   algorithm <- "leiden"
