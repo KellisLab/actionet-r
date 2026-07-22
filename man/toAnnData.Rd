@@ -4,15 +4,25 @@
 \alias{toAnnData}
 \title{Convert supported ACTIONet inputs to in-memory AnnData.}
 \usage{
-toAnnData(x)
+toAnnData(x, x_layer = NULL)
 }
 \arguments{
 \item{x}{AnnData, matrix, sparse matrix, `SummarizedExperiment`,
-`SingleCellExperiment`, or `ACTIONetExperiment`.}
+`SingleCellExperiment`, or `ACTIONetExperiment`. Bare matrix / sparse
+matrix inputs are treated as genes x cells (SE convention) and transposed
+to cells x genes for AnnData.}
+
+\item{x_layer}{Optional character. When `x` carries multiple assays
+(`SummarizedExperiment` / `SingleCellExperiment` / `ACTIONetExperiment`),
+the assay named here is placed in `.X` and the remaining assays go into
+`.layers`. Defaults to the first assay. Ignored for AnnData and bare
+matrix inputs.}
 }
 \value{
 An in-memory `anndataR::AnnData` object.
 }
 \description{
-Convert supported ACTIONet inputs to in-memory AnnData.
+Delegates transposition to explicit slot-by-slot copies (no
+`anndataR::as_AnnData()` intermediate), so behavior does not depend on
+`anndataR`'s S3 method table.
 }

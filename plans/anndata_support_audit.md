@@ -345,6 +345,59 @@ picking up any of the above.
 
 ---
 
+---
+
+### Update — 2026-07-21 (late evening): AnnData<>ACE conversion reimplemented
+
+Both `toAnnData()` and `toACTIONetExperiment()` in
+[R/utils_anndata_adapter.R](../R/utils_anndata_adapter.R) were rewritten to do
+direct, slot-by-slot copies — no more `anndataR::as_AnnData()` /
+`adata$as_SingleCellExperiment()` / `as.ACTIONetExperiment()` intermediates.
+
+Fixes landed:
+
+- `colMaps` double-population removed. `as.ACTIONetExperiment(sce)` used to
+  wrap each `obsm` entry into a `SummarizedExperiment` and then a raw-matrix
+  re-copy loop overwrote — inconsistent element type per key. The new
+  implementation writes each ACE slot exactly once as a plain matrix and
+  unwraps SE-wrapped `colMaps`/`rowMaps` entries encountered on ACE input.
+- `_sigma` metadata round-trips symmetrically. Any `metadata(ace)[[<foo>_sigma]]`
+  is folded to `adata$uns[[<foo>_params]]$sigma` (and retained as the flat key
+  too); on the reverse, `.unfold_sigma_from_uns()` restores every
+  `<foo>_sigma` regardless of prefix (previously only `action_sigma` survived).
+- Matrix branch dedupes dimnames BEFORE constructing `anndataR::AnnData()` so
+  duplicate barcodes / gene names no longer error out. The redundant
+  `.ensure_unique_dimnames()` call following the AnnData construction was
+  removed. Dedup emits a single count-only warning per affected axis (obs /
+  var) — no name enumeration, since obs collisions can hit thousands.
+- New `x_layer` argument on `toAnnData()` selects which ACE assay lands in
+  `.X`; the rest go to `.layers`. Default is the first assay. On the reverse,
+  `.X` is restored to the assay name recorded in `uns$X_name` (or `"X"` if
+  absent).
+- Bare `SummarizedExperiment` inputs now convert via the same direct helper
+  (previously depended on `anndataR::as_AnnData`'s S3 method table, which
+  ships only `Seurat` / `SingleCellExperiment` / `default`).
+- `require("ACTIONetExperiment", character.only = TRUE)` at the top of
+  `toACTIONetExperiment()` replaced with `requireNamespace()` gating; ACE
+  stays in `Suggests:`.
+- Workaround for upstream `ACTIONetExperiment` bug: the class's `colMaps` /
+  `rowMaps` / `colMapTypes` / `rowMapTypes` methods call unqualified
+  `assays()` / `metadata()`; `toAnnData()` on an ACE input attaches
+  `SummarizedExperiment` and `S4Vectors` on demand so those generics resolve
+  inside the ACE package's own dispatch.
+
+New / rewritten tests in
+[tests/testthat/test-anndata-refactor.R](../tests/testthat/test-anndata-refactor.R):
+
+- `toAnnData from live ACE preserves orientation, assays, and metadata`
+- `toAnnData x_layer selects which assay lands in .X`
+- `colMaps element type is stable across round-trip`
+- `_sigma metadata round-trips symmetrically`
+- `bare SummarizedExperiment converts to AnnData`
+- `matrix path with duplicate rownames warns count-only and dedupes`
+
+Full suite green: `[ FAIL 0 | WARN 0 | SKIP 0 | PASS 94 ]`.
+
 ## Appendix: transcript
 
 - Audit R functions AnnData vs ACE support: [3face953-89b1-4f56-b56a-b5ea5e8822d1](3face953-89b1-4f56-b56a-b5ea5e8822d1)

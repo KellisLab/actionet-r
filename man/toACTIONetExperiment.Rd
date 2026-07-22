@@ -7,11 +7,26 @@
 toACTIONetExperiment(adata)
 }
 \arguments{
-\item{adata}{AnnData or compatible input.}
+\item{adata}{AnnData or compatible input (see [toAnnData()]).}
 }
 \value{
-An `ACTIONetExperiment` object.
+An `ACTIONetExperiment` object with `rows = features (genes)`,
+  `cols = samples (cells)`.
 }
 \description{
-Convert AnnData to `ACTIONetExperiment`.
+Builds an `ACTIONetExperiment` directly from the AnnData slots (no
+`as_SingleCellExperiment()` / `as.ACTIONetExperiment()` intermediate), so
+`colMaps` / `rowMaps` / `colNets` / `rowNets` are populated exactly once
+with a consistent element type.
+}
+\details{
+The assay name for `.X` is recovered from `adata$uns$X_name` if present,
+otherwise defaults to `"X"`. Layers keep their original names.
+
+Metadata round-trips symmetrically: any `uns[[<foo>_params]]$sigma` is
+restored as `metadata(ace)[[<foo>_sigma]]` (mirror of the forward
+`_sigma`-into-`_params` folding done by [toAnnData()]).
+
+Requires the `ACTIONetExperiment` package (in `Suggests:`); errors with an
+actionable message when it is not installed.
 }

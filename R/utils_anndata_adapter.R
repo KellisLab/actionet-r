@@ -209,6 +209,32 @@
   obj
 }
 
+#' Deduplicate obs/var names.
+#'
+#' @param x Character vector of names.
+#' @param kind One of "obs" or "var"; used only for the warning message.
+#' @param warn Whether to emit a single count-only warning when duplicates are
+#'   present. Never enumerates the affected names since obs_names collisions on
+#'   scRNA-seq data routinely exceed thousands.
+#'
+#' @return `make.unique(as.character(x), sep = "_")`.
+#' @keywords internal
+#' @noRd
+.dedup_names <- function(x, kind = c("obs", "var"), warn = TRUE) {
+  kind <- match.arg(kind)
+  x <- as.character(x)
+  dupes <- duplicated(x)
+  n_dupes <- sum(dupes)
+  if (n_dupes > 0L && warn) {
+    warning(sprintf(
+      "Duplicated %s_names detected (%d duplicates); deduplicated via make.unique(sep = '_').",
+      kind,
+      n_dupes
+    ), call. = FALSE)
+  }
+  make.unique(x, sep = "_")
+}
+
 .ensure_unique_dimnames <- function(adata) {
   adata <- .as_inmemory_anndata(adata, arg = "adata")
 
@@ -218,13 +244,13 @@
   if (is.null(obs_names) || anyNA(obs_names) || any(obs_names == "")) {
     obs_names <- .default_cell_names(.n_obs(adata))
   } else {
-    obs_names <- make.unique(as.character(obs_names), sep = "_")
+    obs_names <- .dedup_names(obs_names, kind = "obs")
   }
 
   if (is.null(var_names) || anyNA(var_names) || any(var_names == "")) {
     var_names <- .default_feature_names(.n_vars(adata))
   } else {
-    var_names <- make.unique(as.character(var_names), sep = "_")
+    var_names <- .dedup_names(var_names, kind = "var")
   }
 
   adata <- .set_obs_names(adata, obs_names)
@@ -518,108 +544,296 @@ rowMapTypes <- function(object, all = TRUE) {
   stop("'object' does not support 'rowMapTypes<-'.")
 }
 
-.copy_ace_payload_to_anndata <- function(adata, ace) {
-  col_maps <- .canonicalize_named_list(
-    ACTIONetExperiment::colMaps(ace, all = TRUE),
-    .ACTIONET_OBSM_ALIASES
-  )
-  row_maps <- .canonicalize_named_list(
-    ACTIONetExperiment::rowMaps(ace, all = TRUE),
-    .ACTIONET_VARM_ALIASES
-  )
-  col_nets <- .canonicalize_named_list(
-    ACTIONetExperiment::colNets(ace),
-    .ACTIONET_OBSP_ALIASES
-  )
-  row_nets <- .canonicalize_named_list(
-    ACTIONetExperiment::rowNets(ace),
-    .ACTIONET_VARP_ALIASES
-  )
+.transpose_matrix <- function(mat) {
+  if (is.null(mat)) {
+    return(NULL)
+  }
+  if (.is_sparse_matrix(mat)) {
+    Matrix::t(mat)
+  } else if (is.matrix(mat)) {
+    t(mat)
+  } else {
+    Matrix::t(mat)
+  }
+}
 
-  if (length(col_maps) > 0) {
-    adata$obsm <- c(.as_plain_list(adata$obsm), col_maps)
+.resolve_x_layer <- function(assay_names, x_layer) {
+  if (length(assay_names) == 0) {
+    return(NULL)
   }
-  if (length(row_maps) > 0) {
-    adata$varm <- c(.as_plain_list(adata$varm), row_maps)
+  if (is.null(x_layer)) {
+    return(assay_names[[1]])
   }
-  if (length(col_nets) > 0) {
-    adata$obsp <- c(.as_plain_list(adata$obsp), col_nets)
+  if (!(x_layer %in% assay_names)) {
+    stop(sprintf(
+      "'x_layer' = '%s' not found among available assays: %s",
+      x_layer,
+      paste(assay_names, collapse = ", ")
+    ), call. = FALSE)
   }
-  if (length(row_nets) > 0) {
-    adata$varp <- c(.as_plain_list(adata$varp), row_nets)
-  }
+  x_layer
+}
 
-  uns <- .get_uns(adata)
-  ace_meta <- .as_plain_list(S4Vectors::metadata(ace))
-  if (length(ace_meta) > 0) {
-    for (nm in names(ace_meta)) {
-      if (grepl("_sigma$", nm)) {
-        canonical_nm <- sub("_sigma$", "_params", .canonical_key(sub("_sigma$", "", nm), .ACTIONET_OBSM_ALIASES))
-        uns[[canonical_nm]] <- c(.as_plain_list(uns[[canonical_nm]]), list(sigma = ace_meta[[nm]]))
-      } else {
-        uns[[.canonical_key(nm, .ACTIONET_UNS_ALIASES)]] <- ace_meta[[nm]]
+.fold_sigma_into_uns <- function(uns, ace_meta) {
+  if (length(ace_meta) == 0) {
+    return(uns)
+  }
+  for (nm in names(ace_meta)) {
+    val <- ace_meta[[nm]]
+    if (grepl("_sigma$", nm)) {
+      params_nm <- sub("_sigma$", "_params", nm)
+      existing <- uns[[params_nm]]
+      if (is.null(existing) || !is.list(existing)) {
+        existing <- list()
+      }
+      existing[["sigma"]] <- val
+      uns[[params_nm]] <- existing
+      # Retain the flat key too for consumers reading metadata directly.
+      uns[[nm]] <- val
+    } else {
+      uns[[nm]] <- val
+    }
+  }
+  uns
+}
+
+.unfold_sigma_from_uns <- function(uns) {
+  # Symmetric reverse of .fold_sigma_into_uns: for any 'foo_params' with a
+  # $sigma child, emit 'foo_sigma' at the top level (in addition to
+  # 'foo_params', which is retained). Internal book-keeping keys are dropped.
+  if (length(uns) == 0) {
+    return(list())
+  }
+  internal_keys <- c("X_name", "actionet_colMapTypes", "actionet_rowMapTypes")
+  meta <- list()
+  for (nm in names(uns)) {
+    if (nm %in% internal_keys) next
+    val <- uns[[nm]]
+    meta[[nm]] <- val
+    if (grepl("_params$", nm) && is.list(val) && !is.null(val[["sigma"]])) {
+      sigma_key <- sub("_params$", "_sigma", nm)
+      if (is.null(meta[[sigma_key]])) {
+        meta[[sigma_key]] <- val[["sigma"]]
       }
     }
   }
+  meta
+}
+
+.se_to_anndata_direct <- function(x, x_layer = NULL, ace = NULL) {
+  assays_list <- as.list(SummarizedExperiment::assays(x))
+  assay_names <- names(assays_list)
+  if (is.null(assay_names) && length(assays_list) > 0) {
+    assay_names <- paste0("assay", seq_along(assays_list))
+    names(assays_list) <- assay_names
+  }
+
+  x_layer <- .resolve_x_layer(assay_names, x_layer)
+
+  X <- if (!is.null(x_layer)) .transpose_matrix(assays_list[[x_layer]]) else NULL
+
+  layers <- list()
+  for (nm in assay_names) {
+    if (identical(nm, x_layer)) next
+    layers[[nm]] <- .transpose_matrix(assays_list[[nm]])
+  }
+
+  obs_df <- as.data.frame(
+    SummarizedExperiment::colData(x),
+    stringsAsFactors = FALSE,
+    optional = TRUE
+  )
+  var_df <- as.data.frame(
+    SummarizedExperiment::rowData(x),
+    stringsAsFactors = FALSE,
+    optional = TRUE
+  )
+
+  obs_names <- if (is.null(colnames(x))) .default_cell_names(ncol(x)) else .dedup_names(colnames(x), "obs")
+  var_names <- if (is.null(rownames(x))) .default_feature_names(nrow(x)) else .dedup_names(rownames(x), "var")
+
+  .apply_dimnames <- function(mat) {
+    if (is.null(mat)) return(NULL)
+    dimnames(mat) <- list(obs_names, var_names)
+    mat
+  }
+  X <- .apply_dimnames(X)
+  layers <- lapply(layers, .apply_dimnames)
+
+  # anndataR::AnnData() rejects zero-column dataframes with row indexing; rebuild
+  # obs/var with row.names anchored to dimnames.
+  if (ncol(obs_df) == 0) {
+    obs_df <- data.frame(row.names = obs_names)
+  } else {
+    rownames(obs_df) <- obs_names
+  }
+  if (ncol(var_df) == 0) {
+    var_df <- data.frame(row.names = var_names)
+  } else {
+    rownames(var_df) <- var_names
+  }
+
+  adata <- anndataR::AnnData(
+    X = X,
+    layers = if (length(layers) > 0) layers else NULL,
+    obs = obs_df,
+    var = var_df
+  )
+  adata <- .as_inmemory_anndata(adata, arg = "x")
+
+  # Metadata: for ACE, defer to .fold_sigma_into_uns below (which handles both
+  # _sigma folding and plain passthrough). For bare SE/SCE, copy metadata()
+  # directly.
+  se_meta <- .as_plain_list(S4Vectors::metadata(x))
+  uns <- .get_uns(adata)
+  if (!inherits(x, "ACTIONetExperiment") && length(se_meta) > 0) {
+    for (nm in names(se_meta)) {
+      uns[[.canonical_key(nm, .ACTIONET_UNS_ALIASES)]] <- se_meta[[nm]]
+    }
+  }
+
+  # SingleCellExperiment: preserve reducedDims -> obsm.
+  if (inherits(x, "SingleCellExperiment") && requireNamespace("SingleCellExperiment", quietly = TRUE)) {
+    rd <- SingleCellExperiment::reducedDims(x)
+    if (length(rd) > 0) {
+      obsm <- .as_plain_list(adata$obsm)
+      for (nm in names(rd)) {
+        obsm[[.canonical_obsm_key(nm)]] <- as.matrix(rd[[nm]])
+      }
+      adata$obsm <- obsm
+    }
+  }
+
+  # ACE-specific slots (only when a live ACE was supplied).
+  if (!is.null(ace) && inherits(ace, "ACTIONetExperiment")) {
+    col_maps <- .canonicalize_named_list(
+      ACTIONetExperiment::colMaps(ace, all = TRUE),
+      .ACTIONET_OBSM_ALIASES
+    )
+    row_maps <- .canonicalize_named_list(
+      ACTIONetExperiment::rowMaps(ace, all = TRUE),
+      .ACTIONET_VARM_ALIASES
+    )
+    col_nets <- .canonicalize_named_list(
+      ACTIONetExperiment::colNets(ace),
+      .ACTIONET_OBSP_ALIASES
+    )
+    row_nets <- .canonicalize_named_list(
+      ACTIONetExperiment::rowNets(ace),
+      .ACTIONET_VARP_ALIASES
+    )
+
+    if (length(col_maps) > 0) {
+      obsm <- .as_plain_list(adata$obsm)
+      # ACE colMaps entries may be SummarizedExperiment-wrapped; unwrap to raw matrix.
+      for (nm in names(col_maps)) {
+        val <- col_maps[[nm]]
+        if (inherits(val, "SummarizedExperiment")) {
+          val <- SummarizedExperiment::assay(val, 1L)
+        }
+        obsm[[nm]] <- val
+      }
+      adata$obsm <- obsm
+    }
+    if (length(row_maps) > 0) {
+      varm <- .as_plain_list(adata$varm)
+      for (nm in names(row_maps)) {
+        val <- row_maps[[nm]]
+        if (inherits(val, "SummarizedExperiment")) {
+          val <- SummarizedExperiment::assay(val, 1L)
+        }
+        varm[[nm]] <- val
+      }
+      adata$varm <- varm
+    }
+    if (length(col_nets) > 0) {
+      adata$obsp <- c(.as_plain_list(adata$obsp), col_nets)
+    }
+    if (length(row_nets) > 0) {
+      adata$varp <- c(.as_plain_list(adata$varp), row_nets)
+    }
+
+    uns <- .fold_sigma_into_uns(uns, .as_plain_list(S4Vectors::metadata(ace)))
+
+    col_types <- .as_plain_list(ACTIONetExperiment::colMapTypes(ace, all = TRUE))
+    row_types <- .as_plain_list(ACTIONetExperiment::rowMapTypes(ace, all = TRUE))
+    if (length(col_types) > 0) {
+      uns[["actionet_colMapTypes"]] <- .canonicalize_named_list(col_types, .ACTIONET_OBSM_ALIASES)
+    }
+    if (length(row_types) > 0) {
+      uns[["actionet_rowMapTypes"]] <- .canonicalize_named_list(row_types, .ACTIONET_VARM_ALIASES)
+    }
+  }
+
+  # Record which assay landed in .X so the reverse round-trip can restore the name.
+  if (!is.null(x_layer)) {
+    uns[["X_name"]] <- x_layer
+  }
+
   adata$uns <- uns
-
-  col_types <- .as_plain_list(ACTIONetExperiment::colMapTypes(ace, all = TRUE))
-  row_types <- .as_plain_list(ACTIONetExperiment::rowMapTypes(ace, all = TRUE))
-  if (length(col_types) > 0) {
-    adata <- .set_map_types(adata, "actionet_colMapTypes", col_types, .ACTIONET_OBSM_ALIASES)
-  }
-  if (length(row_types) > 0) {
-    adata <- .set_map_types(adata, "actionet_rowMapTypes", row_types, .ACTIONET_VARM_ALIASES)
-  }
-
   adata
 }
 
 #' Convert supported ACTIONet inputs to in-memory AnnData.
 #'
+#' Delegates transposition to explicit slot-by-slot copies (no
+#' `anndataR::as_AnnData()` intermediate), so behavior does not depend on
+#' `anndataR`'s S3 method table.
+#'
 #' @param x AnnData, matrix, sparse matrix, `SummarizedExperiment`,
-#'   `SingleCellExperiment`, or `ACTIONetExperiment`.
+#'   `SingleCellExperiment`, or `ACTIONetExperiment`. Bare matrix / sparse
+#'   matrix inputs are treated as genes x cells (SE convention) and transposed
+#'   to cells x genes for AnnData.
+#' @param x_layer Optional character. When `x` carries multiple assays
+#'   (`SummarizedExperiment` / `SingleCellExperiment` / `ACTIONetExperiment`),
+#'   the assay named here is placed in `.X` and the remaining assays go into
+#'   `.layers`. Defaults to the first assay. Ignored for AnnData and bare
+#'   matrix inputs.
 #'
 #' @return An in-memory `anndataR::AnnData` object.
 #' @export
-toAnnData <- function(x) {
+toAnnData <- function(x, x_layer = NULL) {
   if (.is_anndata(x)) {
     x <- .as_inmemory_anndata(x, arg = "x")
     return(.ensure_unique_dimnames(x))
   }
 
   if (.is_sparse_matrix(x) || is.matrix(x)) {
+    # Dedup dimnames BEFORE constructing AnnData; anndataR reads obs_names /
+    # var_names off obs/var row.names, and rejects X whose dimnames disagree.
+    obs_names <- if (is.null(colnames(x))) .default_cell_names(ncol(x)) else .dedup_names(colnames(x), "obs")
+    var_names <- if (is.null(rownames(x))) .default_feature_names(nrow(x)) else .dedup_names(rownames(x), "var")
+
+    x_mat <- x
+    dimnames(x_mat) <- list(var_names, obs_names)
+    X_t <- if (.is_sparse_matrix(x_mat)) Matrix::t(x_mat) else t(as.matrix(x_mat))
+    obs_df <- data.frame(row.names = obs_names)
+    var_df <- data.frame(row.names = var_names)
+
     adata <- anndataR::AnnData(
-      # Assume legacy genes x cells orientation; transpose to cells x genes for AnnData
-      X = if (.is_sparse_matrix(x)) Matrix::t(x) else t(as.matrix(x))
+      X = X_t,
+      obs = obs_df,
+      var = var_df
     )
-    adata <- .ensure_unique_dimnames(adata)
-    adata <- .set_obs_names(adata, if (is.null(colnames(x))) .default_cell_names(ncol(x)) else make.unique(colnames(x), sep = "_"))
-    adata <- .set_var_names(adata, if (is.null(rownames(x))) .default_feature_names(nrow(x)) else make.unique(rownames(x), sep = "_"))
-    return(adata)
+    return(.as_inmemory_anndata(adata, arg = "x"))
   }
 
   if (inherits(x, "ACTIONetExperiment")) {
     .check_and_load_package("ACTIONetExperiment")
-    sce <- as(x, "SingleCellExperiment")
-    adata <- anndataR::as_AnnData(sce)
-    adata <- .as_inmemory_anndata(adata, arg = "x")
-    assay_names <- names(SummarizedExperiment::assays(x))
-    if (length(assay_names) > 0) {
-      adata$X <- adata$layers[[assay_names[[1]]]]
+    # ACTIONetExperiment::colMaps() / rowMaps() / colMapTypes() / rowMapTypes()
+    # internally call unqualified `assays()` and `metadata()`; attach the
+    # relevant Bioconductor packages for the duration of this call so those
+    # generics resolve.
+    for (pk in c("SummarizedExperiment", "S4Vectors")) {
+      if (!paste0("package:", pk) %in% search()) {
+        suppressPackageStartupMessages(attachNamespace(pk))
+      }
     }
-    adata <- .copy_ace_payload_to_anndata(adata, x)
-    return(.ensure_unique_dimnames(adata))
+    return(.se_to_anndata_direct(x, x_layer = x_layer, ace = x))
   }
 
-  if (inherits(x, "SummarizedExperiment") || inherits(x, "SingleCellExperiment")) {
-    adata <- anndataR::as_AnnData(x)
-    adata <- .as_inmemory_anndata(adata, arg = "x")
-    assay_names <- names(SummarizedExperiment::assays(x))
-    if (length(assay_names) > 0) {
-      adata$X <- adata$layers[[assay_names[[1]]]]
-    }
-    return(.ensure_unique_dimnames(adata))
+  if (inherits(x, "SingleCellExperiment") || inherits(x, "SummarizedExperiment")) {
+    return(.se_to_anndata_direct(x, x_layer = x_layer, ace = NULL))
   }
 
   stop("'x' must be an AnnData, matrix, sparseMatrix, SummarizedExperiment, SingleCellExperiment, or ACTIONetExperiment object.")
@@ -636,20 +850,61 @@ toAnnData <- function(x) {
 
 #' Convert AnnData to `ACTIONetExperiment`.
 #'
-#' @param adata AnnData or compatible input.
+#' Builds an `ACTIONetExperiment` directly from the AnnData slots (no
+#' `as_SingleCellExperiment()` / `as.ACTIONetExperiment()` intermediate), so
+#' `colMaps` / `rowMaps` / `colNets` / `rowNets` are populated exactly once
+#' with a consistent element type.
 #'
-#' @return An `ACTIONetExperiment` object.
+#' The assay name for `.X` is recovered from `adata$uns$X_name` if present,
+#' otherwise defaults to `"X"`. Layers keep their original names.
+#'
+#' Metadata round-trips symmetrically: any `uns[[<foo>_params]]$sigma` is
+#' restored as `metadata(ace)[[<foo>_sigma]]` (mirror of the forward
+#' `_sigma`-into-`_params` folding done by [toAnnData()]).
+#'
+#' Requires the `ACTIONetExperiment` package (in `Suggests:`); errors with an
+#' actionable message when it is not installed.
+#'
+#' @param adata AnnData or compatible input (see [toAnnData()]).
+#'
+#' @return An `ACTIONetExperiment` object with `rows = features (genes)`,
+#'   `cols = samples (cells)`.
 #' @export
 toACTIONetExperiment <- function(adata) {
   .check_and_load_package("ACTIONetExperiment")
-  suppressPackageStartupMessages(
-    require("ACTIONetExperiment", character.only = TRUE)
-  )
+
   adata <- toAnnData(adata)
 
-  sce <- adata$as_SingleCellExperiment()
-  ace <- ACTIONetExperiment::as.ACTIONetExperiment(sce)
+  # Build assays: cells x genes -> genes x cells.
+  uns <- .get_uns(adata)
+  x_name <- if (!is.null(uns[["X_name"]]) && nzchar(uns[["X_name"]])) uns[["X_name"]] else "X"
 
+  assays_list <- list()
+  X <- adata$X
+  if (!is.null(X)) {
+    assays_list[[x_name]] <- .transpose_matrix(X)
+  }
+  for (nm in names(.as_plain_list(adata$layers))) {
+    if (identical(nm, x_name)) next
+    assays_list[[nm]] <- .transpose_matrix(adata$layers[[nm]])
+  }
+
+  obs_df <- .get_col_data_df(adata)
+  var_df <- .get_row_data_df(adata)
+
+  rownames_var <- .var_names(adata)
+  rownames_obs <- .obs_names(adata)
+
+  ace <- ACTIONetExperiment::ACTIONetExperiment(
+    assays = assays_list,
+    rowData = if (ncol(var_df) > 0) S4Vectors::DataFrame(var_df) else S4Vectors::DataFrame(row.names = rownames_var),
+    colData = if (ncol(obs_df) > 0) S4Vectors::DataFrame(obs_df) else S4Vectors::DataFrame(row.names = rownames_obs)
+  )
+
+  rownames(ace) <- rownames_var
+  colnames(ace) <- rownames_obs
+
+  # obsm -> colMaps (raw matrix; canonical key reversed to legacy alias if needed)
   for (nm in names(.as_plain_list(adata$obsm))) {
     ACTIONetExperiment::colMaps(ace)[[.reverse_key(nm, .ACTIONET_OBSM_ALIASES)]] <- adata$obsm[[nm]]
   }
@@ -663,9 +918,24 @@ toACTIONetExperiment <- function(adata) {
     ACTIONetExperiment::rowNets(ace)[[.reverse_key(nm, .ACTIONET_VARP_ALIASES)]] <- adata$varp[[nm]]
   }
 
-  uns <- .get_uns(adata)
-  if ("action_params" %in% names(uns) && !is.null(uns[["action_params"]][["sigma"]])) {
-    S4Vectors::metadata(ace)[["action_sigma"]] <- uns[["action_params"]][["sigma"]]
+  # Optional map-type sidecars.
+  if (!is.null(uns[["actionet_colMapTypes"]])) {
+    types <- .as_plain_list(uns[["actionet_colMapTypes"]])
+    if (length(types) > 0) {
+      ACTIONetExperiment::colMapTypes(ace) <- types
+    }
+  }
+  if (!is.null(uns[["actionet_rowMapTypes"]])) {
+    types <- .as_plain_list(uns[["actionet_rowMapTypes"]])
+    if (length(types) > 0) {
+      ACTIONetExperiment::rowMapTypes(ace) <- types
+    }
+  }
+
+  # Metadata: symmetric _sigma reverse plus passthrough.
+  meta <- .unfold_sigma_from_uns(uns)
+  if (length(meta) > 0) {
+    S4Vectors::metadata(ace) <- meta
   }
 
   ace
