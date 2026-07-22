@@ -381,14 +381,6 @@ annotateArchetypes <- function(
   }
 
   if (!is.null(markers)) {
-    marker_mat <- .encode_markers(
-      adata,
-      markers = markers,
-      features_use = features_use,
-      obj_name = "adata"
-    )
-    marker_mat <- as(marker_mat, "CsparseMatrix")
-
     if (!is.null(specificity_key)) {
       upper_slot <- paste0(specificity_key, "_upper")
       lower_slot <- paste0(specificity_key, "_lower")
@@ -401,11 +393,10 @@ annotateArchetypes <- function(
         ))
       }
       upper_sig <- as.matrix(row_maps[[upper_slot]])
-      if (lower_slot %in% names(row_maps)) {
-        lower_sig <- as.matrix(row_maps[[lower_slot]])
-        feat_spec <- upper_sig - lower_sig
+      lower_sig <- if (lower_slot %in% names(row_maps)) {
+        as.matrix(row_maps[[lower_slot]])
       } else {
-        feat_spec <- upper_sig
+        NULL
       }
     } else {
       spec_out <- archetypeFeatureSpecificity(
@@ -420,32 +411,19 @@ annotateArchetypes <- function(
       } else {
         NULL
       }
-      feat_spec <- if (!is.null(lower_sig)) upper_sig - lower_sig else upper_sig
-    }
-    feat_spec[feat_spec < 0] <- 0
-    colnames(feat_spec) <- paste0("A", seq_len(ncol(feat_spec)))
-
-    # Both `marker_mat` and `feat_spec` are constructed row-by-row over the
-    # full feature axis of `adata`. Assert row-count parity and reconcile
-    # rownames so downstream labeling uses the user-facing feature labels.
-    if (nrow(marker_mat) != nrow(feat_spec)) {
-      stop(sprintf(
-        "Feature axis mismatch: marker matrix has %d rows but specificity matrix has %d rows.",
-        nrow(marker_mat), nrow(feat_spec)
-      ))
-    }
-    if (!is.null(rownames(marker_mat))) {
-      rownames(feat_spec) <- rownames(marker_mat)
     }
 
-    enrich <- C_assess_enrichment(
-      scores = feat_spec,
-      associations = marker_mat,
+    row_names <- paste0("A", seq_len(ncol(upper_sig)))
+
+    return(.annotate_from_markers(
+      adata = adata,
+      markers = markers,
+      features_use = features_use,
+      upper_sig = upper_sig,
+      lower_sig = lower_sig,
+      row_names = row_names,
       thread_no = thread_no
-    )
-    archetype_enrichment <- Matrix::t(enrich$logPvals)
-    rownames(archetype_enrichment) <- colnames(feat_spec)
-    colnames(archetype_enrichment) <- colnames(marker_mat)
+    ))
   } else if (!is.null(labels)) {
     X1 <- as.matrix(colMaps(adata)[[archetype_slot]])
     if (is.null(X1)) {
@@ -593,14 +571,6 @@ annotateClusters <- function(
   }
 
   if (!is.null(markers)) {
-    marker_mat <- .encode_markers(
-      adata,
-      markers = markers,
-      features_use = features_use,
-      obj_name = "adata"
-    )
-    marker_mat <- as(marker_mat, "CsparseMatrix")
-
     if (!is.null(specificity_key)) {
       upper_slot <- paste0(specificity_key, "_upper")
       lower_slot <- paste0(specificity_key, "_lower")
@@ -613,11 +583,10 @@ annotateClusters <- function(
         ))
       }
       upper_sig <- as.matrix(row_maps[[upper_slot]])
-      if (lower_slot %in% names(row_maps)) {
-        lower_sig <- as.matrix(row_maps[[lower_slot]])
-        feat_spec <- upper_sig - lower_sig
+      lower_sig <- if (lower_slot %in% names(row_maps)) {
+        as.matrix(row_maps[[lower_slot]])
       } else {
-        feat_spec <- upper_sig
+        NULL
       }
     } else {
       spec_out <- computeFeatureSpecificity(
@@ -628,38 +597,27 @@ annotateClusters <- function(
         return_raw = TRUE
       )
       upper_sig <- as.matrix(spec_out[["upper_significance"]])
-      lower_sig <- as.matrix(spec_out[["lower_significance"]])
-      feat_spec <- upper_sig - lower_sig
-    }
-    feat_spec[feat_spec < 0] <- 0
-
-    # Both `marker_mat` and `feat_spec` are constructed row-by-row over the
-    # full feature axis of `adata` (length `n_vars(adata)`): `.encode_markers`
-    # indexes rows by the resolved `features_use` vector, and
-    # `computeFeatureSpecificity` / pre-computed specificity slots index rows
-    # by `.actionet_rownames(adata)`. They are therefore positionally aligned
-    # even when their rownames differ (e.g. `features_use = "Gene"` yields
-    # gene symbols on `marker_mat` while `feat_spec` carries the var index).
-    # Assert row-count parity and reconcile rownames so downstream labeling
-    # uses the user-facing feature labels.
-    if (nrow(marker_mat) != nrow(feat_spec)) {
-      stop(sprintf(
-        "Feature axis mismatch: marker matrix has %d rows but specificity matrix has %d rows.",
-        nrow(marker_mat), nrow(feat_spec)
-      ))
-    }
-    if (!is.null(rownames(marker_mat))) {
-      rownames(feat_spec) <- rownames(marker_mat)
+      lower_sig <- if (!is.null(spec_out[["lower_significance"]])) {
+        as.matrix(spec_out[["lower_significance"]])
+      } else {
+        NULL
+      }
     }
 
-    enrich <- C_assess_enrichment(
-      scores = feat_spec,
-      associations = marker_mat,
+    row_names <- colnames(upper_sig)
+    if (is.null(row_names)) {
+      row_names <- as.character(seq_len(ncol(upper_sig)))
+    }
+
+    return(.annotate_from_markers(
+      adata = adata,
+      markers = markers,
+      features_use = features_use,
+      upper_sig = upper_sig,
+      lower_sig = lower_sig,
+      row_names = row_names,
       thread_no = thread_no
-    )
-    cluster_enrichment <- Matrix::t(enrich$logPvals)
-    rownames(cluster_enrichment) <- colnames(feat_spec)
-    colnames(cluster_enrichment) <- colnames(marker_mat)
+    ))
   } else if (!is.null(labels)) {
     l1 <- .get_obs_data(adata)[[cluster_key]]
     if (is.null(l1)) {

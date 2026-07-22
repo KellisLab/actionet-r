@@ -26,6 +26,7 @@
 * Normalize only subset of features
 
 ## Done
+* Consolidate marker branches of `annotateClusters` and `annotateArchetypes` via shared `.annotate_from_markers` helper in `R/utils_annotation.R` (parity with Python `_annotate_from_markers` in `../actionet-python/src/actionet/annotation/annotation.py`). No public signature or return-shape changes.
 * New marker detection
 * Working and improved ledien via igraph
 * New qc functions
