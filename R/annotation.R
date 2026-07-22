@@ -464,18 +464,23 @@ annotateClusters <- function(
     }
     feat_spec[feat_spec < 0] <- 0
 
-    # Align markers to the feature space used by feat_spec. The specificity
-    # rownames come from .actionet_rownames(adata); .encode_markers also
-    # anchors marker rownames on the feature vector, so both share the
-    # feature order. Guard against mismatched or missing rownames by
-    # intersecting when both are populated.
-    if (!is.null(rownames(marker_mat)) && !is.null(rownames(feat_spec))) {
-      common_feat <- intersect(rownames(feat_spec), rownames(marker_mat))
-      if (length(common_feat) == 0) {
-        stop("No shared features between marker set and specificity matrix.")
-      }
-      feat_spec <- feat_spec[common_feat, , drop = FALSE]
-      marker_mat <- marker_mat[common_feat, , drop = FALSE]
+    # Both `marker_mat` and `feat_spec` are constructed row-by-row over the
+    # full feature axis of `adata` (length `n_vars(adata)`): `.encode_markers`
+    # indexes rows by the resolved `features_use` vector, and
+    # `computeFeatureSpecificity` / pre-computed specificity slots index rows
+    # by `.actionet_rownames(adata)`. They are therefore positionally aligned
+    # even when their rownames differ (e.g. `features_use = "Gene"` yields
+    # gene symbols on `marker_mat` while `feat_spec` carries the var index).
+    # Assert row-count parity and reconcile rownames so downstream labeling
+    # uses the user-facing feature labels.
+    if (nrow(marker_mat) != nrow(feat_spec)) {
+      stop(sprintf(
+        "Feature axis mismatch: marker matrix has %d rows but specificity matrix has %d rows.",
+        nrow(marker_mat), nrow(feat_spec)
+      ))
+    }
+    if (!is.null(rownames(marker_mat))) {
+      rownames(feat_spec) <- rownames(marker_mat)
     }
 
     enrich <- C_assess_enrichment(
@@ -543,6 +548,8 @@ annotateClusters <- function(
   cluster_enrichment[!is.finite(cluster_enrichment)] <- 0
   annots <- colnames(cluster_enrichment)[apply(cluster_enrichment, 1, which.max)]
   conf <- apply(cluster_enrichment, 1, max)
+  names(annots) <- rownames(cluster_enrichment)
+  names(conf) <- rownames(cluster_enrichment)
 
   out <- list(
     labels = annots,
