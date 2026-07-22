@@ -13,9 +13,10 @@
 * Change coordinate ionitialization to "archetype_footprint" in `runACTIONet()`
 * In `plot.ACTIONet()`, plotting order should have `NA` points on bottom.
 * Fix bug in `plot.ACTIONet()` and `.layout_plot_labels()` when `label_attr` contains empty string (`""`)
-* Finish `annotateClusters`
-  * Compare incomplete XICOR version to actionet-python
-* Add error for `annotateClusters` for when feat_spec is not in object.
+* Missing R wrappers `assess_enrichment()` and `XICOR()` (only `C_assess_enrichment` and `C_XICOR` Rcpp entry points exist). Broken call sites still using the unprefixed names:
+  * `assess_enrichment()`: `R/annotation.R:292` (`annotateArchetypes`), `R/annotation.R:794` (`annotate.profile.using.markers`); `R/enrichment.R:23` (`assess.TF.activities.from.scores`), `R/enrichment.R:83` (`assess.geneset.enrichment.from.scores`), `R/enrichment.R:139` (`assess.peakset.enrichment.from.archetypes`).
+  * `XICOR()`: `R/annotation.R:307` and `R/annotation.R:325` (`annotateArchetypes` labels/scores branches).
+  * Fix path: either add thin R wrappers (`assess_enrichment <- function(...) C_assess_enrichment(...)` and same for `XICOR`) or route each caller to the `C_*` name directly.
 * Force all zero rows removed if `min_cells_per_feat` > 0 in `filter.ace`
 * Fix impute with single gene
 
@@ -30,3 +31,4 @@
 * New qc functions
 * Removed `C_fastSpMatViewSum` due to inaccuracy when multithreading.
 * Add arbitrary pseudo count
+* Finish `annotateClusters` (full parity with Python `annotate_clusters`; AnnData-first signature; fixed specificity slot lookup; added de-novo `computeFeatureSpecificity` path; added error when pre-computed specificity is missing; switched to `C_assess_enrichment`/`C_XICOR` and `.encode_markers`).

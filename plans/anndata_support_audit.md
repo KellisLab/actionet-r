@@ -283,6 +283,24 @@ If backed support becomes a goal, the Python `io` submodule is a strong template
 Nothing is scheduled from this audit. Cross-reference this document when
 picking up any of the above.
 
+### Update — 2026-07-21: `annotateClusters` parity landed
+
+- `annotateClusters` (marker mode) is now parity-compliant with Python
+  `annotate_clusters()` in `../actionet-python/src/actionet/annotation/annotation.py`.
+- AnnData-first signature with deprecated `ace =` / `cluster_name =` aliases
+  routed through `.resolve_container_arg()` and `.validate_ace(..., as_ace = TRUE, allow_se_like = TRUE)`.
+- Specificity slot key aligned with Python: reads `{specificity_key}_upper`
+  and `{specificity_key}_lower` from `rowMaps(adata)`; forms `pmax(upper - lower, 0)`.
+- Added de-novo fallback via `computeFeatureSpecificity(..., return_raw = TRUE)`
+  when `specificity_key = NULL`.
+- Marker encoding switched from `.preprocess_annotation_markers` to the modern
+  `.encode_markers` shared with `annotateCells`.
+- Cross-cutting gap **not** closed here (documented in `TODO.md`): the
+  unprefixed `assess_enrichment()` / `XICOR()` wrappers are still missing, so
+  `annotateArchetypes`, `annotate.profile.using.markers`, and several
+  `enrichment.R` callers remain broken until either thin R wrappers are added
+  or each caller is rerouted to the `C_*` Rcpp entry point.
+
 ---
 
 ## Appendix: transcript

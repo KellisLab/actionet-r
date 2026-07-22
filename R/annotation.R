@@ -345,24 +345,157 @@ annotateArchetypes <- function(ace, markers = NULL, labels = NULL, scores = NULL
 }
 
 
-annotateClusters <- function(ace, markers = NULL, labels = NULL, scores = NULL, cluster_name = "cluster") {
+#' Annotate clusters using marker genes, prior cell annotations, or a score matrix.
+#'
+#' Assigns a label to each cluster based on one of three mutually-exclusive
+#' inputs:
+#' \itemize{
+#'   \item \code{markers}: known marker genes per cell type. Uses cluster
+#'     feature-specificity scores together with a permutation-based
+#'     enrichment test.
+#'   \item \code{labels}: an existing per-cell annotation vector (or the name
+#'     of a column in \code{obs}). Uses XICOR between one-hot encodings.
+#'   \item \code{scores}: a per-cell numeric score matrix (or the name of a
+#'     slot in \code{colMaps(adata)}). Uses XICOR between the cluster one-hot
+#'     encoding and the score matrix.
+#' }
+#'
+#' @param adata AnnData or compatible ACTIONet output object.
+#' @param markers A named list, data.frame, or feature-by-celltype matrix of
+#'   marker genes. Mutually exclusive with \code{labels} and \code{scores}.
+#' @param labels Either the name of a column in \code{obs} or a per-cell
+#'   annotation vector. Mutually exclusive with \code{markers} and \code{scores}.
+#' @param scores Either the name of a slot in \code{colMaps(adata)} or a
+#'   per-cell score matrix. Mutually exclusive with \code{markers} and \code{labels}.
+#' @param cluster_key Name of the \code{obs} column containing cluster labels
+#'   (default: \code{"cluster"}).
+#' @param specificity_key Base name of a pre-computed feature-specificity
+#'   entry in \code{rowMaps(adata)}. When provided (marker mode), the
+#'   function reads \code{{specificity_key}_upper} and, if present,
+#'   \code{{specificity_key}_lower} and forms \code{pmax(upper - lower, 0)}.
+#'   When \code{NULL} (default), feature specificity is computed on the fly
+#'   from \code{cluster_key}.
+#' @param features_use A vector of feature labels or the name of a column in
+#'   the feature metadata that maps to the marker gene identifiers.
+#' @param layer Layer name used when computing feature specificity de novo
+#'   (default: \code{"logcounts"}).
+#' @param thread_no Number of parallel threads.
+#' @param ace Deprecated; use \code{adata}.
+#' @param cluster_name Deprecated; use \code{cluster_key}.
+#'
+#' @return A named list: \itemize{
+#'   \item \code{labels}: Inferred cluster labels.
+#'   \item \code{confidence}: Confidence score per cluster.
+#'   \item \code{enrichment}: Full cluster-by-annotation enrichment matrix.
+#' }
+#'
+#' @examples
+#' data("curatedMarkers_human") # pre-packaged in ACTIONet
+#' markers <- curatedMarkers_human$Blood$PBMC$Monaco2019.12celltypes$marker.genes
+#' # Marker mode with de novo specificity:
+#' res <- annotateClusters(adata, markers = markers, cluster_key = "leiden")
+#' # Marker mode with a pre-computed specificity slot:
+#' adata <- computeFeatureSpecificity(adata, labels = "leiden", map_out_prefix = "leiden_spec")
+#' res <- annotateClusters(adata, markers = markers, cluster_key = "leiden",
+#'                         specificity_key = "leiden_spec")
+#' @export
+annotateClusters <- function(
+    adata = NULL,
+    markers = NULL,
+    labels = NULL,
+    scores = NULL,
+    cluster_key = "cluster",
+    specificity_key = NULL,
+    features_use = NULL,
+    layer = "logcounts",
+    thread_no = 0,
+    ace = NULL,
+    cluster_name = NULL) {
+  adata <- .resolve_container_arg(adata = adata, ace = ace)
+  if (!is.null(cluster_name)) {
+    .Deprecated(msg = "'cluster_name' is deprecated; use 'cluster_key' instead.")
+    cluster_key <- cluster_name
+  }
+  adata <- .validate_ace(adata, as_ace = TRUE, allow_se_like = TRUE, return_elem = TRUE, error_on_fail = TRUE)
+
   annotations.count <- is.null(markers) + is.null(labels) + is.null(scores)
   if (annotations.count != 2) {
     stop("Exactly one of the `markers`, `labels`, or `scores` can be provided.")
   }
 
   if (!is.null(markers)) {
-    features_use <- .get_feature_vec(ace, NULL)
-    marker_mat <- as(.preprocess_annotation_markers(markers, features_use), "sparseMatrix")
+    marker_mat <- .encode_markers(
+      adata,
+      markers = markers,
+      features_use = features_use,
+      obj_name = "adata"
+    )
+    marker_mat <- as(marker_mat, "CsparseMatrix")
 
-    scores <- as.matrix(rowMaps(ace)[[sprintf("%s_feat_spec", cluster_name)]])
-    cluster_enrichment <- Matrix::t(assess_enrichment(scores, marker_mat)$logPvals)
-    rownames(cluster_enrichment) <- colnames(scores)
+    if (!is.null(specificity_key)) {
+      upper_slot <- paste0(specificity_key, "_upper")
+      lower_slot <- paste0(specificity_key, "_lower")
+      row_maps <- rowMaps(adata)
+      if (!(upper_slot %in% names(row_maps))) {
+        stop(sprintf(
+          "Pre-computed specificity not found. Expected '%s' in rowMaps(adata). Available keys: %s",
+          upper_slot,
+          paste(shQuote(names(row_maps)), collapse = ", ")
+        ))
+      }
+      upper_sig <- as.matrix(row_maps[[upper_slot]])
+      if (lower_slot %in% names(row_maps)) {
+        lower_sig <- as.matrix(row_maps[[lower_slot]])
+        feat_spec <- upper_sig - lower_sig
+      } else {
+        feat_spec <- upper_sig
+      }
+    } else {
+      spec_out <- computeFeatureSpecificity(
+        adata,
+        labels = cluster_key,
+        layer = layer,
+        thread_no = thread_no,
+        return_raw = TRUE
+      )
+      upper_sig <- as.matrix(spec_out[["upper_significance"]])
+      lower_sig <- as.matrix(spec_out[["lower_significance"]])
+      feat_spec <- upper_sig - lower_sig
+    }
+    feat_spec[feat_spec < 0] <- 0
+
+    # Align markers to the feature space used by feat_spec. The specificity
+    # rownames come from .actionet_rownames(adata); .encode_markers also
+    # anchors marker rownames on the feature vector, so both share the
+    # feature order. Guard against mismatched or missing rownames by
+    # intersecting when both are populated.
+    if (!is.null(rownames(marker_mat)) && !is.null(rownames(feat_spec))) {
+      common_feat <- intersect(rownames(feat_spec), rownames(marker_mat))
+      if (length(common_feat) == 0) {
+        stop("No shared features between marker set and specificity matrix.")
+      }
+      feat_spec <- feat_spec[common_feat, , drop = FALSE]
+      marker_mat <- marker_mat[common_feat, , drop = FALSE]
+    }
+
+    enrich <- C_assess_enrichment(
+      scores = feat_spec,
+      associations = marker_mat,
+      thread_no = thread_no
+    )
+    cluster_enrichment <- Matrix::t(enrich$logPvals)
+    rownames(cluster_enrichment) <- colnames(feat_spec)
     colnames(cluster_enrichment) <- colnames(marker_mat)
   } else if (!is.null(labels)) {
-    l1 <- .get_obs_data(ace)[[cluster_name]]
+    l1 <- .get_obs_data(adata)[[cluster_key]]
+    if (is.null(l1)) {
+      stop(sprintf("Cluster key '%s' not found in obs.", cluster_key))
+    }
     if (length(labels) == 1) {
-      l2 <- .get_obs_data(ace)[[labels]]
+      l2 <- .get_obs_data(adata)[[labels]]
+      if (is.null(l2)) {
+        stop(sprintf("Labels key '%s' not found in obs.", labels))
+      }
     } else {
       l2 <- labels
     }
@@ -373,7 +506,7 @@ annotateClusters <- function(ace, markers = NULL, labels = NULL, scores = NULL, 
     X1 <- model.matrix(~ .0 + f1)
     X2 <- model.matrix(~ .0 + f2)
 
-    xi.out <- XICOR(X1, X2)
+    xi.out <- C_XICOR(X1, X2, thread_no = thread_no)
     Z_pos <- xi.out$Z
     Z_pos[Z_pos < 0] <- 0
     dir <- sign(cor(X1, X2))
@@ -383,22 +516,28 @@ annotateClusters <- function(ace, markers = NULL, labels = NULL, scores = NULL, 
     colnames(cluster_enrichment) <- levels(f2)
   } else if (!is.null(scores)) {
     if (length(scores) == 1) {
-      X2 <- as.matrix(colMaps(ace)[[scores]])
+      X2 <- as.matrix(colMaps(adata)[[scores]])
+      if (is.null(X2)) {
+        stop(sprintf("Scores slot '%s' not found in colMaps(adata).", scores))
+      }
     } else {
       X2 <- as.matrix(scores)
     }
 
-    l1 <- .get_obs_data(ace)[[cluster_name]]
+    l1 <- .get_obs_data(adata)[[cluster_key]]
+    if (is.null(l1)) {
+      stop(sprintf("Cluster key '%s' not found in obs.", cluster_key))
+    }
     f1 <- factor(l1)
     X1 <- model.matrix(~ .0 + f1)
 
-    xi.out <- XICOR(X1, X2)
+    xi.out <- C_XICOR(X1, X2, thread_no = thread_no)
     Z_pos <- xi.out$Z
     Z_pos[Z_pos < 0] <- 0
     dir <- sign(cor(X1, X2))
     cluster_enrichment <- dir * Z_pos
 
-    rownames(cluster_enrichment) <- levels(l1)
+    rownames(cluster_enrichment) <- levels(f1)
     colnames(cluster_enrichment) <- colnames(X2)
   }
   cluster_enrichment[!is.finite(cluster_enrichment)] <- 0
@@ -406,9 +545,9 @@ annotateClusters <- function(ace, markers = NULL, labels = NULL, scores = NULL, 
   conf <- apply(cluster_enrichment, 1, max)
 
   out <- list(
-    Label = annots,
-    Confidence = conf,
-    Enrichment = cluster_enrichment
+    labels = annots,
+    confidence = conf,
+    enrichment = cluster_enrichment
   )
 
   return(out)

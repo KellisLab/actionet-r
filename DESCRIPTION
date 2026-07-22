@@ -18,6 +18,6 @@ Imports: Rcpp (>= 1.0.12), RcppArmadillo, BiocParallel, anndataR,
 Suggests: ACTIONetExperiment, igraph, ggplot2, ggrepel, gplots, plotly,
     colorspace, testthat (>= 3.0.0)
 LinkingTo: Rcpp, RcppArmadillo
-RoxygenNote: 7.3.3
 Config/testthat/edition: 3
 Encoding: UTF-8
+Config/roxygen2/version: 8.0.0
