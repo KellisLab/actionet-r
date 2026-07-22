@@ -276,35 +276,195 @@ annotate.archetypes.using.markers <- function(ace,
 }
 
 
-annotateArchetypes <- function(ace, markers = NULL, labels = NULL, scores = NULL, archetype_slot = "H_merged", archetype_specificity_slot = "archetype_feat_specificity_upper") {
+#' Annotate archetypes using marker genes, prior cell annotations, or a score matrix.
+#'
+#' Assigns a label to each archetype based on one of three mutually-exclusive
+#' inputs. This is the archetype-level counterpart of [annotateClusters()]:
+#' where `annotateClusters` operates on discrete cluster labels, this
+#' function operates on the continuous cell-by-archetype soft-membership
+#' matrix stored in `colMaps(adata)[[archetype_slot]]` (default:
+#' `"H_merged"`), which is a simplex-constrained matrix of shape
+#' `n_cells x n_archetypes` produced by the ACTION decomposition
+#' downstream of `runACTIONet()`/`mergeArchetypes()`.
+#'
+#' \itemize{
+#'   \item `markers`: known marker genes per cell type. Uses archetype
+#'     feature-specificity scores together with the Bennett-inequality
+#'     enrichment test in `assess_enrichment`.
+#'   \item `labels`: an existing per-cell annotation vector (or the name
+#'     of a column in `obs`). Uses XICOR between the continuous
+#'     archetype soft-membership matrix and the one-hot encoded labels.
+#'   \item `scores`: a per-cell numeric score matrix (or the name of a
+#'     slot in `colMaps(adata)`). Uses XICOR between the archetype
+#'     soft-membership matrix and the score matrix.
+#' }
+#'
+#' \strong{Behavior change (2026-07-21):}
+#' In marker mode, the feature-specificity input passed to
+#' `C_assess_enrichment` is now `pmax(upper - lower, 0)` (a signed
+#' delta clipped at zero) when a `_lower` slot is available, matching
+#' [annotateClusters()]. Previously only the raw `_upper` slot was used.
+#' In labels/scores modes, XICOR now reflects a corrected asymptotic
+#' Z-score (see `libactionet` fix on the same date); prior versions
+#' returned systematically wrong Z values on every input.
+#'
+#' @param adata AnnData or compatible ACTIONet output object.
+#' @param markers A named list, data.frame, or feature-by-celltype matrix of
+#'   marker genes. Mutually exclusive with `labels` and `scores`.
+#' @param labels Either the name of a column in `obs` or a per-cell
+#'   annotation vector. Mutually exclusive with `markers` and `scores`.
+#' @param scores Either the name of a slot in `colMaps(adata)` or a
+#'   per-cell score matrix. Mutually exclusive with `markers` and `labels`.
+#' @param archetype_slot Name of the `colMaps(adata)` entry containing
+#'   the cell-by-archetype soft-membership matrix used in labels/scores
+#'   modes (default: `"H_merged"`).
+#' @param specificity_key Base name of a pre-computed archetype feature
+#'   specificity entry in `rowMaps(adata)`. When provided (marker mode),
+#'   the function reads `{specificity_key}_upper` and, if present,
+#'   `{specificity_key}_lower` and forms `pmax(upper - lower, 0)`.
+#'   When `NULL` (default), archetype feature specificity is computed on
+#'   the fly via [archetypeFeatureSpecificity()].
+#' @param features_use A vector of feature labels or the name of a column
+#'   in the feature metadata that maps to the marker gene identifiers.
+#' @param layer Layer name used when computing archetype feature
+#'   specificity de novo (default: `"logcounts"`).
+#' @param thread_no Number of parallel threads.
+#' @param ace Deprecated; use `adata`.
+#' @param archetype_specificity_slot Deprecated; use `specificity_key`.
+#'   For back-compat, if it ends in `"_upper"`, that suffix is stripped
+#'   to derive `specificity_key`.
+#'
+#' @return A named list: \itemize{
+#'   \item `labels`: Inferred archetype labels (character vector of length
+#'     `n_archetypes`, named by archetype).
+#'   \item `confidence`: Confidence score per archetype (named numeric).
+#'   \item `enrichment`: Full archetype-by-annotation enrichment matrix.
+#' }
+#'
+#' @seealso [annotateClusters()], [archetypeFeatureSpecificity()]
+#'
+#' @examples
+#' \dontrun{
+#' data("curatedMarkers_human")
+#' markers <- curatedMarkers_human$Blood$PBMC$Monaco2019.12celltypes$marker.genes
+#' # Marker mode with de-novo archetype specificity:
+#' res <- annotateArchetypes(adata, markers = markers)
+#' # Labels mode against an existing per-cell annotation:
+#' res <- annotateArchetypes(adata, labels = "cell_type")
+#' }
+#' @export
+annotateArchetypes <- function(
+    adata = NULL,
+    markers = NULL,
+    labels = NULL,
+    scores = NULL,
+    archetype_slot = "H_merged",
+    specificity_key = NULL,
+    features_use = NULL,
+    layer = "logcounts",
+    thread_no = 0,
+    ace = NULL,
+    archetype_specificity_slot = NULL) {
+  adata <- .resolve_container_arg(adata = adata, ace = ace)
+  if (!is.null(archetype_specificity_slot)) {
+    .Deprecated(msg = "'archetype_specificity_slot' is deprecated; use 'specificity_key' instead.")
+    if (is.null(specificity_key)) {
+      # Back-compat: legacy callers passed the full slot name including "_upper".
+      specificity_key <- sub("_upper$", "", archetype_specificity_slot)
+    }
+  }
+  adata <- .validate_ace(adata, as_ace = TRUE, allow_se_like = TRUE, return_elem = TRUE, error_on_fail = TRUE)
+
   annotations.count <- is.null(markers) + is.null(labels) + is.null(scores)
   if (annotations.count != 2) {
     stop("Exactly one of the `markers`, `labels`, or `scores` can be provided.")
   }
 
   if (!is.null(markers)) {
-    features_use <- .get_feature_vec(ace, NULL)
-    marker_mat <- as(.preprocess_annotation_markers(markers, features_use), "sparseMatrix")
+    marker_mat <- .encode_markers(
+      adata,
+      markers = markers,
+      features_use = features_use,
+      obj_name = "adata"
+    )
+    marker_mat <- as(marker_mat, "CsparseMatrix")
 
-    archetype_feat_spec <- as.matrix(rowMaps(ace)[[archetype_specificity_slot]])
-    colnames(archetype_feat_spec) <- paste("A", 1:ncol(archetype_feat_spec), sep = "")
+    if (!is.null(specificity_key)) {
+      upper_slot <- paste0(specificity_key, "_upper")
+      lower_slot <- paste0(specificity_key, "_lower")
+      row_maps <- rowMaps(adata)
+      if (!(upper_slot %in% names(row_maps))) {
+        stop(sprintf(
+          "Pre-computed archetype specificity not found. Expected '%s' in rowMaps(adata). Available keys: %s",
+          upper_slot,
+          paste(shQuote(names(row_maps)), collapse = ", ")
+        ))
+      }
+      upper_sig <- as.matrix(row_maps[[upper_slot]])
+      if (lower_slot %in% names(row_maps)) {
+        lower_sig <- as.matrix(row_maps[[lower_slot]])
+        feat_spec <- upper_sig - lower_sig
+      } else {
+        feat_spec <- upper_sig
+      }
+    } else {
+      spec_out <- archetypeFeatureSpecificity(
+        adata,
+        layer = layer,
+        thread_no = thread_no,
+        return_raw = TRUE
+      )
+      upper_sig <- as.matrix(spec_out[["upper_significance"]])
+      lower_sig <- if (!is.null(spec_out[["lower_significance"]])) {
+        as.matrix(spec_out[["lower_significance"]])
+      } else {
+        NULL
+      }
+      feat_spec <- if (!is.null(lower_sig)) upper_sig - lower_sig else upper_sig
+    }
+    feat_spec[feat_spec < 0] <- 0
+    colnames(feat_spec) <- paste0("A", seq_len(ncol(feat_spec)))
 
-    archetype_enrichment <- Matrix::t(assess_enrichment(archetype_feat_spec, marker_mat)$logPvals)
-    rownames(archetype_enrichment) <- colnames(archetype_feat_spec)
+    # Both `marker_mat` and `feat_spec` are constructed row-by-row over the
+    # full feature axis of `adata`. Assert row-count parity and reconcile
+    # rownames so downstream labeling uses the user-facing feature labels.
+    if (nrow(marker_mat) != nrow(feat_spec)) {
+      stop(sprintf(
+        "Feature axis mismatch: marker matrix has %d rows but specificity matrix has %d rows.",
+        nrow(marker_mat), nrow(feat_spec)
+      ))
+    }
+    if (!is.null(rownames(marker_mat))) {
+      rownames(feat_spec) <- rownames(marker_mat)
+    }
+
+    enrich <- C_assess_enrichment(
+      scores = feat_spec,
+      associations = marker_mat,
+      thread_no = thread_no
+    )
+    archetype_enrichment <- Matrix::t(enrich$logPvals)
+    rownames(archetype_enrichment) <- colnames(feat_spec)
     colnames(archetype_enrichment) <- colnames(marker_mat)
   } else if (!is.null(labels)) {
-    X1 <- as.matrix(colMaps(ace)[[archetype_slot]])
-    colnames(X1) <- paste("A", 1:ncol(X1), sep = "")
+    X1 <- as.matrix(colMaps(adata)[[archetype_slot]])
+    if (is.null(X1)) {
+      stop(sprintf("Archetype slot '%s' not found in colMaps(adata).", archetype_slot))
+    }
+    colnames(X1) <- paste0("A", seq_len(ncol(X1)))
 
     if (length(labels) == 1) {
-      l2 <- .get_obs_data(ace)[[labels]]
+      l2 <- .get_obs_data(adata)[[labels]]
+      if (is.null(l2)) {
+        stop(sprintf("Labels key '%s' not found in obs.", labels))
+      }
     } else {
       l2 <- labels
     }
     f2 <- factor(l2)
     X2 <- model.matrix(~ .0 + f2)
 
-    xi.out <- XICOR(X1, X2)
+    xi.out <- C_XICOR(X1, X2, thread_no = thread_no)
     Z_pos <- xi.out$Z
     Z_pos[Z_pos < 0] <- 0
     dir <- sign(cor(X1, X2))
@@ -313,16 +473,22 @@ annotateArchetypes <- function(ace, markers = NULL, labels = NULL, scores = NULL
     rownames(archetype_enrichment) <- colnames(X1)
     colnames(archetype_enrichment) <- levels(f2)
   } else if (!is.null(scores)) {
-    X1 <- as.matrix(colMaps(ace)[[archetype_slot]])
-    colnames(X1) <- paste("A", 1:ncol(X1), sep = "")
+    X1 <- as.matrix(colMaps(adata)[[archetype_slot]])
+    if (is.null(X1)) {
+      stop(sprintf("Archetype slot '%s' not found in colMaps(adata).", archetype_slot))
+    }
+    colnames(X1) <- paste0("A", seq_len(ncol(X1)))
 
     if (length(scores) == 1) {
-      X2 <- as.matrix(colMaps(ace)[[scores]])
+      X2 <- as.matrix(colMaps(adata)[[scores]])
+      if (is.null(X2)) {
+        stop(sprintf("Scores slot '%s' not found in colMaps(adata).", scores))
+      }
     } else {
       X2 <- as.matrix(scores)
     }
 
-    xi.out <- XICOR(X1, X2)
+    xi.out <- C_XICOR(X1, X2, thread_no = thread_no)
     Z_pos <- xi.out$Z
     Z_pos[Z_pos < 0] <- 0
     dir <- sign(cor(X1, X2))
@@ -334,11 +500,13 @@ annotateArchetypes <- function(ace, markers = NULL, labels = NULL, scores = NULL
   archetype_enrichment[!is.finite(archetype_enrichment)] <- 0
   annots <- colnames(archetype_enrichment)[apply(archetype_enrichment, 1, which.max)]
   conf <- apply(archetype_enrichment, 1, max)
+  names(annots) <- rownames(archetype_enrichment)
+  names(conf) <- rownames(archetype_enrichment)
 
   out <- list(
-    Label = annots,
-    Confidence = conf,
-    Enrichment = archetype_enrichment
+    labels = annots,
+    confidence = conf,
+    enrichment = archetype_enrichment
   )
 
   return(out)
@@ -351,8 +519,9 @@ annotateArchetypes <- function(ace, markers = NULL, labels = NULL, scores = NULL
 #' inputs:
 #' \itemize{
 #'   \item \code{markers}: known marker genes per cell type. Uses cluster
-#'     feature-specificity scores together with a permutation-based
-#'     enrichment test.
+#'     feature-specificity scores together with a Bennett-inequality
+#'     enrichment test (see \code{\link[=assess_enrichment]{assess_enrichment}}
+#'     via \code{C_assess_enrichment}).
 #'   \item \code{labels}: an existing per-cell annotation vector (or the name
 #'     of a column in \code{obs}). Uses XICOR between one-hot encodings.
 #'   \item \code{scores}: a per-cell numeric score matrix (or the name of a

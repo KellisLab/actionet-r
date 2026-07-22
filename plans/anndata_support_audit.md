@@ -297,9 +297,51 @@ picking up any of the above.
   `.encode_markers` shared with `annotateCells`.
 - Cross-cutting gap **not** closed here (documented in `TODO.md`): the
   unprefixed `assess_enrichment()` / `XICOR()` wrappers are still missing, so
-  `annotateArchetypes`, `annotate.profile.using.markers`, and several
-  `enrichment.R` callers remain broken until either thin R wrappers are added
-  or each caller is rerouted to the `C_*` Rcpp entry point.
+  `annotate.profile.using.markers` and several `enrichment.R` callers remain
+  broken until either thin R wrappers are added or each caller is rerouted to
+  the `C_*` Rcpp entry point.
+
+### Update — 2026-07-21 (evening): `annotateArchetypes` modernized + libactionet XICOR/`assess_enrichment` fixes
+
+- `annotateArchetypes` was rewritten in [R/annotation.R](../R/annotation.R) with
+  the same AnnData-first surface as `annotateClusters`. Deprecated `ace =` and
+  `archetype_specificity_slot =` arguments are routed through
+  `.resolve_container_arg()` and stripped of the `_upper` suffix respectively.
+  The marker branch now forms `pmax(upper - lower, 0)` from the specificity
+  slot (previously only the raw `_upper` slot was used) and falls back to
+  `archetypeFeatureSpecificity(return_raw = TRUE)` when
+  `specificity_key = NULL`. Labels/scores branches preserve the continuous-H
+  XICOR semantics but now use `C_XICOR` and `.encode_markers`. Return keys are
+  lowercase (`labels`, `confidence`, `enrichment`) matching `annotateClusters`.
+- Python parity: `annotate_archetypes()` was added to
+  [../actionet-python/src/actionet/annotation/annotation.py](../../actionet-python/src/actionet/annotation/annotation.py)
+  and exported at both `actionet.annotation` and `actionet` namespaces.
+- Upstream `libactionet` correctness fixes shipped in the shared submodule
+  (identical patch in both actionet-r and actionet-python):
+  - `xicor` Z-score `ind` — corrected to 1-based (`regspace(1, n)`). The
+    prior 0-based version returned a systematically wrong Z on every input,
+    which propagated to both `annotateClusters` labels/scores branches
+    (added 2026-07-21 morning) and the new `annotateArchetypes` labels/scores
+    branches.
+  - `rank_vec(method=1)` tie handling — now matches
+    `R::rank(., ties.method = "max")`.
+  - `xicor` seed — repurposed to control random tie-breaking on X via
+    joint permutation + `stable_sort_index` (documented in the header).
+  - `XICOR` matrix — removed the swap-and-transpose "optimization" (silently
+    wrong on the asymmetric xi statistic); added per-column rank precomputation
+    for the intended `min(nX, nY)`× speedup on the archetype × labels use case.
+  - `assess_enrichment` — no longer mutates its `associations` argument
+    (signature is now `const arma::sp_mat&`).
+  - `assess_enrichment` output — the second returned matrix is now
+    `peak_rank_idx` (0-based position in the descending sort of each score
+    column, not a score threshold); R and Python bindings were renamed in
+    lock-step. Legacy `$thresholds` unpacks remain in `R/enrichment.R:86,142`
+    and will need to be renamed when those wrappers are added (tracked in
+    `TODO.md`).
+  - Golden regression tests added under
+    [src/libactionet/tests/test_xicor_enrichment.cpp](../src/libactionet/tests/test_xicor_enrichment.cpp),
+    opt-in via `-DLIBACTIONET_BUILD_TESTS=ON`. Reference values were computed
+    against R's `XICOR::xicor` asymptotic path.
 
 ---
 

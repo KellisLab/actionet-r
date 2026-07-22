@@ -64,8 +64,9 @@ Assigns a label to each cluster based on one of three mutually-exclusive
 inputs:
 \itemize{
   \item \code{markers}: known marker genes per cell type. Uses cluster
-    feature-specificity scores together with a permutation-based
-    enrichment test.
+    feature-specificity scores together with a Bennett-inequality
+    enrichment test (see \code{\link[=assess_enrichment]{assess_enrichment}}
+    via \code{C_assess_enrichment}).
   \item \code{labels}: an existing per-cell annotation vector (or the name
     of a column in \code{obs}). Uses XICOR between one-hot encodings.
   \item \code{scores}: a per-cell numeric score matrix (or the name of a

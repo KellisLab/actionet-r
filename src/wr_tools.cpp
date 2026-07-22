@@ -84,7 +84,10 @@ Rcpp::List C_assess_enrichment(arma::mat& scores, arma::sp_mat& associations, in
 
     Rcpp::List out_list;
     out_list["logPvals"] = res(0);
-    out_list["thresholds"] = res(1);
+    // 0-based position, in the descending sort of each score column, at
+    // which the logPval peaks. NOT a score threshold; to recover the
+    // score, index into sort(scores.col(j), "descend") with this value.
+    out_list["peak_rank_idx"] = res(1);
 
     return (out_list);
 }
