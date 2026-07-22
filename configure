@@ -8,7 +8,6 @@ echo "Starting configure -------------------------------------------"
 # PLATFORM DETECTION
 # ============================================================================
 
-# Detect platform
 UNAME=$(uname -s)
 
 case "${UNAME}" in
@@ -34,6 +33,8 @@ if test -z "${R_HOME}"; then
 fi
 echo "Using R_HOME: ${R_HOME}"
 
+# --- Helpers --------------------------------------------------------------
+
 escape_sed_replacement() {
     printf "%s" "$1" | sed -e 's/[&|]/\\&/g'
 }
@@ -42,7 +43,8 @@ normalize_flags() {
     printf "%s" "$1" | tr '\n' ' ' | sed -e 's/[[:space:]]\+/ /g' -e 's/^ //' -e 's/ $//'
 }
 
-# Get R compiler settings
+# --- R toolchain settings ------------------------------------------------
+
 CC=$("${R_HOME}/bin/R" CMD config CC)
 CXX=$("${R_HOME}/bin/R" CMD config CXX)
 CFLAGS=$("${R_HOME}/bin/R" CMD config CFLAGS)
@@ -50,18 +52,18 @@ CXXFLAGS=$("${R_HOME}/bin/R" CMD config CXXFLAGS)
 FFLAGS=$("${R_HOME}/bin/R" CMD config FFLAGS)
 
 # ============================================================================
-# macOS ARCHITECTURE DETECTION (for Rosetta compatibility)
+# macOS ARCHITECTURE + DEPLOYMENT TARGET DETECTION
 # ============================================================================
 
 OSX_ARCH=""
+OSX_DEPLOYMENT_TARGET=""
 if [ "${UNAME}" = "Darwin" ]; then
-    # Use R's detected architecture, not uname -m (which may be wrong under Rosetta)
+    # Prefer R's declared arch (correct under Rosetta) over uname -m
     OSX_ARCH=$("${R_HOME}/bin/Rscript" -e 'cat(R.version[["arch"]])' 2>/dev/null | tr -d '[:space:]')
     if [ -z "${OSX_ARCH}" ]; then
         echo "Warning: Could not detect R architecture, will use system default"
     else
         echo "Detected R target architecture: ${OSX_ARCH}"
-        # Normalize architecture name
         case "${OSX_ARCH}" in
             aarch64)
                 OSX_ARCH="arm64"
@@ -69,11 +71,33 @@ if [ "${UNAME}" = "Darwin" ]; then
                 ;;
         esac
     fi
+
+    # Pull -mmacosx-version-min=X.Y out of R's CXXFLAGS if present so the
+    # libactionet build targets the same minimum macOS as R itself.  When R
+    # does not specify one, we let CMake (and the rest of the toolchain) pick.
+    OSX_DEPLOYMENT_TARGET=$(printf "%s\n" "${CXXFLAGS} ${CFLAGS}" | \
+        tr ' ' '\n' | \
+        sed -n 's/^-mmacosx-version-min=\([0-9][0-9.]*\)$/\1/p' | \
+        head -1)
+    if [ -n "${OSX_DEPLOYMENT_TARGET}" ]; then
+        echo "Detected macOS deployment target from R: ${OSX_DEPLOYMENT_TARGET}"
+    else
+        echo "R did not specify -mmacosx-version-min; CMake will pick a default"
+    fi
 fi
 
-# CHOLMOD dependency removed - library now uses native Armadillo implementations
 # ============================================================================
-# OPENMP CONFIGURATION (from R)
+# OPENMP CONFIGURATION
+# ============================================================================
+#
+# Strategy:
+#   1. Read SHLIB_OPENMP_CXXFLAGS / SHLIB_OPENMP_LDFLAGS from R's own config.
+#      This is what R will substitute into $(SHLIB_OPENMP_*) in Makevars.
+#   2. If those are empty, try the user's ~/.R/Makevars (older configurations).
+#   3. On macOS specifically, if we still have nothing, probe Homebrew libomp
+#      and synthesize equivalent flags into ACTIONET_OPENMP_CXXFLAGS /
+#      ACTIONET_OPENMP_LDFLAGS.  These are appended to PKG_CXXFLAGS / PKG_LIBS
+#      in Makevars.in so users no longer need to hand-patch ~/.R/Makevars.
 # ============================================================================
 
 echo "Using OpenMP flags from R..."
@@ -94,14 +118,13 @@ esac
 # Fallback: check user Makevars for OpenMP flags
 if [ -z "${R_OPENMP_CXXFLAGS}" ] && [ -z "${R_OPENMP_LDFLAGS}" ]; then
     R_MAKEVARS_USER_PATH="${R_MAKEVARS_USER:-$("${R_HOME}/bin/R" CMD config R_MAKEVARS_USER 2>/dev/null || true)}"
-    
-    # Handle ERROR output from R CMD config
+
     case "${R_MAKEVARS_USER_PATH}" in
         ERROR:*|*no\ information\ for\ variable*)
             R_MAKEVARS_USER_PATH=""
             ;;
     esac
-    
+
     if [ -z "${R_MAKEVARS_USER_PATH}" ]; then
         R_MAKEVARS_USER_PATH="${HOME}/.R/Makevars"
     fi
@@ -114,22 +137,16 @@ if [ -z "${R_OPENMP_CXXFLAGS}" ] && [ -z "${R_OPENMP_LDFLAGS}" ]; then
 
     if [ -f "${R_MAKEVARS_USER_PATH}" ]; then
         echo "  Checking user Makevars at: ${R_MAKEVARS_USER_PATH}"
-        
-        # Parse Makevars directly using grep/sed (more reliable than make-based approach)
-        # Extract SHLIB_OPENMP_CXXFLAGS value (handle both = and := assignments)
+
         R_OPENMP_CXXFLAGS=$(grep -E "^SHLIB_OPENMP_CXXFLAGS[[:space:]]*[:?]?=" "${R_MAKEVARS_USER_PATH}" 2>/dev/null | \
                             sed -E 's/^SHLIB_OPENMP_CXXFLAGS[[:space:]]*[:?]?=[[:space:]]*//' | \
                             head -1 || true)
-        
-        # Extract SHLIB_OPENMP_LDFLAGS value
         R_OPENMP_LDFLAGS=$(grep -E "^SHLIB_OPENMP_LDFLAGS[[:space:]]*[:?]?=" "${R_MAKEVARS_USER_PATH}" 2>/dev/null | \
                            sed -E 's/^SHLIB_OPENMP_LDFLAGS[[:space:]]*[:?]?=[[:space:]]*//' | \
                            head -1 || true)
-        
-        # Strip any trailing comments
         R_OPENMP_CXXFLAGS=$(echo "${R_OPENMP_CXXFLAGS}" | sed 's/#.*//' | sed 's/[[:space:]]*$//')
         R_OPENMP_LDFLAGS=$(echo "${R_OPENMP_LDFLAGS}" | sed 's/#.*//' | sed 's/[[:space:]]*$//')
-        
+
         if [ -n "${R_OPENMP_CXXFLAGS}" ] || [ -n "${R_OPENMP_LDFLAGS}" ]; then
             echo "  Found OpenMP flags in user Makevars:"
             [ -n "${R_OPENMP_CXXFLAGS}" ] && echo "    SHLIB_OPENMP_CXXFLAGS: ${R_OPENMP_CXXFLAGS}"
@@ -141,79 +158,116 @@ fi
 echo "  SHLIB_OPENMP_CXXFLAGS: ${R_OPENMP_CXXFLAGS}"
 echo "  SHLIB_OPENMP_LDFLAGS: ${R_OPENMP_LDFLAGS}"
 
-if [ -z "${R_OPENMP_CXXFLAGS}" ] && [ -z "${R_OPENMP_LDFLAGS}" ]; then
-    echo "  OpenMP disabled by R configuration"
-elif [ -n "${R_OPENMP_CXXFLAGS}" ] && [ -z "${R_OPENMP_LDFLAGS}" ]; then
-    echo "  Warning: SHLIB_OPENMP_LDFLAGS is empty. Add -L<libomp>/lib -lomp to link OpenMP on macOS."
+# macOS libomp fallback: if R has no OpenMP flags, synthesize them from a
+# Homebrew (or /opt) libomp install so users don't have to hand-edit their
+# global ~/.R/Makevars.  These flags are appended to PKG_CXXFLAGS / PKG_LIBS
+# via the @ACTIONET_OPENMP_*@ template placeholders (empty and harmless on
+# other platforms).
+ACTIONET_OPENMP_CXXFLAGS=""
+ACTIONET_OPENMP_LDFLAGS=""
+
+if [ "${UNAME}" = "Darwin" ] && [ -z "${R_OPENMP_CXXFLAGS}" ] && [ -z "${R_OPENMP_LDFLAGS}" ]; then
+    echo "  macOS: R exposed no SHLIB_OPENMP flags; probing Homebrew libomp..."
+
+    LIBOMP_PREFIX=""
+    for candidate in \
+        "$(brew --prefix libomp 2>/dev/null || true)" \
+        "/opt/homebrew/opt/libomp" \
+        "/usr/local/opt/libomp"
+    do
+        if [ -n "${candidate}" ] && [ -d "${candidate}" ] && [ -f "${candidate}/include/omp.h" ]; then
+            LIBOMP_PREFIX="${candidate}"
+            break
+        fi
+    done
+
+    if [ -n "${LIBOMP_PREFIX}" ]; then
+        echo "  Found libomp at: ${LIBOMP_PREFIX}"
+        ACTIONET_OPENMP_CXXFLAGS="-Xclang -fopenmp -I${LIBOMP_PREFIX}/include"
+        ACTIONET_OPENMP_LDFLAGS="-L${LIBOMP_PREFIX}/lib -lomp"
+        # Also feed the flags to the CMake libactionet build so both halves
+        # of the package use the same OpenMP runtime.
+        R_OPENMP_CXXFLAGS="${ACTIONET_OPENMP_CXXFLAGS}"
+        R_OPENMP_LDFLAGS="${ACTIONET_OPENMP_LDFLAGS}"
+    else
+        cat >&2 <<'EOF'
+ERROR: OpenMP not configured for this R install and libomp not found on macOS.
+
+    Install Homebrew libomp and try again:
+
+        brew install libomp
+
+    Or, as a manual last resort, add the following to ~/.R/Makevars
+    (replace <prefix> with the output of `brew --prefix libomp`):
+
+        SHLIB_OPENMP_CXXFLAGS = -Xclang -fopenmp -I<prefix>/include
+        SHLIB_OPENMP_LDFLAGS  = -L<prefix>/lib -lomp
+EOF
+        exit 1
+    fi
 fi
 
-# Convert flags into CMake-friendly lists (semicolon-delimited)
+if [ -n "${ACTIONET_OPENMP_CXXFLAGS}" ] || [ -n "${ACTIONET_OPENMP_LDFLAGS}" ]; then
+    echo "  Synthesized OpenMP flags:"
+    [ -n "${ACTIONET_OPENMP_CXXFLAGS}" ] && echo "    ACTIONET_OPENMP_CXXFLAGS: ${ACTIONET_OPENMP_CXXFLAGS}"
+    [ -n "${ACTIONET_OPENMP_LDFLAGS}" ]  && echo "    ACTIONET_OPENMP_LDFLAGS : ${ACTIONET_OPENMP_LDFLAGS}"
+fi
+
+# Convert OpenMP flags into CMake-friendly semicolon-delimited lists
 R_OPENMP_CXXFLAGS_LIST=$(printf "%s" "${R_OPENMP_CXXFLAGS}" | tr ' \t' ';')
 R_OPENMP_LDFLAGS_LIST=$(printf "%s" "${R_OPENMP_LDFLAGS}" | tr ' \t' ';')
-
-# ============================================================================
-# HDF5 CONFIGURATION (for final R shared library link)
-# ============================================================================
-
-echo "Detecting HDF5 flags for R shared library..."
-ACTIONET_HDF5_CFLAGS=$(normalize_flags "${ACTIONET_HDF5_CFLAGS}")
-ACTIONET_HDF5_LIBS=$(normalize_flags "${ACTIONET_HDF5_LIBS}")
-
-if [ -n "${ACTIONET_HDF5_CFLAGS}" ] || [ -n "${ACTIONET_HDF5_LIBS}" ]; then
-    echo "  Using ACTIONET_HDF5_* environment overrides"
-else
-    if command -v pkg-config >/dev/null 2>&1; then
-        for hdf5_pkg in hdf5 hdf5-serial; do
-            if pkg-config --exists "${hdf5_pkg}" 2>/dev/null; then
-                ACTIONET_HDF5_CFLAGS=$(normalize_flags "$(pkg-config --cflags "${hdf5_pkg}" 2>/dev/null || true)")
-                ACTIONET_HDF5_LIBS=$(normalize_flags "$(pkg-config --libs "${hdf5_pkg}" 2>/dev/null || true)")
-                if [ -n "${ACTIONET_HDF5_LIBS}" ]; then
-                    echo "  Found HDF5 flags via pkg-config (${hdf5_pkg})"
-                    break
-                fi
-            fi
-        done
-    fi
-
-    if [ -z "${ACTIONET_HDF5_LIBS}" ] && command -v h5cc >/dev/null 2>&1; then
-        H5CC_SHOW=$(h5cc -show 2>/dev/null || true)
-        ACTIONET_HDF5_CFLAGS=$(normalize_flags "$(printf "%s\n" "${H5CC_SHOW}" | awk '{for (i = 1; i <= NF; ++i) if ($i ~ /^-I/) printf "%s ", $i}')")
-        ACTIONET_HDF5_LIBS=$(normalize_flags "$(printf "%s\n" "${H5CC_SHOW}" | awk '{for (i = 1; i <= NF; ++i) if ($i ~ /^-L/ || $i ~ /^-l/ || $i ~ /^-Wl,/ || $i ~ /^-pthread$/ || $i ~ /^\/.*\.(a|so|dylib)$/) printf "%s ", $i}')")
-        if [ -n "${ACTIONET_HDF5_LIBS}" ]; then
-            echo "  Found HDF5 flags via h5cc"
-        fi
-    fi
-fi
-
-if [ -z "${ACTIONET_HDF5_LIBS}" ]; then
-    echo "ERROR: Could not determine HDF5 link flags for actionet.so"
-    echo "Please install the HDF5 development package or set ACTIONET_HDF5_CFLAGS / ACTIONET_HDF5_LIBS."
-    exit 1
-fi
-
-echo "  ACTIONET_HDF5_CFLAGS: ${ACTIONET_HDF5_CFLAGS}"
-echo "  ACTIONET_HDF5_LIBS: ${ACTIONET_HDF5_LIBS}"
 
 # ============================================================================
 # BUILD CONFIGURATION
 # ============================================================================
 
-# Compute absolute path for libactionet.a
+# Absolute path to the libactionet static archive produced below.
 ACTIONET_LIB_PATH="$(cd src && pwd)/lib/libactionet.a"
-ACTIONET_HDF5_CFLAGS_ESCAPED=$(escape_sed_replacement "${ACTIONET_HDF5_CFLAGS}")
-ACTIONET_HDF5_LIBS_ESCAPED=$(escape_sed_replacement "${ACTIONET_HDF5_LIBS}")
 echo "libactionet will be built at: ${ACTIONET_LIB_PATH}"
 
-# Generate Makevars from template
+# Select platform-appropriate "force-load every object in libactionet.a" flags.
+# Doing this in configure (not Makevars) lets Makevars stay conditional-free
+# and portable across GNU make and BSD make.
+case "${UNAME}" in
+    Darwin)
+        # macOS `ld` accepts either -Wl,-force_load,PATH or the space-safe
+        # driver form  -Xlinker -force_load -Xlinker "PATH".  The comma form
+        # cannot escape spaces, so use the driver form whenever the path
+        # contains whitespace (e.g. /Users/Jane Doe/...).
+        case "${ACTIONET_LIB_PATH}" in
+            *[[:space:]]*)
+                PKG_LIBS_ARCHIVE_FLAGS="-Xlinker -force_load -Xlinker \"${ACTIONET_LIB_PATH}\""
+                ;;
+            *)
+                PKG_LIBS_ARCHIVE_FLAGS="-Wl,-force_load,${ACTIONET_LIB_PATH}"
+                ;;
+        esac
+        ;;
+    Linux)
+        PKG_LIBS_ARCHIVE_FLAGS="-Wl,--whole-archive ${ACTIONET_LIB_PATH} -Wl,--no-whole-archive"
+        ;;
+    *)
+        # Fallback: plain link; some symbols may be dropped if unreferenced.
+        PKG_LIBS_ARCHIVE_FLAGS="${ACTIONET_LIB_PATH}"
+        ;;
+esac
+
+echo "PKG_LIBS_ARCHIVE_FLAGS: ${PKG_LIBS_ARCHIVE_FLAGS}"
+
+# --- Escape sed replacements ---------------------------------------------
+PKG_LIBS_ARCHIVE_FLAGS_ESCAPED=$(escape_sed_replacement "${PKG_LIBS_ARCHIVE_FLAGS}")
+ACTIONET_OPENMP_CXXFLAGS_ESCAPED=$(escape_sed_replacement "${ACTIONET_OPENMP_CXXFLAGS}")
+ACTIONET_OPENMP_LDFLAGS_ESCAPED=$(escape_sed_replacement "${ACTIONET_OPENMP_LDFLAGS}")
+
+# --- Generate src/Makevars from template ---------------------------------
 echo "Generating src/Makevars from template..."
 cd src
 echo "Removing stale R package build artifacts..."
 rm -f ./*.o ./*.so ./*.dll ./*.dylib
 sed \
-    -e "s|@ACTIONET_LIB_PATH@|${ACTIONET_LIB_PATH}|g" \
-    -e "s|@ACTIONET_HDF5_CFLAGS@|${ACTIONET_HDF5_CFLAGS_ESCAPED}|g" \
-    -e "s|@ACTIONET_HDF5_LIBS@|${ACTIONET_HDF5_LIBS_ESCAPED}|g" \
-    -e "s|@NPROC@|${NPROC}|g" \
+    -e "s|@PKG_LIBS_ARCHIVE_FLAGS@|${PKG_LIBS_ARCHIVE_FLAGS_ESCAPED}|g" \
+    -e "s|@ACTIONET_OPENMP_CXXFLAGS@|${ACTIONET_OPENMP_CXXFLAGS_ESCAPED}|g" \
+    -e "s|@ACTIONET_OPENMP_LDFLAGS@|${ACTIONET_OPENMP_LDFLAGS_ESCAPED}|g" \
     Makevars.in > Makevars
 
 echo "Generated Makevars successfully"
@@ -237,18 +291,47 @@ if [ -z "${CMAKE_BIN}" ]; then
 fi
 echo "Using cmake: ${CMAKE_BIN}"
 
-# Build libactionet
 echo "Building libactionet static library..."
 BUILD_DIR="lib"
 mkdir -p "${BUILD_DIR}" && cd "${BUILD_DIR}" || exit 1
 
-# Prepare CMake flags
+# Base CMake flags
 CMAKE_FLAGS="${CMAKE_FLAGS} -DCMAKE_BUILD_TYPE=Release"
 CMAKE_FLAGS="${CMAKE_FLAGS} -DBUILD_SHARED_LIBS:bool=OFF"
 CMAKE_FLAGS="${CMAKE_FLAGS} -DCMAKE_POSITION_INDEPENDENT_CODE:bool=ON"
 CMAKE_FLAGS="${CMAKE_FLAGS} -DLIBACTIONET_BUILD_R=1"
 CMAKE_FLAGS="${CMAKE_FLAGS} -DR_HOME='${R_HOME}'"
 CMAKE_FLAGS="${CMAKE_FLAGS} -DLIBACTIONET_BUILD_VALIDATORS=OFF"
+
+# Backed h5ad IO is currently Python-only. Skip it in R builds so users don't
+# need HDF5 installed to build actionet.
+CMAKE_FLAGS="${CMAKE_FLAGS} -DLIBACTIONET_ENABLE_HDF5=OFF"
+
+# Pin the CMake toolchain to R's compiler settings so libactionet.a is ABI-
+# compatible with the R shared library that force-loads it.  Especially
+# important on macOS where users may have Homebrew GCC installed alongside
+# the Xcode CLT clang++ that R itself was built with.
+#
+# R's `CC`/`CXX` typically embed extra flags (e.g. `-isysroot /path/to/SDK`);
+# CMake requires CMAKE_(C|CXX)_COMPILER to be a plain executable path, so we
+# split the first token off as the compiler and forward the remainder via
+# CFLAGS / CXXFLAGS environment variables (which CMake reads on the very first
+# configure to seed CMAKE_(C|CXX)_FLAGS_INIT).  This is more robust than
+# passing the flags on the CMake command line because CMake does not treat
+# `-DCMAKE_C_FLAGS_INIT="..."` as a single argument once the shell has split.
+CMAKE_C_EXTRA=""
+CMAKE_CXX_EXTRA=""
+if [ -n "${CC}" ]; then
+    CC_BIN=$(printf "%s\n" "${CC}" | awk '{print $1}')
+    CMAKE_C_EXTRA=$(printf "%s\n" "${CC}" | awk '{$1=""; sub(/^ /,""); print}')
+    CMAKE_FLAGS="${CMAKE_FLAGS} -DCMAKE_C_COMPILER='${CC_BIN}'"
+fi
+if [ -n "${CXX}" ]; then
+    CXX_BIN=$(printf "%s\n" "${CXX}" | awk '{print $1}')
+    CMAKE_CXX_EXTRA=$(printf "%s\n" "${CXX}" | awk '{$1=""; sub(/^ /,""); print}')
+    CMAKE_FLAGS="${CMAKE_FLAGS} -DCMAKE_CXX_COMPILER='${CXX_BIN}'"
+fi
+
 if [ -n "${R_OPENMP_CXXFLAGS_LIST}" ]; then
     CMAKE_FLAGS="${CMAKE_FLAGS} -DLIBACTIONET_OPENMP_CXXFLAGS=${R_OPENMP_CXXFLAGS_LIST}"
 fi
@@ -256,13 +339,26 @@ if [ -n "${R_OPENMP_LDFLAGS_LIST}" ]; then
     CMAKE_FLAGS="${CMAKE_FLAGS} -DLIBACTIONET_OPENMP_LDFLAGS=${R_OPENMP_LDFLAGS_LIST}"
 fi
 
-# Add macOS architecture flag if detected
-if [ "${UNAME}" = "Darwin" ] && [ -n "${OSX_ARCH}" ]; then
-    CMAKE_FLAGS="${CMAKE_FLAGS} -DCMAKE_OSX_ARCHITECTURES=${OSX_ARCH}"
+# macOS: architecture + deployment target
+if [ "${UNAME}" = "Darwin" ]; then
+    if [ -n "${OSX_ARCH}" ]; then
+        CMAKE_FLAGS="${CMAKE_FLAGS} -DCMAKE_OSX_ARCHITECTURES=${OSX_ARCH}"
+    fi
+    if [ -n "${OSX_DEPLOYMENT_TARGET}" ]; then
+        CMAKE_FLAGS="${CMAKE_FLAGS} -DCMAKE_OSX_DEPLOYMENT_TARGET=${OSX_DEPLOYMENT_TARGET}"
+    fi
 fi
 
 # Configure and build
-${CMAKE_BIN} -S ../libactionet ${CMAKE_FLAGS}
+#
+# CFLAGS/CXXFLAGS are set here so CMake seeds CMAKE_(C|CXX)_FLAGS_INIT with
+# the -isysroot / -arch / warning flags that were embedded in R's CC/CXX
+# after we split off the compiler binary path above.  Only exported for the
+# CMake configure call itself.
+env \
+    CFLAGS="${CMAKE_C_EXTRA:-}" \
+    CXXFLAGS="${CMAKE_CXX_EXTRA:-}" \
+    ${CMAKE_BIN} -S ../libactionet ${CMAKE_FLAGS}
 echo "Building with ${NPROC} processors..."
 make -j"${NPROC}"
 

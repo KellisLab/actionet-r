@@ -2,39 +2,33 @@ $(info Starting Makevars -------------------------------------------)
 
 # ============================================================================
 # R PACKAGE BUILD CONFIGURATION
-# ============================================================================
-
-# Platform detection
-UNAME=$(shell uname -s)
-
-# ============================================================================
-# COMPILER SETTINGS
+#
+# This file is generated from Makevars.in by the top-level `configure` script.
+# All @PLACEHOLDER@ tokens are substituted at configure time; do not edit the
+# generated Makevars directly.
 # ============================================================================
 
 CXX_STD=CXX17
-## `DARMA_64BIT_WORD` likely needed for Rcpp code. Not propagated from libactionet_config. Symbol collision.
-PKG_CPPFLAGS=-I"../inst/include" -I"libactionet/include" -I"libactionet/include/extern" @ACTIONET_HDF5_CFLAGS@ -DARMA_64BIT_WORD
-PKG_CXXFLAGS=$(SHLIB_OPENMP_CXXFLAGS) -std=c++17
 
-# ============================================================================
-# LINKER SETTINGS - PLATFORM SPECIFIC
-# ============================================================================
+# ----------------------------------------------------------------------------
+# Compiler flags
+# ----------------------------------------------------------------------------
+# ARMA_64BIT_WORD: kept in sync with libactionet_config.hpp so Rcpp-side call
+# sites see the same Armadillo storage widths as the linked static library.
+# The OpenMP CXX flags come from R (SHLIB_OPENMP_CXXFLAGS) when available; the
+# ACTIONET_OPENMP_CXXFLAGS substitution is only non-empty on macOS when R's
+# copy is empty and configure had to synthesize -Xclang -fopenmp -I<libomp>.
+PKG_CPPFLAGS=-I"../inst/include" -I"libactionet/include" -I"libactionet/include/extern" -DARMA_64BIT_WORD -DLIBACTIONET_NO_HDF5
+PKG_CXXFLAGS=$(SHLIB_OPENMP_CXXFLAGS) @ACTIONET_OPENMP_CXXFLAGS@
 
-# Use whole-archive/force_load to ensure all symbols from static library are included
-ifeq ($(UNAME),Darwin)
-    # macOS: Use -force_load to include all symbols from static library
-    PKG_LIBS=-Wl,-force_load,@ACTIONET_LIB_PATH@ @ACTIONET_HDF5_LIBS@ $(SHLIB_OPENMP_LDFLAGS) $(LAPACK_LIBS) $(BLAS_LIBS) $(FLIBS)
-else ifeq ($(UNAME),Linux)
-    # Linux: Use --whole-archive / --no-whole-archive
-    PKG_LIBS=-Wl,--whole-archive @ACTIONET_LIB_PATH@ -Wl,--no-whole-archive @ACTIONET_HDF5_LIBS@ $(SHLIB_OPENMP_LDFLAGS) $(LAPACK_LIBS) $(BLAS_LIBS) $(FLIBS)
-else
-    # Other platforms: Standard linking (may have missing symbols if static lib not fully linked)
-    PKG_LIBS=@ACTIONET_LIB_PATH@ @ACTIONET_HDF5_LIBS@ $(SHLIB_OPENMP_LDFLAGS) $(LAPACK_LIBS) $(BLAS_LIBS) $(FLIBS)
-endif
-
-# ============================================================================
-# BUILD PARALLELISM
-# ============================================================================
-
-# Use processor count detected at configure time
-MAKEFLAGS+=-j @NPROC@
+# ----------------------------------------------------------------------------
+# Linker flags
+# ----------------------------------------------------------------------------
+# PKG_LIBS_ARCHIVE_FLAGS is filled by configure with the platform-appropriate
+# "force load every object in libactionet.a" invocation:
+#   * macOS : -Wl,-force_load,<path>   (or space-safe -Xlinker form)
+#   * Linux : -Wl,--whole-archive <path> -Wl,--no-whole-archive
+#   * Other : plain <path>
+# Selecting the branch in configure (not here) keeps this file portable across
+# GNU make and BSD make (CRAN "Writing R Extensions" §1.2.6).
+PKG_LIBS=@PKG_LIBS_ARCHIVE_FLAGS@ $(SHLIB_OPENMP_LDFLAGS) @ACTIONET_OPENMP_LDFLAGS@ $(LAPACK_LIBS) $(BLAS_LIBS) $(FLIBS)
