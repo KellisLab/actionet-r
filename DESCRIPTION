@@ -10,7 +10,7 @@ Authors@R: c(
     )
 Description: More about what it does (maybe more than one line).
 URL: www.somethinggoeshere.com
-License: GPL3
+License: MIT + file LICENSE
 SystemRequirements: CMake (>= 3.19)
 Depends: R (>= 4.5.0), Matrix
 Imports: Rcpp (>= 1.0.12), RcppArmadillo, BiocParallel, anndataR,
